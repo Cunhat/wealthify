@@ -1,9 +1,17 @@
 import { LoginForm } from "@/components/login-form";
-import { createFileRoute } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { GalleryVerticalEnd } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
 	component: RouteComponent,
+	beforeLoad: async () => {
+		const session = await authClient.getSession();
+
+		if (session) {
+			return redirect({ to: "/" });
+		}
+	},
 });
 
 function RouteComponent() {
@@ -14,7 +22,7 @@ function RouteComponent() {
 					<div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
 						<GalleryVerticalEnd className="size-4" />
 					</div>
-					Acme Inc.
+					Wealthify
 				</a>
 				<LoginForm />
 			</div>
