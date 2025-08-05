@@ -22,6 +22,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+
 import { authClient } from "@/lib/auth-client";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -39,13 +40,11 @@ export function NavUser({
 
 	async function signOut() {
 		await authClient.signOut({
-			// fetchOptions: {
-			// 	onSuccess: () => {
-			// 		navigate({
-			// 			to: "/",
-			// 		});
-			// 	},
-			// },
+			fetchOptions: {
+				onSuccess: () => {
+					navigate({ to: "/login" });
+				},
+			},
 		});
 	}
 

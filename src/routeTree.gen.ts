@@ -15,7 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTrpcTodoRouteImport } from './routes/demo.trpc-todo'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
-import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api.auth.$'
+import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 
 const rootServerRouteImport = createServerRootRoute()
 

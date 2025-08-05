@@ -12,6 +12,9 @@ import appCss from "../styles.css?url";
 import type { QueryClient } from "@tanstack/react-query";
 
 import type { TRPCRouter } from "@/integrations/trpc/router";
+import { auth } from "@/lib/auth.ts";
+import { createServerFn } from "@tanstack/react-start";
+import { getWebRequest } from "@tanstack/react-start/server";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
 interface MyRouterContext {
@@ -20,7 +23,25 @@ interface MyRouterContext {
 	trpc: TRPCOptionsProxy<TRPCRouter>;
 }
 
+const fetchBetterAuth = createServerFn({ method: "GET" }).handler(async () => {
+	const request = getWebRequest();
+	const session = request
+		? await auth.api.getSession({ headers: request.headers })
+		: null;
+
+	return {
+		user: session?.user,
+	};
+});
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+	beforeLoad: async () => {
+		const { user } = await fetchBetterAuth();
+
+		return {
+			user,
+		};
+	},
 	head: () => ({
 		meta: [
 			{
