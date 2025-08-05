@@ -32,7 +32,7 @@ function App() {
 				} as React.CSSProperties
 			}
 		>
-			<AppSidebar variant="inset" />
+			<AppSidebar variant="inset" user={user} />
 			<SidebarInset>
 				<SiteHeader />
 				<div className="flex flex-1 flex-col">
