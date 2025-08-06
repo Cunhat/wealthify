@@ -1,4 +1,13 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import {
+	boolean,
+	decimal,
+	integer,
+	pgTable,
+	serial,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -59,3 +68,103 @@ export const verification = pgTable("verification", {
 		() => /* @__PURE__ */ new Date(),
 	),
 });
+
+export const transactionAccount = pgTable("transaction_account", {
+	id: text("id").primaryKey(),
+	balance: integer("balance").notNull().default(0),
+	initialBalance: integer("initial_balance").notNull().default(0),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const category = pgTable("category", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const transaction = pgTable("transaction", {
+	id: text("id").primaryKey(),
+	amount: decimal("amount").notNull(),
+	description: text("description"),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	transactionAccount: text("transaction_account").references(
+		() => transactionAccount.id,
+	),
+	category: text("category").references(() => category.id),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const balanceAccount = pgTable("balance_account", {
+	id: text("id").primaryKey(),
+	balance: integer("balance").notNull().default(0),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const balanceAccountHistory = pgTable("balance_account_history", {
+	id: text("id").primaryKey(),
+	balance: decimal("balance").notNull().default("0"),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	balanceAccountId: text("balance_account_id")
+		.notNull()
+		.references(() => balanceAccount.id, { onDelete: "cascade" }),
+	january: decimal("january").notNull().default("0"),
+	february: decimal("february").notNull().default("0"),
+	march: decimal("march").notNull().default("0"),
+	april: decimal("april").notNull().default("0"),
+	may: decimal("may").notNull().default("0"),
+	june: decimal("june").notNull().default("0"),
+	july: decimal("july").notNull().default("0"),
+	august: decimal("august").notNull().default("0"),
+	september: decimal("september").notNull().default("0"),
+	october: decimal("october").notNull().default("0"),
+	november: decimal("november").notNull().default("0"),
+	december: decimal("december").notNull().default("0"),
+	year: integer("year").notNull().default(0),
+});
+
+export const usersRelations = relations(user, ({ many }) => ({
+	transactionAccounts: many(transactionAccount),
+	transactions: many(transaction),
+	categories: many(category),
+	balanceAccounts: many(balanceAccount),
+}));
+
+export const transactionAccountRelations = relations(
+	transactionAccount,
+	({ one, many }) => ({
+		userId: one(user),
+		transactions: many(transaction),
+	}),
+);
+
+export const transactionRelations = relations(transaction, ({ one }) => ({
+	userId: one(user),
+	transactionAccount: one(transactionAccount),
+	category: one(category),
+}));
+
+export const categoryRelations = relations(category, ({ one, many }) => ({
+	userId: one(user),
+	transactions: many(transaction),
+}));
