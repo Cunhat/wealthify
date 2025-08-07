@@ -1,5 +1,4 @@
 import { LoginForm } from "@/components/login-form";
-import { authClient } from "@/lib/auth-client";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { GalleryVerticalEnd } from "lucide-react";
 
@@ -13,20 +12,6 @@ export const Route = createFileRoute("/login")({
 });
 
 function RouteComponent() {
-	const session = authClient.useSession();
-
-	// if (session?.data) {
-	// 	redirect({ to: "/" });
-	// }
-
-	// useEffect(() => {
-	// 	if (session?.data) {
-	// 		redirect({ to: "/" });
-	// 	}
-	// }, [session]);
-
-	console.log(session);
-
 	return (
 		<div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
 			<div className="flex w-full max-w-sm flex-col gap-6">

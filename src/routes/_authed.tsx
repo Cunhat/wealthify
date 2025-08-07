@@ -1,24 +1,23 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
-import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
+	Outlet,
 	createFileRoute,
 	redirect,
 	useRouteContext,
 } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/")({
-	component: App,
+export const Route = createFileRoute("/_authed")({
 	beforeLoad: ({ context }) => {
 		if (!context.user) {
-			return redirect({ to: "/login" });
+			throw redirect({ to: "/login" });
 		}
 	},
+	component: AuthedLayout,
 });
 
-function App() {
+function AuthedLayout() {
 	const { user } = useRouteContext({ from: Route.id });
 
 	return (
@@ -34,15 +33,10 @@ function App() {
 			<SidebarInset>
 				<SiteHeader />
 				<div className="flex flex-1 flex-col">
-					<div className="@container/main flex flex-1 flex-col gap-2">
-						<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-							<SectionCards />
-							<div className="px-4 lg:px-6">
-								<ChartAreaInteractive />
-							</div>
-							{/* <DataTable data={data} /> */}
-						</div>
-					</div>
+					{/* <div className="@container/main flex flex-1 flex-col gap-2">
+						
+					</div> */}
+					<Outlet />
 				</div>
 			</SidebarInset>
 		</SidebarProvider>

@@ -13,13 +13,14 @@ import type { QueryClient } from "@tanstack/react-query";
 
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import { auth } from "@/lib/auth.ts";
+
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import type { User } from "better-auth";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
-
 	trpc: TRPCOptionsProxy<TRPCRouter>;
 }
 
