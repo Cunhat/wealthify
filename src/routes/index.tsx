@@ -21,8 +21,6 @@ export const Route = createFileRoute("/")({
 function App() {
 	const { user } = useRouteContext({ from: Route.id });
 
-	console.log("Current user:", user);
-
 	return (
 		<SidebarProvider
 			style={

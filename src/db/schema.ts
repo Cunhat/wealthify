@@ -143,28 +143,28 @@ export const balanceAccountHistory = pgTable("balance_account_history", {
 	year: integer("year").notNull().default(0),
 });
 
-export const usersRelations = relations(user, ({ many }) => ({
-	transactionAccounts: many(transactionAccount),
-	transactions: many(transaction),
-	categories: many(category),
-	balanceAccounts: many(balanceAccount),
-}));
+// export const usersRelations = relations(user, ({ many }) => ({
+// 	transactionAccounts: many(transactionAccount),
+// 	transactions: many(transaction),
+// 	categories: many(category),
+// 	balanceAccounts: many(balanceAccount),
+// }));
 
-export const transactionAccountRelations = relations(
-	transactionAccount,
-	({ one, many }) => ({
-		userId: one(user),
-		transactions: many(transaction),
-	}),
-);
+// export const transactionAccountRelations = relations(
+// 	transactionAccount,
+// 	({ one, many }) => ({
+// 		userId: one(user),
+// 		transactions: many(transaction),
+// 	}),
+// );
 
-export const transactionRelations = relations(transaction, ({ one }) => ({
-	userId: one(user),
-	transactionAccount: one(transactionAccount),
-	category: one(category),
-}));
+// export const transactionRelations = relations(transaction, ({ one }) => ({
+// 	userId: one(user),
+// 	transactionAccount: one(transactionAccount),
+// 	category: one(category),
+// }));
 
-export const categoryRelations = relations(category, ({ one, many }) => ({
-	userId: one(user),
-	transactions: many(transaction),
-}));
+// export const categoryRelations = relations(category, ({ one, many }) => ({
+// 	userId: one(user),
+// 	transactions: many(transaction),
+// }));
