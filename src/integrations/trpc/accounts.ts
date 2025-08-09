@@ -5,22 +5,23 @@ import { eq } from "drizzle-orm";
 import { protectedProcedure } from "./init";
 
 export const accountsRouter = {
-	list: protectedProcedure.query(async ({ ctx }) => {
-		const transactionAccountQuery = db
-			.select()
-			.from(transactionAccount)
-			.where(eq(transactionAccount.userId, ctx.user.id));
+	listTransactionAccounts: protectedProcedure.query(async ({ ctx }) => {
+		const transactionAccountsQuery = await db.query.transactionAccount.findMany(
+			{
+				where: eq(transactionAccount.userId, ctx.user.id),
+				with: {
+					transactions: true,
+				},
+			},
+		);
 
-		const balanceAccountQuery = db
-			.select()
-			.from(balanceAccount)
-			.where(eq(balanceAccount.userId, ctx.user.id));
+		return [...transactionAccountsQuery];
+	}),
+	listBalanceAccounts: protectedProcedure.query(async ({ ctx }) => {
+		const balanceAccountsQuery = await db.query.balanceAccount.findMany({
+			where: eq(balanceAccount.userId, ctx.user.id),
+		});
 
-		const [transactionAccounts, balanceAccounts] = await Promise.all([
-			transactionAccountQuery,
-			balanceAccountQuery,
-		]);
-
-		return [...transactionAccounts, ...balanceAccounts];
+		return [...balanceAccountsQuery];
 	}),
 } satisfies TRPCRouterRecord;

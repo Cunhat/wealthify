@@ -1,12 +1,13 @@
 import {
-	boolean,
-	decimal,
-	integer,
-	pgEnum,
-	pgTable,
-	text,
-	timestamp,
+    boolean,
+    decimal,
+    integer,
+    pgEnum,
+    pgTable,
+    text,
+    timestamp,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -144,28 +145,43 @@ export const balanceAccountHistory = pgTable("balance_account_history", {
 	year: integer("year").notNull().default(0),
 });
 
-// export const usersRelations = relations(user, ({ many }) => ({
-// 	transactionAccounts: many(transactionAccount),
-// 	transactions: many(transaction),
-// 	categories: many(category),
-// 	balanceAccounts: many(balanceAccount),
-// }));
+export const usersRelations = relations(user, ({ many }) => ({
+    transactionAccounts: many(transactionAccount),
+    transactions: many(transaction),
+    categories: many(category),
+    balanceAccounts: many(balanceAccount),
+}));
 
-// export const transactionAccountRelations = relations(
-// 	transactionAccount,
-// 	({ one, many }) => ({
-// 		userId: one(user),
-// 		transactions: many(transaction),
-// 	}),
-// );
+export const transactionAccountRelations = relations(
+    transactionAccount,
+    ({ one, many }) => ({
+        user: one(user, {
+            fields: [transactionAccount.userId],
+            references: [user.id],
+        }),
+        transactions: many(transaction),
+    }),
+);
 
-// export const transactionRelations = relations(transaction, ({ one }) => ({
-// 	userId: one(user),
-// 	transactionAccount: one(transactionAccount),
-// 	category: one(category),
-// }));
+export const transactionRelations = relations(transaction, ({ one }) => ({
+    user: one(user, {
+        fields: [transaction.userId],
+        references: [user.id],
+    }),
+    transactionAccount: one(transactionAccount, {
+        fields: [transaction.transactionAccount],
+        references: [transactionAccount.id],
+    }),
+    category: one(category, {
+        fields: [transaction.category],
+        references: [category.id],
+    }),
+}));
 
-// export const categoryRelations = relations(category, ({ one, many }) => ({
-// 	userId: one(user),
-// 	transactions: many(transaction),
-// }));
+export const categoryRelations = relations(category, ({ one, many }) => ({
+    user: one(user, {
+        fields: [category.userId],
+        references: [user.id],
+    }),
+    transactions: many(transaction),
+}));
