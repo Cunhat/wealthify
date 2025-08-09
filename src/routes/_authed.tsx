@@ -13,6 +13,8 @@ export const Route = createFileRoute("/_authed")({
 		if (!context.user) {
 			throw redirect({ to: "/login" });
 		}
+
+		return { user: context.user };
 	},
 	component: AuthedLayout,
 });
@@ -32,10 +34,8 @@ function AuthedLayout() {
 			<AppSidebar variant="inset" user={user} />
 			<SidebarInset>
 				<SiteHeader />
-				<div className="flex flex-1 flex-col">
-					{/* <div className="@container/main flex flex-1 flex-col gap-2">
-						
-					</div> */}
+				<div className="flex flex-1 flex-col p-4">
+					{/* <div className="@container/main flex flex-1 flex-col gap-2"></div> */}
 					<Outlet />
 				</div>
 			</SidebarInset>
