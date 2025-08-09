@@ -19,7 +19,7 @@ export default function AccountsWidget() {
 						</Button>
 					</div>
 				</TabsContent>
-				<TabsContent value="debts">Debts</TabsContent>
+				{/* <TabsContent value="debts">Debts</TabsContent> */}
 			</Tabs>
 		</div>
 	);

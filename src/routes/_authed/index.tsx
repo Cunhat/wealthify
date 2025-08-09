@@ -1,5 +1,6 @@
-// import { type AccountItem, AccountsList } from "@/components/accounts-list";
 import AccountsWidget from "@/components/accounts-widget";
+import { useTRPC } from "@/integrations/trpc/react";
+import { useQuery } from "@tanstack/react-query";
 import {
 	createFileRoute,
 	redirect,
@@ -13,31 +14,23 @@ export const Route = createFileRoute("/_authed/")({
 			return redirect({ to: "/login" });
 		}
 	},
+	loader: async ({ context }) => {
+		await context.queryClient.prefetchQuery(
+			context.trpc.accounts.list.queryOptions(),
+		);
+	},
 });
 
 function App() {
+	const trpc = useTRPC();
 	const { user } = useRouteContext({ from: Route.id });
+	const accountsQuery = useQuery(trpc.accounts.list.queryOptions());
 
-	const accounts = [
-		{
-			id: "a1",
-			name: "Account 1",
-			note: "Checking",
-			category: "cash",
-			group: "Cash",
-			balance: 700,
-			changePct: -22.2,
-		},
-		{
-			id: "i1",
-			name: "Invest",
-			note: "401(k)",
-			category: "investment",
-			group: "Investments",
-			balance: 200,
-			changePct: 0,
-		},
-	];
+	console.log(accountsQuery.data);
+
+	if (accountsQuery.isLoading) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<div className="grid grid-cols-[300px_1fr] h-full">
