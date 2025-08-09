@@ -1,6 +1,4 @@
 import AccountsWidget from "@/components/accounts-widget";
-import { useTRPC } from "@/integrations/trpc/react";
-import { useQuery } from "@tanstack/react-query";
 import {
 	createFileRoute,
 	redirect,

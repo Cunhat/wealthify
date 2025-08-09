@@ -1,13 +1,13 @@
-import {
-    boolean,
-    decimal,
-    integer,
-    pgEnum,
-    pgTable,
-    text,
-    timestamp,
-} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import {
+	boolean,
+	decimal,
+	integer,
+	pgEnum,
+	pgTable,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -113,6 +113,7 @@ export const balanceAccount = pgTable("balance_account", {
 	id: text("id").primaryKey(),
 	type: text("type").notNull(),
 	balance: integer("balance").notNull().default(0),
+	initialBalance: integer("initial_balance").notNull().default(0),
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
 	),
@@ -146,42 +147,42 @@ export const balanceAccountHistory = pgTable("balance_account_history", {
 });
 
 export const usersRelations = relations(user, ({ many }) => ({
-    transactionAccounts: many(transactionAccount),
-    transactions: many(transaction),
-    categories: many(category),
-    balanceAccounts: many(balanceAccount),
+	transactionAccounts: many(transactionAccount),
+	transactions: many(transaction),
+	categories: many(category),
+	balanceAccounts: many(balanceAccount),
 }));
 
 export const transactionAccountRelations = relations(
-    transactionAccount,
-    ({ one, many }) => ({
-        user: one(user, {
-            fields: [transactionAccount.userId],
-            references: [user.id],
-        }),
-        transactions: many(transaction),
-    }),
+	transactionAccount,
+	({ one, many }) => ({
+		user: one(user, {
+			fields: [transactionAccount.userId],
+			references: [user.id],
+		}),
+		transactions: many(transaction),
+	}),
 );
 
 export const transactionRelations = relations(transaction, ({ one }) => ({
-    user: one(user, {
-        fields: [transaction.userId],
-        references: [user.id],
-    }),
-    transactionAccount: one(transactionAccount, {
-        fields: [transaction.transactionAccount],
-        references: [transactionAccount.id],
-    }),
-    category: one(category, {
-        fields: [transaction.category],
-        references: [category.id],
-    }),
+	user: one(user, {
+		fields: [transaction.userId],
+		references: [user.id],
+	}),
+	transactionAccount: one(transactionAccount, {
+		fields: [transaction.transactionAccount],
+		references: [transactionAccount.id],
+	}),
+	category: one(category, {
+		fields: [transaction.category],
+		references: [category.id],
+	}),
 }));
 
 export const categoryRelations = relations(category, ({ one, many }) => ({
-    user: one(user, {
-        fields: [category.userId],
-        references: [user.id],
-    }),
-    transactions: many(transaction),
+	user: one(user, {
+		fields: [category.userId],
+		references: [user.id],
+	}),
+	transactions: many(transaction),
 }));
