@@ -23,104 +23,6 @@ export type AccountType =
 	| "asset"
 	| "liability";
 
-export const accounts: {
-	type: AccountType;
-	description: string;
-	label: string;
-}[] = [
-	{
-		type: "checking_account",
-		description: "A bank account for daily transactions and bill payments.",
-		label: "Checking Account",
-	},
-	{
-		type: "savings_account",
-		description: "A bank account for storing money and earning interest.",
-		label: "Savings Account",
-	},
-	{
-		type: "cash",
-		description: "Physical money on hand.",
-		label: "Cash",
-	},
-	{
-		type: "money_market_account",
-		description: "A high-interest savings account with limited transactions.",
-		label: "Money Market Account",
-	},
-	{
-		type: "credit_card",
-		description: "An account for purchases made on credit.",
-		label: "Credit Card",
-	},
-	{
-		type: "loan_account",
-		description: "An account for tracking personal or student loans.",
-		label: "Loan Account",
-	},
-	{
-		type: "mortgage",
-		description: "An account for tracking home loan balances.",
-		label: "Mortgage",
-	},
-	{
-		type: "line_of_credit",
-		description: "A flexible borrowing account with a set credit limit.",
-		label: "Line of Credit",
-	},
-	{
-		type: "brokerage_account",
-		description: "An account for trading and holding stocks, ETFs, and bonds.",
-		label: "Brokerage Account",
-	},
-	{
-		type: "retirement_account",
-		description: "An account for retirement savings such as 401(k) or IRA.",
-		label: "Retirement Account",
-	},
-	{
-		type: "crypto_wallet",
-		description: "A digital wallet for storing cryptocurrencies.",
-		label: "Crypto Wallet",
-	},
-	{
-		type: "mutual_fund_account",
-		description: "An account for pooled investment funds.",
-		label: "Mutual Fund Account",
-	},
-	{
-		type: "property",
-		description: "An account representing real estate assets.",
-		label: "Property",
-	},
-	{
-		type: "vehicle",
-		description: "An account representing vehicles such as cars or boats.",
-		label: "Vehicle",
-	},
-	{
-		type: "other_assets",
-		description:
-			"An account for other valuable assets like jewelry or collectibles.",
-		label: "Other Assets",
-	},
-	{
-		type: "bills_payable",
-		description: "An account for tracking outstanding bills.",
-		label: "Bills Payable",
-	},
-	{
-		type: "taxes_owed",
-		description: "An account for tracking taxes owed.",
-		label: "Taxes Owed",
-	},
-	{
-		type: "other_debts",
-		description: "An account for tracking other financial obligations.",
-		label: "Other Debts",
-	},
-];
-
 export type AccountTypeGroup =
 	| "cash_and_bank"
 	| "credit_and_debt"
@@ -128,50 +30,138 @@ export type AccountTypeGroup =
 	| "asset"
 	| "liability";
 
-export const accountTypeGroups: {
+export const AccountTypeGroups: {
 	name: string;
 	main_type: AccountTypeGroup;
 	description: string;
-	children: AccountType[];
+	children: {
+		type: AccountType;
+		label: string;
+		description: string;
+	}[];
 }[] = [
 	{
 		name: "Cash & Bank",
 		main_type: "cash_and_bank",
 		description: "Accounts for managing liquid funds and daily transactions.",
 		children: [
-			"checking_account",
-			"savings_account",
-			"cash",
-			"money_market_account",
+			{
+				type: "checking_account",
+				label: "Checking Account",
+				description: "A bank account for daily transactions and bill payments.",
+			},
+			{
+				type: "savings_account",
+				label: "Savings Account",
+				description: "A bank account for storing money and earning interest.",
+			},
+			{ type: "cash", label: "Cash", description: "Physical money on hand." },
+			{
+				type: "money_market_account",
+				label: "Money Market Account",
+				description:
+					"A high-interest savings account with limited transactions.",
+			},
 		],
 	},
 	{
 		name: "Credit & Debt",
 		main_type: "credit_and_debt",
 		description: "Accounts for managing borrowed money and credit obligations.",
-		children: ["credit_card", "loan_account", "mortgage", "line_of_credit"],
+		children: [
+			{
+				type: "credit_card",
+				label: "Credit Card",
+				description: "An account for purchases made on credit.",
+			},
+			{
+				type: "loan_account",
+				label: "Loan Account",
+				description: "An account for tracking personal or student loans.",
+			},
+			{
+				type: "mortgage",
+				label: "Mortgage",
+				description: "An account for tracking home loan balances.",
+			},
+			{
+				type: "line_of_credit",
+				label: "Line of Credit",
+				description: "A flexible borrowing account with a set credit limit.",
+			},
+		],
 	},
 	{
 		name: "Investment",
 		main_type: "investment",
 		description: "Accounts for holding and growing investments.",
 		children: [
-			"brokerage_account",
-			"retirement_account",
-			"crypto_wallet",
-			"mutual_fund_account",
+			{
+				type: "brokerage_account",
+				label: "Brokerage Account",
+				description:
+					"An account for trading and holding stocks, ETFs, and bonds.",
+			},
+			{
+				type: "retirement_account",
+				label: "Retirement Account",
+				description: "An account for retirement savings such as 401(k) or IRA.",
+			},
+			{
+				type: "crypto_wallet",
+				label: "Crypto Wallet",
+				description: "A digital wallet for storing cryptocurrencies.",
+			},
+			{
+				type: "mutual_fund_account",
+				label: "Mutual Fund Account",
+				description: "An account for pooled investment funds.",
+			},
 		],
 	},
 	{
 		name: "Asset",
 		main_type: "asset",
 		description: "Accounts representing owned valuable items.",
-		children: ["property", "vehicle", "other_assets"],
+		children: [
+			{
+				type: "property",
+				label: "Property",
+				description: "An account representing real estate assets.",
+			},
+			{
+				type: "vehicle",
+				label: "Vehicle",
+				description: "An account representing vehicles such as cars or boats.",
+			},
+			{
+				type: "other_assets",
+				label: "Other Assets",
+				description:
+					"An account for other valuable assets like jewelry or collectibles.",
+			},
+		],
 	},
 	{
 		name: "Liability",
 		main_type: "liability",
 		description: "Accounts representing financial obligations and debts.",
-		children: ["bills_payable", "taxes_owed", "other_debts"],
+		children: [
+			{
+				type: "bills_payable",
+				label: "Bills Payable",
+				description: "An account for tracking outstanding bills.",
+			},
+			{
+				type: "taxes_owed",
+				label: "Taxes Owed",
+				description: "An account for tracking taxes owed.",
+			},
+			{
+				type: "other_debts",
+				label: "Other Debts",
+				description: "An account for tracking other financial obligations.",
+			},
+		],
 	},
 ];

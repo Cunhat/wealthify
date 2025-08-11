@@ -3,7 +3,6 @@ import {
 	boolean,
 	decimal,
 	integer,
-	pgEnum,
 	pgTable,
 	text,
 	timestamp,
@@ -70,7 +69,9 @@ export const verification = pgTable("verification", {
 });
 
 export const transactionAccount = pgTable("transaction_account", {
-	id: text("id").primaryKey(),
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
 	type: text("type").notNull(),
 	balance: integer("balance").notNull().default(0),
 	initialBalance: integer("initial_balance").notNull().default(0),
@@ -83,7 +84,9 @@ export const transactionAccount = pgTable("transaction_account", {
 });
 
 export const category = pgTable("category", {
-	id: text("id").primaryKey(),
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
 	name: text("name").notNull(),
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
@@ -94,7 +97,9 @@ export const category = pgTable("category", {
 });
 
 export const transaction = pgTable("transaction", {
-	id: text("id").primaryKey(),
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
 	amount: decimal("amount").notNull(),
 	description: text("description"),
 	createdAt: timestamp("created_at").$defaultFn(
@@ -110,7 +115,9 @@ export const transaction = pgTable("transaction", {
 });
 
 export const balanceAccount = pgTable("balance_account", {
-	id: text("id").primaryKey(),
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
 	type: text("type").notNull(),
 	balance: integer("balance").notNull().default(0),
 	initialBalance: integer("initial_balance").notNull().default(0),
@@ -123,7 +130,9 @@ export const balanceAccount = pgTable("balance_account", {
 });
 
 export const balanceAccountHistory = pgTable("balance_account_history", {
-	id: text("id").primaryKey(),
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
 	balance: decimal("balance").notNull().default("0"),
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),

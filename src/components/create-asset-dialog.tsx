@@ -1,13 +1,19 @@
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { useTRPC } from "@/integrations/trpc/react";
+import { AccountTypeGroups } from "@/lib/configs/accounts";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Info, PlusIcon } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { Loader2, PlusIcon } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "./ui/button";
@@ -20,18 +26,23 @@ import {
 	FormLabel,
 	FormMessage,
 } from "./ui/form";
+import { Input } from "./ui/input";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import {
 	Select,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
+	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from "./ui/select";
 
 export default function CreateAssetDialog() {
+	const [open, setOpen] = useState(false);
+
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button variant="ghost">
 					<PlusIcon />
@@ -45,7 +56,7 @@ export default function CreateAssetDialog() {
 						Create a new account for tracking your assets.
 					</DialogDescription>
 				</DialogHeader>
-				<CreateAssetForm />
+				<CreateAssetForm setOpen={() => setOpen(false)} />
 			</DialogContent>
 		</Dialog>
 	);
@@ -53,12 +64,14 @@ export default function CreateAssetDialog() {
 
 const formSchema = z.object({
 	main_type: z.union([z.literal("transactional"), z.literal("balance")]),
-	type: z.string(),
+	type: z.string().min(1, "Account type is required"),
 	balance: z.number(),
 	initial_balance: z.number(),
 });
 
-function CreateAssetForm() {
+function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
+	const trpc = useTRPC();
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -69,16 +82,26 @@ function CreateAssetForm() {
 		},
 	});
 
+	const createAssetMutation = useMutation({
+		...trpc.accounts.createAccount.mutationOptions(),
+		onSuccess: () => {
+			form.reset();
+			setOpen(false);
+		},
+	});
+
 	function onSubmit(values: z.infer<typeof formSchema>) {
-		// Do something with the form values.
-		// ✅ This will be type-safe and validated.
-		console.log(values);
+		createAssetMutation.mutate(values);
 	}
 
 	return (
 		<div>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="space-y-8"
+					id="create-asset-form"
+				>
 					<FormField
 						control={form.control}
 						name="main_type"
@@ -128,35 +151,71 @@ function CreateAssetForm() {
 						name="type"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Username</FormLabel>
-								<FormControl>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}
-									>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue placeholder="Select a verified email to display" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value="m@example.com">
-												m@example.com
-											</SelectItem>
-											<SelectItem value="m@google.com">m@google.com</SelectItem>
-											<SelectItem value="m@support.com">
-												m@support.com
-											</SelectItem>
-										</SelectContent>
-									</Select>
-								</FormControl>
-								<FormDescription>
-									Select the type of account you want to create.
-								</FormDescription>
+								<FormLabel>Account Type</FormLabel>
+								<Select
+									onValueChange={field.onChange}
+									defaultValue={field.value}
+								>
+									<FormControl>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Select an account type" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										{AccountTypeGroups.map((accountGroup) => (
+											<SelectGroup key={accountGroup.main_type}>
+												<SelectLabel>{accountGroup.name}</SelectLabel>
+												{accountGroup.children.map((account) => (
+													<SelectItem key={account.type} value={account.type}>
+														{account.label}
+													</SelectItem>
+												))}
+											</SelectGroup>
+										))}
+									</SelectContent>
+								</Select>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
+					<FormField
+						control={form.control}
+						name="balance"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Balance</FormLabel>
+								<FormControl>
+									<Input
+										type="number"
+										step="0.01"
+										min="0"
+										placeholder="0.00 €"
+										pattern="^\d*\.?\d{0,2}$"
+										className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+										{...field}
+										onChange={(e) => {
+											const value = Number.parseFloat(
+												Number.parseFloat(e.target.value).toFixed(2),
+											);
+											field.onChange(Number.isNaN(value) ? "" : value);
+										}}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<DialogFooter className="flex gap-2">
+						<DialogClose asChild>
+							<Button variant="outline">Cancel</Button>
+						</DialogClose>
+						<Button form="create-asset-form" type="submit">
+							{createAssetMutation.isPending && (
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							)}
+							{createAssetMutation.isPending ? "Creating..." : "Create"}
+						</Button>
+					</DialogFooter>
 				</form>
 			</Form>
 		</div>

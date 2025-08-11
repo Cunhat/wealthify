@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { balanceAccount, transactionAccount } from "@/db/schema";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { eq } from "drizzle-orm";
+import z from "zod";
 import { protectedProcedure } from "./init";
 
 export const accountsRouter = {
@@ -24,4 +25,28 @@ export const accountsRouter = {
 
 		return [...balanceAccountsQuery];
 	}),
+	createAccount: protectedProcedure
+		.input(
+			z.object({
+				type: z.string(),
+				balance: z.number(),
+				initial_balance: z.number(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			if (input.type === "balance") {
+				const account = await db.insert(balanceAccount).values({
+					userId: ctx.user.id,
+					type: input.type,
+					balance: input.balance,
+					initialBalance: input.initial_balance,
+				});
+			} else {
+				const account = await db.insert(transactionAccount).values({
+					userId: ctx.user.id,
+					type: input.type,
+					balance: input.balance,
+				});
+			}
+		}),
 } satisfies TRPCRouterRecord;
