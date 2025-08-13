@@ -1,3 +1,23 @@
+import type { LucideIcon } from "lucide-react";
+import {
+	BarChart3,
+	Bitcoin,
+	Building2,
+	Car,
+	Coins,
+	CreditCard,
+	Home,
+	Landmark,
+	Layers,
+	LineChart,
+	Package,
+	Percent,
+	Receipt,
+	Shield,
+	TrendingDown,
+	Wallet,
+} from "lucide-react";
+
 export type AccountType =
 	| "checking_account"
 	| "savings_account"
@@ -30,7 +50,7 @@ export type AccountTypeGroup =
 	| "asset"
 	| "liability";
 
-export const AccountTypeGroups: {
+export type AccountsGroupedByType = {
 	name: string;
 	main_type: AccountTypeGroup;
 	description: string;
@@ -38,8 +58,13 @@ export const AccountTypeGroups: {
 		type: AccountType;
 		label: string;
 		description: string;
+		icon: LucideIcon;
+		iconBg: string;
+		iconFg: string;
 	}[];
-}[] = [
+};
+
+export const AccountTypeGroups: AccountsGroupedByType[] = [
 	{
 		name: "Cash & Bank",
 		main_type: "cash_and_bank",
@@ -49,18 +74,34 @@ export const AccountTypeGroups: {
 				type: "checking_account",
 				label: "Checking Account",
 				description: "A bank account for daily transactions and bill payments.",
+				icon: Landmark,
+				iconBg: "bg-blue-100",
+				iconFg: "text-blue-700",
 			},
 			{
 				type: "savings_account",
 				label: "Savings Account",
 				description: "A bank account for storing money and earning interest.",
+				icon: Wallet,
+				iconBg: "bg-emerald-100",
+				iconFg: "text-emerald-700",
 			},
-			{ type: "cash", label: "Cash", description: "Physical money on hand." },
+			{
+				type: "cash",
+				label: "Cash",
+				description: "Physical money on hand.",
+				icon: Coins,
+				iconBg: "bg-amber-100",
+				iconFg: "text-amber-700",
+			},
 			{
 				type: "money_market_account",
 				label: "Money Market Account",
 				description:
 					"A high-interest savings account with limited transactions.",
+				icon: BarChart3,
+				iconBg: "bg-violet-100",
+				iconFg: "text-violet-700",
 			},
 		],
 	},
@@ -73,21 +114,33 @@ export const AccountTypeGroups: {
 				type: "credit_card",
 				label: "Credit Card",
 				description: "An account for purchases made on credit.",
+				icon: CreditCard,
+				iconBg: "bg-rose-100",
+				iconFg: "text-rose-700",
 			},
 			{
 				type: "loan_account",
 				label: "Loan Account",
 				description: "An account for tracking personal or student loans.",
+				icon: Landmark,
+				iconBg: "bg-orange-100",
+				iconFg: "text-orange-700",
 			},
 			{
 				type: "mortgage",
 				label: "Mortgage",
 				description: "An account for tracking home loan balances.",
+				icon: Home,
+				iconBg: "bg-cyan-100",
+				iconFg: "text-cyan-700",
 			},
 			{
 				type: "line_of_credit",
 				label: "Line of Credit",
 				description: "A flexible borrowing account with a set credit limit.",
+				icon: LineChart,
+				iconBg: "bg-lime-100",
+				iconFg: "text-lime-700",
 			},
 		],
 	},
@@ -101,21 +154,33 @@ export const AccountTypeGroups: {
 				label: "Brokerage Account",
 				description:
 					"An account for trading and holding stocks, ETFs, and bonds.",
+				icon: LineChart,
+				iconBg: "bg-indigo-100",
+				iconFg: "text-indigo-700",
 			},
 			{
 				type: "retirement_account",
 				label: "Retirement Account",
 				description: "An account for retirement savings such as 401(k) or IRA.",
+				icon: Shield,
+				iconBg: "bg-teal-100",
+				iconFg: "text-teal-700",
 			},
 			{
 				type: "crypto_wallet",
 				label: "Crypto Wallet",
 				description: "A digital wallet for storing cryptocurrencies.",
+				icon: Bitcoin,
+				iconBg: "bg-yellow-100",
+				iconFg: "text-yellow-700",
 			},
 			{
 				type: "mutual_fund_account",
 				label: "Mutual Fund Account",
 				description: "An account for pooled investment funds.",
+				icon: Layers,
+				iconBg: "bg-fuchsia-100",
+				iconFg: "text-fuchsia-700",
 			},
 		],
 	},
@@ -128,17 +193,26 @@ export const AccountTypeGroups: {
 				type: "property",
 				label: "Property",
 				description: "An account representing real estate assets.",
+				icon: Building2,
+				iconBg: "bg-slate-100",
+				iconFg: "text-slate-700",
 			},
 			{
 				type: "vehicle",
 				label: "Vehicle",
 				description: "An account representing vehicles such as cars or boats.",
+				icon: Car,
+				iconBg: "bg-sky-100",
+				iconFg: "text-sky-700",
 			},
 			{
 				type: "other_assets",
 				label: "Other Assets",
 				description:
 					"An account for other valuable assets like jewelry or collectibles.",
+				icon: Package,
+				iconBg: "bg-neutral-100",
+				iconFg: "text-neutral-700",
 			},
 		],
 	},
@@ -151,16 +225,25 @@ export const AccountTypeGroups: {
 				type: "bills_payable",
 				label: "Bills Payable",
 				description: "An account for tracking outstanding bills.",
+				icon: Receipt,
+				iconBg: "bg-zinc-100",
+				iconFg: "text-zinc-700",
 			},
 			{
 				type: "taxes_owed",
 				label: "Taxes Owed",
 				description: "An account for tracking taxes owed.",
+				icon: Percent,
+				iconBg: "bg-red-100",
+				iconFg: "text-red-700",
 			},
 			{
 				type: "other_debts",
 				label: "Other Debts",
 				description: "An account for tracking other financial obligations.",
+				icon: TrendingDown,
+				iconBg: "bg-stone-100",
+				iconFg: "text-stone-700",
 			},
 		],
 	},

@@ -1,4 +1,7 @@
+import { type AccountType, AccountTypeGroups } from "@/lib/configs/accounts";
 import type { Account } from "@/lib/schemas";
+import { ChevronDown } from "lucide-react";
+import AccountsByGroup from "./accounts-by-group";
 import CreateAssetDialog from "./create-asset-dialog";
 
 interface AssetsTabProps {
@@ -24,13 +27,19 @@ export default function AssetsTab({ mergedAccounts }: AssetsTabProps) {
 	return (
 		<AssetTabHeader>
 			<div className="flex items-center justify-between gap-2">
-				<div className="text-xl font-bold">Net Worth:</div>
-				<div className="text-xl">{totalNetWorth} €</div>
+				<div className="text-lg font-semibold text-foreground">Net Worth</div>
+				<div className="text-lg text-foreground">{totalNetWorth} €</div>
 			</div>
-			<div className="flex flex-col gap-2">
-				{mergedAccounts.map((account) => (
-					<div key={account.id}>{account.name}</div>
-				))}
+			<div className="flex flex-col gap-4">
+				{AccountTypeGroups.map((accountType) => {
+					return (
+						<AccountsByGroup
+							key={accountType.name}
+							accountType={accountType}
+							accountsList={mergedAccounts}
+						/>
+					);
+				})}
 			</div>
 		</AssetTabHeader>
 	);
