@@ -1,10 +1,8 @@
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTRPC } from "@/integrations/trpc/react";
+import type { Account } from "@/lib/schemas";
 import { useQuery } from "@tanstack/react-query";
-import { PlusIcon } from "lucide-react";
-import React from "react";
-import CreateAssetDialog from "./create-asset-dialog";
-import { Button } from "./ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import AssetsTab from "../components/assets-tab";
 
 export default function AccountsWidget() {
 	const trpc = useTRPC();
@@ -15,19 +13,14 @@ export default function AccountsWidget() {
 		trpc.accounts.listBalanceAccounts.queryOptions(),
 	);
 
-	console.log(accountsQuery.data);
-	console.log(balanceAccountsQuery.data);
-
 	if (accountsQuery.isLoading || balanceAccountsQuery.isLoading) {
 		return <div>Loading...</div>;
 	}
 
-	const mergedAccounts = [
+	const mergedAccounts: Account[] = [
 		...(accountsQuery?.data ?? []),
 		...(balanceAccountsQuery?.data ?? []),
 	];
-
-	console.log(!mergedAccounts?.length);
 
 	return (
 		<div className="h-full flex flex-col gap-4">
@@ -37,19 +30,23 @@ export default function AccountsWidget() {
 					{/* <TabsTrigger value="debts">Debts</TabsTrigger> */}
 				</TabsList>
 				<TabsContent value="assets">
-					<div className="h-full flex flex-col gap-4">
+					{/* <div className="h-full flex flex-col gap-4">
 						<CreateAssetDialog />
 						{!mergedAccounts?.length && (
 							<div className="h-full flex items-center justify-center">
 								<p className="text-foreground">No accounts found...</p>
 							</div>
 						)}
+						<div className="text-2xl font-bold">
+							Total Net Worth: {totalNetWorth}
+						</div>
 						<div className="flex flex-col gap-2">
 							{mergedAccounts.map((account) => (
 								<div key={account.id}>{account.name}</div>
 							))}
 						</div>
-					</div>
+					</div> */}
+					<AssetsTab mergedAccounts={mergedAccounts} />
 				</TabsContent>
 				{/* <TabsContent value="debts">Debts</TabsContent> */}
 			</Tabs>

@@ -1,4 +1,4 @@
-import AccountsWidget from "@/components/accounts-widget";
+import AccountsWidget from "@/modules/accounts/sections/accounts-widget";
 import {
 	createFileRoute,
 	redirect,
@@ -26,7 +26,7 @@ function App() {
 	const { user } = useRouteContext({ from: Route.id });
 
 	return (
-		<div className="grid grid-cols-[300px_1fr] h-full">
+		<div className="grid grid-cols-[350px_1fr] h-full">
 			<AccountsWidget />
 			<div className="p-4">Hello, {user?.name}!</div>
 		</div>

@@ -36,7 +36,7 @@ export const accountsRouter = {
 		)
 		.mutation(async ({ ctx, input }) => {
 			if (input.type === "balance") {
-				const account = await db.insert(balanceAccount).values({
+				await db.insert(balanceAccount).values({
 					userId: ctx.user.id,
 					type: input.type,
 					balance: input.balance,
@@ -44,7 +44,7 @@ export const accountsRouter = {
 					name: input.name,
 				});
 			} else {
-				const account = await db.insert(transactionAccount).values({
+				await db.insert(transactionAccount).values({
 					userId: ctx.user.id,
 					type: input.type,
 					balance: input.balance,
