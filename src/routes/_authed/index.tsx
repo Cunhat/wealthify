@@ -14,10 +14,7 @@ export const Route = createFileRoute("/_authed/")({
 	},
 	loader: async ({ context }) => {
 		await context.queryClient.prefetchQuery(
-			context.trpc.accounts.listTransactionAccounts.queryOptions(),
-		);
-		await context.queryClient.prefetchQuery(
-			context.trpc.accounts.listBalanceAccounts.queryOptions(),
+			context.trpc.accounts.listAccounts.queryOptions(),
 		);
 	},
 });

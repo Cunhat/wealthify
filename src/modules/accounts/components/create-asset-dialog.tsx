@@ -91,10 +91,7 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 		onSuccess: () => {
 			form.reset();
 			queryClient.invalidateQueries({
-				queryKey: trpc.accounts.listTransactionAccounts.queryKey(),
-			});
-			queryClient.invalidateQueries({
-				queryKey: trpc.accounts.listBalanceAccounts.queryKey(),
+				queryKey: trpc.accounts.listAccounts.queryKey(),
 			});
 			toast.success("Account created successfully");
 			setOpen(false);

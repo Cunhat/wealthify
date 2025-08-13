@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTRPC } from "@/integrations/trpc/react";
-import type { Account } from "@/lib/schemas";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -8,27 +7,18 @@ import AssetsTab from "../components/assets-tab";
 
 export default function AccountsWidget() {
 	const trpc = useTRPC();
-	const accountsQuery = useQuery(
-		trpc.accounts.listTransactionAccounts.queryOptions(),
-	);
-	const balanceAccountsQuery = useQuery(
-		trpc.accounts.listBalanceAccounts.queryOptions(),
-	);
+
+	const accountsQuery = useQuery(trpc.accounts.listAccounts.queryOptions());
 
 	useEffect(() => {
-		if (accountsQuery.isError || balanceAccountsQuery.isError) {
+		if (accountsQuery.isError) {
 			toast.error("Error fetching accounts");
 		}
-	}, [accountsQuery.isError, balanceAccountsQuery.isError]);
+	}, [accountsQuery.isError]);
 
-	if (accountsQuery.isLoading || balanceAccountsQuery.isLoading) {
+	if (accountsQuery.isLoading) {
 		return <div>Loading...</div>;
 	}
-
-	const mergedAccounts: Account[] = [
-		...(accountsQuery?.data ?? []),
-		...(balanceAccountsQuery?.data ?? []),
-	];
 
 	return (
 		<div className="h-full flex flex-col gap-4">
@@ -38,7 +28,7 @@ export default function AccountsWidget() {
 					{/* <TabsTrigger value="debts">Debts</TabsTrigger> */}
 				</TabsList>
 				<TabsContent value="assets">
-					<AssetsTab mergedAccounts={mergedAccounts} />
+					<AssetsTab mergedAccounts={accountsQuery.data ?? []} />
 				</TabsContent>
 				{/* <TabsContent value="debts">Debts</TabsContent> */}
 			</Tabs>

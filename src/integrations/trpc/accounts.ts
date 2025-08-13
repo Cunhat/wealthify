@@ -6,6 +6,22 @@ import { z } from "zod";
 import { protectedProcedure } from "./init";
 
 export const accountsRouter = {
+	listAccounts: protectedProcedure.query(async ({ ctx }) => {
+		const transactionAccountsQuery = db.query.transactionAccount.findMany({
+			where: eq(transactionAccount.userId, ctx.user.id),
+		});
+
+		const balanceAccountsQuery = db.query.balanceAccount.findMany({
+			where: eq(balanceAccount.userId, ctx.user.id),
+		});
+
+		const [transactionAccounts, balanceAccounts] = await Promise.all([
+			transactionAccountsQuery,
+			balanceAccountsQuery,
+		]);
+
+		return [...transactionAccounts, ...balanceAccounts];
+	}),
 	listTransactionAccounts: protectedProcedure.query(async ({ ctx }) => {
 		const transactionAccountsQuery = await db.query.transactionAccount.findMany(
 			{
