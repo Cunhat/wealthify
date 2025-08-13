@@ -66,8 +66,8 @@ export default function CreateAssetDialog() {
 const formSchema = z.object({
 	main_type: z.union([z.literal("transactional"), z.literal("balance")]),
 	type: z.string().min(1, "Account type is required"),
-	balance: z.number(),
-	initial_balance: z.number(),
+	balance: z.number().min(0, "Balance must be non-negative"),
+	initial_balance: z.number().min(0, "Initial balance must be non-negative"),
 	name: z.string().min(1, "Account name is required"),
 });
 
@@ -227,7 +227,7 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 											const value = Number.parseFloat(
 												Number.parseFloat(e.target.value).toFixed(2),
 											);
-											field.onChange(Number.isNaN(value) ? "" : value);
+											field.onChange(Number.isNaN(value) ? 0 : value);
 										}}
 									/>
 								</FormControl>

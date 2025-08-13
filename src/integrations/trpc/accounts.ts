@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { balanceAccount, transactionAccount } from "@/db/schema";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { eq } from "drizzle-orm";
-import z from "zod";
+import { z } from "zod";
 import { protectedProcedure } from "./init";
 
 export const accountsRouter = {
