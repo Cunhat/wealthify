@@ -31,6 +31,7 @@ export const accountsRouter = {
 				type: z.string(),
 				balance: z.number(),
 				initial_balance: z.number(),
+				name: z.string(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -40,12 +41,14 @@ export const accountsRouter = {
 					type: input.type,
 					balance: input.balance,
 					initialBalance: input.initial_balance,
+					name: input.name,
 				});
 			} else {
 				const account = await db.insert(transactionAccount).values({
 					userId: ctx.user.id,
 					type: input.type,
 					balance: input.balance,
+					name: input.name,
 				});
 			}
 		}),

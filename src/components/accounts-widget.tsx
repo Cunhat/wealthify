@@ -18,13 +18,13 @@ export default function AccountsWidget() {
 	console.log(accountsQuery.data);
 	console.log(balanceAccountsQuery.data);
 
-	// if (accountsQuery.isLoading || balanceAccountsQuery.isLoading) {
-	// 	return <div>Loading...</div>;
-	// }
+	if (accountsQuery.isLoading || balanceAccountsQuery.isLoading) {
+		return <div>Loading...</div>;
+	}
 
 	const mergedAccounts = [
-		// ...(accountsQuery?.data ?? []),
-		// ...(balanceAccountsQuery?.data ?? []),
+		...(accountsQuery?.data ?? []),
+		...(balanceAccountsQuery?.data ?? []),
 	];
 
 	console.log(!mergedAccounts?.length);
@@ -44,6 +44,11 @@ export default function AccountsWidget() {
 								<p className="text-foreground">No accounts found...</p>
 							</div>
 						)}
+						<div className="flex flex-col gap-2">
+							{mergedAccounts.map((account) => (
+								<div key={account.id}>{account.name}</div>
+							))}
+						</div>
 					</div>
 				</TabsContent>
 				{/* <TabsContent value="debts">Debts</TabsContent> */}

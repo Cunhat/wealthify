@@ -11,10 +11,11 @@ import {
 import { useTRPC } from "@/integrations/trpc/react";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { Loader2, PlusIcon } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "./ui/button";
 import {
@@ -67,10 +68,12 @@ const formSchema = z.object({
 	type: z.string().min(1, "Account type is required"),
 	balance: z.number(),
 	initial_balance: z.number(),
+	name: z.string().min(1, "Account name is required"),
 });
 
 function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 	const trpc = useTRPC();
+	const queryClient = useQueryClient();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -79,6 +82,7 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 			type: "",
 			balance: 0,
 			initial_balance: 0,
+			name: "",
 		},
 	});
 
@@ -86,7 +90,20 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 		...trpc.accounts.createAccount.mutationOptions(),
 		onSuccess: () => {
 			form.reset();
+			queryClient.invalidateQueries({
+				queryKey: trpc.accounts.listTransactionAccounts.queryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.accounts.listBalanceAccounts.queryKey(),
+			});
+			toast.success("Account created successfully");
 			setOpen(false);
+		},
+		onError: (error) => {
+			toast.error("Failed to create account", {
+				description: error.message,
+			});
+			console.error(error);
 		},
 	});
 
@@ -180,6 +197,19 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 					/>
 					<FormField
 						control={form.control}
+						name="name"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Account Name</FormLabel>
+								<FormControl>
+									<Input placeholder="Account Name" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
 						name="balance"
 						render={({ field }) => (
 							<FormItem>
@@ -211,7 +241,7 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 						</DialogClose>
 						<Button form="create-asset-form" type="submit">
 							{createAssetMutation.isPending && (
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								<Loader className="h-4 w-4 animate-spin" />
 							)}
 							{createAssetMutation.isPending ? "Creating..." : "Create"}
 						</Button>

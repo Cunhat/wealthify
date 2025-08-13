@@ -17,7 +17,7 @@ import { auth } from "@/lib/auth.ts";
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
-import type { User } from "better-auth";
+import { Toaster } from "sonner";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -78,6 +78,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<TanStackRouterDevtools />
 				<TanStackQueryLayout />
 				<Scripts />
+				<Toaster position="top-right" richColors />
 			</body>
 		</html>
 	);
