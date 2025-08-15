@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
+import { Route as AuthedCategoriesRouteImport } from './routes/_authed/categories'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 
@@ -39,6 +40,11 @@ const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedCategoriesRoute = AuthedCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -52,11 +58,13 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
+  '/categories': typeof AuthedCategoriesRoute
   '/dashboard': typeof AuthedDashboardRoute
   '/': typeof AuthedIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/categories': typeof AuthedCategoriesRoute
   '/dashboard': typeof AuthedDashboardRoute
   '/': typeof AuthedIndexRoute
 }
@@ -64,15 +72,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authed/categories': typeof AuthedCategoriesRoute
   '/_authed/dashboard': typeof AuthedDashboardRoute
   '/_authed/': typeof AuthedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/dashboard' | '/'
+  fullPaths: '/login' | '/categories' | '/dashboard' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/dashboard' | '/'
-  id: '__root__' | '/_authed' | '/login' | '/_authed/dashboard' | '/_authed/'
+  to: '/login' | '/categories' | '/dashboard' | '/'
+  id:
+    | '__root__'
+    | '/_authed'
+    | '/login'
+    | '/_authed/categories'
+    | '/_authed/dashboard'
+    | '/_authed/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -135,6 +150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDashboardRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/categories': {
+      id: '/_authed/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof AuthedCategoriesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 declare module '@tanstack/react-start/server' {
@@ -157,11 +179,13 @@ declare module '@tanstack/react-start/server' {
 }
 
 interface AuthedRouteChildren {
+  AuthedCategoriesRoute: typeof AuthedCategoriesRoute
   AuthedDashboardRoute: typeof AuthedDashboardRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedCategoriesRoute: AuthedCategoriesRoute,
   AuthedDashboardRoute: AuthedDashboardRoute,
   AuthedIndexRoute: AuthedIndexRoute,
 }

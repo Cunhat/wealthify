@@ -1,3 +1,4 @@
+import PageContainer from "@/components/page-container";
 import AccountsWidget from "@/modules/accounts/sections/accounts-widget";
 import {
 	createFileRoute,
@@ -17,20 +18,29 @@ export const Route = createFileRoute("/_authed/")({
 			context.trpc.accounts.listAccounts.queryOptions(),
 		);
 	},
+	head: () => ({
+		meta: [
+			{
+				title: "Dashboard",
+			},
+		],
+	}),
 });
 
 function App() {
 	const { user } = useRouteContext({ from: Route.id });
 
 	return (
-		<div className="grid grid-cols-[350px_1fr] h-full overflow-hidden">
-			<AccountsWidget />
-			<div className="p-4 flex flex-col gap-4 h-full overflow-y-auto">
-				Hello, {user?.name}!
-				{Array.from({ length: 100 }).map((_, index) => {
-					return <div key={index}>{index}</div>;
-				})}
+		<PageContainer title="Dashboard">
+			<div className="grid grid-cols-[350px_1fr] h-full overflow-hidden">
+				<AccountsWidget />
+				<div className="p-4 flex flex-col gap-4 h-full overflow-y-auto">
+					Hello, {user?.name}!
+					{Array.from({ length: 100 }).map((_, index) => {
+						return <div key={index}>{index}</div>;
+					})}
+				</div>
 			</div>
-		</div>
+		</PageContainer>
 	);
 }

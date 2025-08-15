@@ -4,6 +4,7 @@ import {
 	IconFolder,
 	IconInnerShadowTop,
 	IconListDetails,
+	IconTags,
 	IconUsers,
 } from "@tabler/icons-react";
 import * as React from "react";
@@ -42,6 +43,11 @@ const data = {
 			title: "Accounts",
 			url: "/accounts",
 			icon: IconChartBar,
+		},
+		{
+			title: "Categories",
+			url: "/categories",
+			icon: IconTags,
 		},
 		// {
 		// 	title: "Projects",

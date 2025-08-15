@@ -34,11 +34,11 @@ function AuthedLayout() {
 		>
 			<AppSidebar variant="inset" user={user} />
 			<SidebarInset>
-				<SiteHeader />
-				<div className="flex flex-1 flex-col p-4 h-screen overflow-hidden">
-					{/* <div className="@container/main flex flex-1 flex-col gap-2"></div> */}
-					<Outlet />
-				</div>
+				{/* <SiteHeader /> */}
+				{/* <div className="flex flex-1 flex-col p-4 h-screen overflow-hidden"> */}
+				{/* <div className="@container/main flex flex-1 flex-col gap-2"></div> */}
+				<Outlet />
+				{/* </div> */}
 			</SidebarInset>
 		</SidebarProvider>
 	);
