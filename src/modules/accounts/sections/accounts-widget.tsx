@@ -21,7 +21,7 @@ export default function AccountsWidget() {
 	}
 
 	return (
-		<div className="h-full flex flex-col gap-4">
+		<div className="h-full flex flex-col gap-4 overflow-y-auto">
 			<Tabs defaultValue="assets" className="h-full">
 				<TabsList className="w-full">
 					<TabsTrigger value="assets">Assets</TabsTrigger>

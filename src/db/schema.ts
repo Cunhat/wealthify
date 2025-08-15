@@ -84,6 +84,22 @@ export const transactionAccount = pgTable("transaction_account", {
 		.references(() => user.id, { onDelete: "cascade" }),
 });
 
+export const balanceAccount = pgTable("balance_account", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	type: text("type").notNull(),
+	name: text("name").notNull(),
+	balance: decimal("balance").notNull().default("0"),
+	initialBalance: decimal("initial_balance").notNull().default("0"),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
+
 export const category = pgTable("category", {
 	id: text("id")
 		.primaryKey()
@@ -115,22 +131,6 @@ export const transaction = pgTable("transaction", {
 		.references(() => user.id, { onDelete: "cascade" }),
 });
 
-export const balanceAccount = pgTable("balance_account", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	type: text("type").notNull(),
-	name: text("name").notNull(),
-	balance: decimal("balance").notNull().default("0"),
-	initialBalance: decimal("initial_balance").notNull().default("0"),
-	createdAt: timestamp("created_at").$defaultFn(
-		() => /* @__PURE__ */ new Date(),
-	),
-	userId: text("user_id")
-		.notNull()
-		.references(() => user.id, { onDelete: "cascade" }),
-});
-
 export const balanceAccountHistory = pgTable("balance_account_history", {
 	id: text("id")
 		.primaryKey()
@@ -156,44 +156,3 @@ export const balanceAccountHistory = pgTable("balance_account_history", {
 	december: decimal("december").notNull().default("0"),
 	year: integer("year").notNull().default(0),
 });
-
-export const usersRelations = relations(user, ({ many }) => ({
-	transactionAccounts: many(transactionAccount),
-	transactions: many(transaction),
-	categories: many(category),
-	balanceAccounts: many(balanceAccount),
-}));
-
-export const transactionAccountRelations = relations(
-	transactionAccount,
-	({ one, many }) => ({
-		user: one(user, {
-			fields: [transactionAccount.userId],
-			references: [user.id],
-		}),
-		transactions: many(transaction),
-	}),
-);
-
-export const transactionRelations = relations(transaction, ({ one }) => ({
-	user: one(user, {
-		fields: [transaction.userId],
-		references: [user.id],
-	}),
-	transactionAccount: one(transactionAccount, {
-		fields: [transaction.transactionAccount],
-		references: [transactionAccount.id],
-	}),
-	category: one(category, {
-		fields: [transaction.category],
-		references: [category.id],
-	}),
-}));
-
-export const categoryRelations = relations(category, ({ one, many }) => ({
-	user: one(user, {
-		fields: [category.userId],
-		references: [user.id],
-	}),
-	transactions: many(transaction),
-}));

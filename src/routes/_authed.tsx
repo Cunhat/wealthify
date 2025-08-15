@@ -30,11 +30,12 @@ function AuthedLayout() {
 					"--header-height": "calc(var(--spacing) * 12)",
 				} as React.CSSProperties
 			}
+			className="h-screen overflow-hidden"
 		>
 			<AppSidebar variant="inset" user={user} />
 			<SidebarInset>
 				<SiteHeader />
-				<div className="flex flex-1 flex-col p-4">
+				<div className="flex flex-1 flex-col p-4 h-screen overflow-hidden">
 					{/* <div className="@container/main flex flex-1 flex-col gap-2"></div> */}
 					<Outlet />
 				</div>
