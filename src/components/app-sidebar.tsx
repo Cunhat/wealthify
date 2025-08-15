@@ -30,17 +30,17 @@ const data = {
 	navMain: [
 		{
 			title: "Dashboard",
-			url: "#",
+			url: "/",
 			icon: IconDashboard,
 		},
 		{
 			title: "Transactions",
-			url: "#",
+			url: "/transactions",
 			icon: IconListDetails,
 		},
 		{
 			title: "Accounts",
-			url: "#",
+			url: "/accounts",
 			icon: IconChartBar,
 		},
 		// {
