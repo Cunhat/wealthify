@@ -56,7 +56,7 @@ export const accountsRouter = {
 					userId: ctx.user.id,
 					type: input.type,
 					balance: input.balance,
-					initialBalance: input.initial_balance,
+					initialBalance: input.balance,
 					name: input.name,
 				});
 			} else {
@@ -64,6 +64,7 @@ export const accountsRouter = {
 					userId: ctx.user.id,
 					type: input.type,
 					balance: input.balance,
+					initialBalance: input.balance,
 					name: input.name,
 				});
 			}

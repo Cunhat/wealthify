@@ -1,6 +1,6 @@
-import { type AccountType, AccountTypeGroups } from "@/lib/configs/accounts";
+import { AccountTypeGroups } from "@/lib/configs/accounts";
 import type { Account } from "@/lib/schemas";
-import { ChevronDown } from "lucide-react";
+import { formatCurrency } from "@/utils/mixins";
 import AccountsByGroup from "./accounts-by-group";
 import CreateAssetDialog from "./create-asset-dialog";
 
@@ -20,7 +20,7 @@ export default function AssetsTab({ mergedAccounts }: AssetsTabProps) {
 	}
 
 	const totalNetWorth = mergedAccounts.reduce(
-		(acc, account) => acc + account.balance,
+		(acc, account) => acc + Number(account.balance),
 		0,
 	);
 
@@ -28,7 +28,9 @@ export default function AssetsTab({ mergedAccounts }: AssetsTabProps) {
 		<AssetTabHeader>
 			<div className="flex items-center justify-between gap-2">
 				<div className="text-lg font-semibold text-foreground">Net Worth</div>
-				<div className="text-lg text-foreground">{totalNetWorth} €</div>
+				<div className="text-lg text-foreground">
+					{formatCurrency(totalNetWorth)}
+				</div>
 			</div>
 			<div className="flex flex-col gap-4">
 				{AccountTypeGroups.map((accountType) => {

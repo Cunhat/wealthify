@@ -74,8 +74,8 @@ export const transactionAccount = pgTable("transaction_account", {
 		.$defaultFn(() => crypto.randomUUID()),
 	type: text("type").notNull(),
 	name: text("name").notNull(),
-	balance: integer("balance").notNull().default(0),
-	initialBalance: integer("initial_balance").notNull().default(0),
+	balance: decimal("balance").notNull().default("0"),
+	initialBalance: decimal("initial_balance").notNull().default("0"),
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
 	),
@@ -121,8 +121,8 @@ export const balanceAccount = pgTable("balance_account", {
 		.$defaultFn(() => crypto.randomUUID()),
 	type: text("type").notNull(),
 	name: text("name").notNull(),
-	balance: integer("balance").notNull().default(0),
-	initialBalance: integer("initial_balance").notNull().default(0),
+	balance: decimal("balance").notNull().default("0"),
+	initialBalance: decimal("initial_balance").notNull().default("0"),
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
 	),

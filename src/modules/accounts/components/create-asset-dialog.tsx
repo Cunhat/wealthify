@@ -97,9 +97,7 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 			setOpen(false);
 		},
 		onError: (error) => {
-			toast.error("Failed to create account", {
-				description: error.message,
-			});
+			toast.error("Failed to create account");
 			console.error(error);
 		},
 	});

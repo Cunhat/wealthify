@@ -4,6 +4,7 @@ import type {
 } from "@/lib/configs/accounts";
 import type { Account } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/utils/mixins";
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 
@@ -28,7 +29,7 @@ export default function AccountsByGroup({
 	}
 
 	const totalBalance = accounts.reduce(
-		(acc, account) => acc + account.balance,
+		(acc, account) => acc + Number(account.balance),
 		0,
 	);
 
@@ -41,7 +42,7 @@ export default function AccountsByGroup({
 				<ChevronRight size={16} className={cn(isOpen ? "rotate-90" : "")} />
 				<p className="text-base font-semibold">{accountType.name}</p>
 				{!isOpen && (
-					<p className="text-base ml-auto">{totalBalance.toFixed(2)} €</p>
+					<p className="text-base ml-auto">{formatCurrency(totalBalance)}</p>
 				)}
 			</div>
 			{isOpen && (
@@ -77,7 +78,9 @@ export default function AccountsByGroup({
 										</p>
 									</div>
 								</div>
-								<p className="text-base text-foreground">{account.balance} €</p>
+								<p className="text-base text-foreground">
+									{formatCurrency(Number(account.balance))}
+								</p>
 							</div>
 						);
 					})}
