@@ -104,7 +104,9 @@ export const category = pgTable("category", {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
-	name: text("name").notNull(),
+	name: text("name").notNull().unique(),
+	icon: text("icon").notNull().default("💰"),
+	color: text("color").notNull().default("#000000"),
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
 	),

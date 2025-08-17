@@ -7,7 +7,7 @@ import {
 	IconTags,
 	IconUsers,
 } from "@tabler/icons-react";
-import * as React from "react";
+import type * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -34,16 +34,16 @@ const data = {
 			url: "/",
 			icon: IconDashboard,
 		},
-		{
-			title: "Transactions",
-			url: "/transactions",
-			icon: IconListDetails,
-		},
-		{
-			title: "Accounts",
-			url: "/accounts",
-			icon: IconChartBar,
-		},
+		// {
+		// 	title: "Transactions",
+		// 	url: "/transactions",
+		// 	icon: IconListDetails,
+		// },
+		// {
+		// 	title: "Accounts",
+		// 	url: "/accounts",
+		// 	icon: IconChartBar,
+		// },
 		{
 			title: "Categories",
 			url: "/categories",

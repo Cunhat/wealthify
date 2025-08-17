@@ -1,5 +1,5 @@
 import Categories from "@/modules/categories/views/categories";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authed/categories")({
 	component: Categories,
@@ -10,4 +10,14 @@ export const Route = createFileRoute("/_authed/categories")({
 			},
 		],
 	}),
+	beforeLoad: ({ context }) => {
+		if (!context.user) {
+			return redirect({ to: "/login" });
+		}
+	},
+	loader: async ({ context }) => {
+		await context.queryClient.prefetchQuery(
+			context.trpc.categories.listCategories.queryOptions(),
+		);
+	},
 });

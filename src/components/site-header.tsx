@@ -16,8 +16,8 @@ export function SiteHeader({ title, actionsComponent }: SiteHeaderProps) {
 					className="mx-2 data-[orientation=vertical]:h-4"
 				/>
 				<h1 className="text-base font-medium">{title}</h1>
+				{actionsComponent && <div className="ml-auto">{actionsComponent}</div>}
 			</div>
-			{actionsComponent && actionsComponent}
 		</header>
 	);
 }
