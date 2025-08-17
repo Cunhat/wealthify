@@ -1,6 +1,6 @@
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { balanceAccount, transactionAccount } from "../db/schema";
+import { balanceAccount, category, transactionAccount } from "../db/schema";
 
 export const transactionAccountSelectSchema =
 	createSelectSchema(transactionAccount);
@@ -11,3 +11,6 @@ export type TransactionAccount = z.infer<typeof transactionAccountSelectSchema>;
 export type BalanceAccount = z.infer<typeof balanceAccountSelectSchema>;
 
 export type Account = TransactionAccount | BalanceAccount;
+
+export const categorySelectSchema = createSelectSchema(category);
+export type Category = z.infer<typeof categorySelectSchema>;
