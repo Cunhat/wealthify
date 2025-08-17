@@ -21,6 +21,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import type { User } from "better-auth";
+import { Wallet } from "lucide-react";
 
 const data = {
 	user: {
@@ -39,11 +40,11 @@ const data = {
 		// 	url: "/transactions",
 		// 	icon: IconListDetails,
 		// },
-		// {
-		// 	title: "Accounts",
-		// 	url: "/accounts",
-		// 	icon: IconChartBar,
-		// },
+		{
+			title: "Accounts",
+			url: "/accounts",
+			icon: Wallet,
+		},
 		{
 			title: "Categories",
 			url: "/categories",

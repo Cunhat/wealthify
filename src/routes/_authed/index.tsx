@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authed/")({
 	component: App,
 	beforeLoad: ({ context }) => {
 		if (!context.user) {
-			return redirect({ to: "/login" });
+			throw redirect({ to: "/login" });
 		}
 	},
 	loader: async ({ context }) => {
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authed/")({
 	head: () => ({
 		meta: [
 			{
-				title: "Dashboard",
+				title: "Wealthify - Dashboard",
 			},
 		],
 	}),

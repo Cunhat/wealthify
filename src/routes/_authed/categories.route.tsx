@@ -6,7 +6,7 @@ export const Route = createFileRoute("/_authed/categories")({
 	head: () => ({
 		meta: [
 			{
-				title: "Categories",
+				title: "Wealthify - Categories",
 			},
 		],
 	}),
