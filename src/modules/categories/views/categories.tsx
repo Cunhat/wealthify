@@ -2,6 +2,7 @@ import PageContainer from "@/components/page-container";
 import { Separator } from "@/components/ui/separator";
 import { useTRPC } from "@/integrations/trpc/react";
 import { useQuery } from "@tanstack/react-query";
+import { Outlet } from "@tanstack/react-router";
 import { Inbox } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -53,7 +54,9 @@ export default function Categories() {
 			<div className="h-full grid grid-cols-[1fr_10px_1fr] gap-2">
 				<ListCategories categories={categoriesQuery.data ?? []} />
 				<Separator orientation="vertical" className="h-full" />
-				<div className="flex flex-col gap-2">Transactions</div>
+				<div className="flex flex-col gap-2">
+					<Outlet />
+				</div>
 			</div>
 		</PageContainer>
 	);

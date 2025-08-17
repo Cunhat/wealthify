@@ -15,7 +15,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
-import { Route as AuthedCategoriesRouteImport } from './routes/_authed/categories'
+import { Route as AuthedCategoriesRouteRouteImport } from './routes/_authed/categories.route'
+import { Route as AuthedCategoriesIndexRouteImport } from './routes/_authed/categories.index'
+import { Route as AuthedCategoriesCategoryIdRouteImport } from './routes/_authed/categories.$categoryId'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 
@@ -40,11 +42,22 @@ const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedCategoriesRoute = AuthedCategoriesRouteImport.update({
+const AuthedCategoriesRouteRoute = AuthedCategoriesRouteRouteImport.update({
   id: '/categories',
   path: '/categories',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedCategoriesIndexRoute = AuthedCategoriesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthedCategoriesRouteRoute,
+} as any)
+const AuthedCategoriesCategoryIdRoute =
+  AuthedCategoriesCategoryIdRouteImport.update({
+    id: '/$categoryId',
+    path: '/$categoryId',
+    getParentRoute: () => AuthedCategoriesRouteRoute,
+  } as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -58,29 +71,40 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
-  '/categories': typeof AuthedCategoriesRoute
+  '/categories': typeof AuthedCategoriesRouteRouteWithChildren
   '/dashboard': typeof AuthedDashboardRoute
   '/': typeof AuthedIndexRoute
+  '/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
+  '/categories/': typeof AuthedCategoriesIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/categories': typeof AuthedCategoriesRoute
   '/dashboard': typeof AuthedDashboardRoute
   '/': typeof AuthedIndexRoute
+  '/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
+  '/categories': typeof AuthedCategoriesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authed/categories': typeof AuthedCategoriesRoute
+  '/_authed/categories': typeof AuthedCategoriesRouteRouteWithChildren
   '/_authed/dashboard': typeof AuthedDashboardRoute
   '/_authed/': typeof AuthedIndexRoute
+  '/_authed/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
+  '/_authed/categories/': typeof AuthedCategoriesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/categories' | '/dashboard' | '/'
+  fullPaths:
+    | '/login'
+    | '/categories'
+    | '/dashboard'
+    | '/'
+    | '/categories/$categoryId'
+    | '/categories/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/categories' | '/dashboard' | '/'
+  to: '/login' | '/dashboard' | '/' | '/categories/$categoryId' | '/categories'
   id:
     | '__root__'
     | '/_authed'
@@ -88,6 +112,8 @@ export interface FileRouteTypes {
     | '/_authed/categories'
     | '/_authed/dashboard'
     | '/_authed/'
+    | '/_authed/categories/$categoryId'
+    | '/_authed/categories/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -154,8 +180,22 @@ declare module '@tanstack/react-router' {
       id: '/_authed/categories'
       path: '/categories'
       fullPath: '/categories'
-      preLoaderRoute: typeof AuthedCategoriesRouteImport
+      preLoaderRoute: typeof AuthedCategoriesRouteRouteImport
       parentRoute: typeof AuthedRoute
+    }
+    '/_authed/categories/': {
+      id: '/_authed/categories/'
+      path: '/'
+      fullPath: '/categories/'
+      preLoaderRoute: typeof AuthedCategoriesIndexRouteImport
+      parentRoute: typeof AuthedCategoriesRouteRoute
+    }
+    '/_authed/categories/$categoryId': {
+      id: '/_authed/categories/$categoryId'
+      path: '/$categoryId'
+      fullPath: '/categories/$categoryId'
+      preLoaderRoute: typeof AuthedCategoriesCategoryIdRouteImport
+      parentRoute: typeof AuthedCategoriesRouteRoute
     }
   }
 }
@@ -178,14 +218,29 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface AuthedCategoriesRouteRouteChildren {
+  AuthedCategoriesCategoryIdRoute: typeof AuthedCategoriesCategoryIdRoute
+  AuthedCategoriesIndexRoute: typeof AuthedCategoriesIndexRoute
+}
+
+const AuthedCategoriesRouteRouteChildren: AuthedCategoriesRouteRouteChildren = {
+  AuthedCategoriesCategoryIdRoute: AuthedCategoriesCategoryIdRoute,
+  AuthedCategoriesIndexRoute: AuthedCategoriesIndexRoute,
+}
+
+const AuthedCategoriesRouteRouteWithChildren =
+  AuthedCategoriesRouteRoute._addFileChildren(
+    AuthedCategoriesRouteRouteChildren,
+  )
+
 interface AuthedRouteChildren {
-  AuthedCategoriesRoute: typeof AuthedCategoriesRoute
+  AuthedCategoriesRouteRoute: typeof AuthedCategoriesRouteRouteWithChildren
   AuthedDashboardRoute: typeof AuthedDashboardRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedCategoriesRoute: AuthedCategoriesRoute,
+  AuthedCategoriesRouteRoute: AuthedCategoriesRouteRouteWithChildren,
   AuthedDashboardRoute: AuthedDashboardRoute,
   AuthedIndexRoute: AuthedIndexRoute,
 }
