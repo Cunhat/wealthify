@@ -14,11 +14,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTRPC } from "@/integrations/trpc/react";
 import { SampleCategories } from "@/lib/configs/categories";
-import { IconLoader2, IconPlus } from "@tabler/icons-react";
+import { IconLoader2 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EllipsisVertical } from "lucide-react";
 import { toast } from "sonner";
-import CreateCustomCategory from "../components/create-custom-categry";
+import CreateCustomCategory from "../components/create-custom-category";
 
 export default function CategoriesActions() {
 	const trpc = useTRPC();
@@ -69,12 +69,7 @@ export default function CategoriesActions() {
 						<DropdownMenuSubTrigger>Add Category</DropdownMenuSubTrigger>
 						<DropdownMenuPortal>
 							<DropdownMenuSubContent>
-								<CreateCustomCategory>
-									{/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-										<IconPlus />
-										Custom Category
-									</DropdownMenuItem> */}
-								</CreateCustomCategory>
+								<CreateCustomCategory />
 								<DropdownMenuSeparator />
 								<DropdownMenuLabel>Categories List</DropdownMenuLabel>
 								{availableCategoriesToCreate.map((category) => (

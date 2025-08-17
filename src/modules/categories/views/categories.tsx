@@ -1,6 +1,6 @@
 import PageContainer from "@/components/page-container";
+import { Separator } from "@/components/ui/separator";
 import { useTRPC } from "@/integrations/trpc/react";
-import { Separator } from "@radix-ui/react-separator";
 import { useQuery } from "@tanstack/react-query";
 import { Inbox } from "lucide-react";
 import { useEffect } from "react";

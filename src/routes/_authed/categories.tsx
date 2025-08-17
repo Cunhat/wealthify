@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authed/categories")({
 	}),
 	beforeLoad: ({ context }) => {
 		if (!context.user) {
-			return redirect({ to: "/login" });
+			throw redirect({ to: "/login" });
 		}
 	},
 	loader: async ({ context }) => {
