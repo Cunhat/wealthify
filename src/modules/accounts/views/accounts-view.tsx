@@ -1,76 +1,11 @@
 import PageContainer from "@/components/page-container";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTRPC } from "@/integrations/trpc/react";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
-import type { Account } from "@/lib/schemas";
-import { cn } from "@/lib/utils";
-import { formatCurrency } from "@/utils/mixins";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { ChevronDown } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
-
-function getAccountIcon(accountType: string) {
-	for (const group of AccountTypeGroups) {
-		const childMeta = group.children.find(
-			(child) => child.type === accountType,
-		);
-		if (childMeta) {
-			return {
-				icon: childMeta.icon,
-				iconBg: childMeta.iconBg,
-				iconFg: childMeta.iconFg,
-				label: childMeta.label,
-			};
-		}
-	}
-	return null;
-}
-
-function AccountCard({ account }: { account: Account }) {
-	const accountMeta = getAccountIcon(account.type);
-
-	return (
-		<Link
-			to="/accounts/$accountId"
-			params={{ accountId: account.id }}
-			className="block group"
-		>
-			<Card className="h-full gap-0 transition-all duration-200 hover:shadow-md hover:scale-[1.02] cursor-pointer group-hover:border-primary/50">
-				<CardHeader>
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-3">
-							{accountMeta && (
-								<div
-									className={cn(
-										"h-10 w-10 rounded-full flex items-center justify-center",
-										accountMeta.iconBg,
-										accountMeta.iconFg,
-									)}
-								>
-									<accountMeta.icon className="h-5 w-5" />
-								</div>
-							)}
-							<div>
-								<CardTitle className="text-base">{account.name}</CardTitle>
-								<p className="text-sm text-muted-foreground">
-									{accountMeta?.label ?? account.type}
-								</p>
-							</div>
-						</div>
-					</div>
-				</CardHeader>
-				<CardContent className="pt-0">
-					<div className="flex justify-end items-center">
-						<span className="text-lg font-semibold">
-							{formatCurrency(Number(account.balance))}
-						</span>
-					</div>
-				</CardContent>
-			</Card>
-		</Link>
-	);
-}
+import ListAccountsByType from "../sections/list-accounts-by-type";
 
 export default function AccountsView() {
 	const trpc = useTRPC();
@@ -123,9 +58,13 @@ export default function AccountsView() {
 
 	return (
 		<PageContainer title="Accounts">
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-				{accounts.map((account) => (
-					<AccountCard key={account.id} account={account} />
+			<div className="flex flex-col gap-4 overflow-y-auto">
+				{AccountTypeGroups.map((group) => (
+					<ListAccountsByType
+						key={group.name}
+						accounts={accounts}
+						group={group}
+					/>
 				))}
 			</div>
 		</PageContainer>
