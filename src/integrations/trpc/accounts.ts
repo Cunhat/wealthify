@@ -26,13 +26,12 @@ export const accountsRouter = {
 		const transactionAccountsQuery = await db.query.transactionAccount.findMany(
 			{
 				where: eq(transactionAccount.userId, ctx.user.id),
-				with: {
-					transactions: true,
-				},
 			},
 		);
 
-		return [...transactionAccountsQuery];
+		console.log(transactionAccountsQuery);
+
+		return transactionAccountsQuery;
 	}),
 	listBalanceAccounts: protectedProcedure.query(async ({ ctx }) => {
 		const balanceAccountsQuery = await db.query.balanceAccount.findMany({
