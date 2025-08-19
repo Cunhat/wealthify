@@ -1,7 +1,7 @@
 import AccountsView from "@/modules/accounts/views/accounts-view";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_authed/accounts")({
+export const Route = createFileRoute("/_authed/accounts/")({
 	beforeLoad: ({ context }) => {
 		if (!context.user) {
 			throw redirect({ to: "/login" });

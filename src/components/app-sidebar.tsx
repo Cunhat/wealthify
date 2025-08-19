@@ -1,11 +1,7 @@
 import {
-	IconChartBar,
 	IconDashboard,
-	IconFolder,
 	IconInnerShadowTop,
-	IconListDetails,
 	IconTags,
-	IconUsers,
 } from "@tabler/icons-react";
 import type * as React from "react";
 
@@ -21,7 +17,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import type { User } from "better-auth";
-import { Wallet } from "lucide-react";
+import { BadgeEuro, Wallet } from "lucide-react";
 
 const data = {
 	user: {
@@ -35,11 +31,11 @@ const data = {
 			url: "/",
 			icon: IconDashboard,
 		},
-		// {
-		// 	title: "Transactions",
-		// 	url: "/transactions",
-		// 	icon: IconListDetails,
-		// },
+		{
+			title: "Transactions",
+			url: "/transactions",
+			icon: BadgeEuro,
+		},
 		{
 			title: "Accounts",
 			url: "/accounts",

@@ -2,7 +2,6 @@ import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import ListAccountsByType from "../sections/list-accounts-by-type";

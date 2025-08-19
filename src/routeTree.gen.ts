@@ -14,10 +14,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
+import { Route as AuthedTransactionsRouteImport } from './routes/_authed/transactions'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
-import { Route as AuthedAccountsRouteImport } from './routes/_authed/accounts'
 import { Route as AuthedCategoriesRouteRouteImport } from './routes/_authed/categories.route'
 import { Route as AuthedCategoriesIndexRouteImport } from './routes/_authed/categories.index'
+import { Route as AuthedAccountsIndexRouteImport } from './routes/_authed/accounts.index'
 import { Route as AuthedCategoriesCategoryIdRouteImport } from './routes/_authed/categories.$categoryId'
 import { Route as AuthedAccountsAccountIdRouteImport } from './routes/_authed/accounts.$accountId'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
@@ -39,14 +40,14 @@ const AuthedIndexRoute = AuthedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedTransactionsRoute = AuthedTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const AuthedAccountsRoute = AuthedAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedCategoriesRouteRoute = AuthedCategoriesRouteRouteImport.update({
@@ -59,6 +60,11 @@ const AuthedCategoriesIndexRoute = AuthedCategoriesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthedCategoriesRouteRoute,
 } as any)
+const AuthedAccountsIndexRoute = AuthedAccountsIndexRouteImport.update({
+  id: '/accounts/',
+  path: '/accounts/',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedCategoriesCategoryIdRoute =
   AuthedCategoriesCategoryIdRouteImport.update({
     id: '/$categoryId',
@@ -66,9 +72,9 @@ const AuthedCategoriesCategoryIdRoute =
     getParentRoute: () => AuthedCategoriesRouteRoute,
   } as any)
 const AuthedAccountsAccountIdRoute = AuthedAccountsAccountIdRouteImport.update({
-  id: '/$accountId',
-  path: '/$accountId',
-  getParentRoute: () => AuthedAccountsRoute,
+  id: '/accounts/$accountId',
+  path: '/accounts/$accountId',
+  getParentRoute: () => AuthedRoute,
 } as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
@@ -84,20 +90,22 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/categories': typeof AuthedCategoriesRouteRouteWithChildren
-  '/accounts': typeof AuthedAccountsRouteWithChildren
   '/dashboard': typeof AuthedDashboardRoute
+  '/transactions': typeof AuthedTransactionsRoute
   '/': typeof AuthedIndexRoute
   '/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
   '/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
+  '/accounts': typeof AuthedAccountsIndexRoute
   '/categories/': typeof AuthedCategoriesIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/accounts': typeof AuthedAccountsRouteWithChildren
   '/dashboard': typeof AuthedDashboardRoute
+  '/transactions': typeof AuthedTransactionsRoute
   '/': typeof AuthedIndexRoute
   '/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
   '/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
+  '/accounts': typeof AuthedAccountsIndexRoute
   '/categories': typeof AuthedCategoriesIndexRoute
 }
 export interface FileRoutesById {
@@ -105,11 +113,12 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authed/categories': typeof AuthedCategoriesRouteRouteWithChildren
-  '/_authed/accounts': typeof AuthedAccountsRouteWithChildren
   '/_authed/dashboard': typeof AuthedDashboardRoute
+  '/_authed/transactions': typeof AuthedTransactionsRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
   '/_authed/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
+  '/_authed/accounts/': typeof AuthedAccountsIndexRoute
   '/_authed/categories/': typeof AuthedCategoriesIndexRoute
 }
 export interface FileRouteTypes {
@@ -117,31 +126,34 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/categories'
-    | '/accounts'
     | '/dashboard'
+    | '/transactions'
     | '/'
     | '/accounts/$accountId'
     | '/categories/$categoryId'
+    | '/accounts'
     | '/categories/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/accounts'
     | '/dashboard'
+    | '/transactions'
     | '/'
     | '/accounts/$accountId'
     | '/categories/$categoryId'
+    | '/accounts'
     | '/categories'
   id:
     | '__root__'
     | '/_authed'
     | '/login'
     | '/_authed/categories'
-    | '/_authed/accounts'
     | '/_authed/dashboard'
+    | '/_authed/transactions'
     | '/_authed/'
     | '/_authed/accounts/$accountId'
     | '/_authed/categories/$categoryId'
+    | '/_authed/accounts/'
     | '/_authed/categories/'
   fileRoutesById: FileRoutesById
 }
@@ -198,18 +210,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/transactions': {
+      id: '/_authed/transactions'
+      path: '/transactions'
+      fullPath: '/transactions'
+      preLoaderRoute: typeof AuthedTransactionsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/dashboard': {
       id: '/_authed/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthedDashboardRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/accounts': {
-      id: '/_authed/accounts'
-      path: '/accounts'
-      fullPath: '/accounts'
-      preLoaderRoute: typeof AuthedAccountsRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/categories': {
@@ -226,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedCategoriesIndexRouteImport
       parentRoute: typeof AuthedCategoriesRouteRoute
     }
+    '/_authed/accounts/': {
+      id: '/_authed/accounts/'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AuthedAccountsIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/categories/$categoryId': {
       id: '/_authed/categories/$categoryId'
       path: '/$categoryId'
@@ -235,10 +254,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authed/accounts/$accountId': {
       id: '/_authed/accounts/$accountId'
-      path: '/$accountId'
+      path: '/accounts/$accountId'
       fullPath: '/accounts/$accountId'
       preLoaderRoute: typeof AuthedAccountsAccountIdRouteImport
-      parentRoute: typeof AuthedAccountsRoute
+      parentRoute: typeof AuthedRoute
     }
   }
 }
@@ -276,30 +295,22 @@ const AuthedCategoriesRouteRouteWithChildren =
     AuthedCategoriesRouteRouteChildren,
   )
 
-interface AuthedAccountsRouteChildren {
-  AuthedAccountsAccountIdRoute: typeof AuthedAccountsAccountIdRoute
-}
-
-const AuthedAccountsRouteChildren: AuthedAccountsRouteChildren = {
-  AuthedAccountsAccountIdRoute: AuthedAccountsAccountIdRoute,
-}
-
-const AuthedAccountsRouteWithChildren = AuthedAccountsRoute._addFileChildren(
-  AuthedAccountsRouteChildren,
-)
-
 interface AuthedRouteChildren {
   AuthedCategoriesRouteRoute: typeof AuthedCategoriesRouteRouteWithChildren
-  AuthedAccountsRoute: typeof AuthedAccountsRouteWithChildren
   AuthedDashboardRoute: typeof AuthedDashboardRoute
+  AuthedTransactionsRoute: typeof AuthedTransactionsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
+  AuthedAccountsAccountIdRoute: typeof AuthedAccountsAccountIdRoute
+  AuthedAccountsIndexRoute: typeof AuthedAccountsIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedCategoriesRouteRoute: AuthedCategoriesRouteRouteWithChildren,
-  AuthedAccountsRoute: AuthedAccountsRouteWithChildren,
   AuthedDashboardRoute: AuthedDashboardRoute,
+  AuthedTransactionsRoute: AuthedTransactionsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
+  AuthedAccountsAccountIdRoute: AuthedAccountsAccountIdRoute,
+  AuthedAccountsIndexRoute: AuthedAccountsIndexRoute,
 }
 
 const AuthedRouteWithChildren =
