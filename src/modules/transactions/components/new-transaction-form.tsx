@@ -28,13 +28,12 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
 
 const formSchema = z.object({
-	amount: z
-		.string()
-		.min(1, "Amount is required")
-		.regex(/^\d+(\.\d{1,2})?$/, "Please enter a valid amount (e.g., 10.50)"),
+	amount: z.number().min(1, "Amount is required"),
+	// .regex(/^\d+(\.\d{1,2})?$/, "Please enter a valid amount (e.g., 10.50)"),
 	description: z.string().min(1, "Description is required"),
 	transactionAccount: z.string().min(1, "Transaction account is required"),
 	category: z.string().min(1, "Category is required"),
+	type: z.enum(["expense", "income"]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -63,10 +62,11 @@ export default function NewTransactionForm({
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			amount: "",
+			amount: 0,
 			description: "",
 			transactionAccount: "",
 			category: "",
+			type: "expense",
 		},
 	});
 
@@ -95,12 +95,34 @@ export default function NewTransactionForm({
 			description: values.description || undefined,
 			transactionAccount: values.transactionAccount || undefined,
 			category: values.category || undefined,
+			type: values.type,
 		});
 	}
 
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+				<FormField
+					control={form.control}
+					name="type"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Type</FormLabel>
+							<Select onValueChange={field.onChange} value={field.value}>
+								<FormControl>
+									<SelectTrigger className="w-full">
+										<SelectValue placeholder="Select a type" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value="expense">Expense</SelectItem>
+									<SelectItem value="income">Income</SelectItem>
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 				<FormField
 					control={form.control}
 					name="description"

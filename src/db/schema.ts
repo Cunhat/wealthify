@@ -137,6 +137,7 @@ export const transaction = pgTable("transaction", {
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
 	),
+	type: text("type").notNull().default("expense"),
 	transactionAccount: text("transaction_account").references(
 		() => transactionAccount.id,
 	),

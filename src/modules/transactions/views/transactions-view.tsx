@@ -3,7 +3,9 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import GenerateTransactionsButton from "../components/generate-transactions-button";
 import CreateTransaction from "../sections/create-transaction";
+import TransactionsTable from "../sections/transactions-table";
 
 export default function TransactionsView() {
 	const trpc = useTRPC();
@@ -31,21 +33,14 @@ export default function TransactionsView() {
 	return (
 		<PageContainer
 			title="Transactions"
-			actionsComponent={<CreateTransaction />}
+			actionsComponent={
+				<div className="flex gap-2">
+					<GenerateTransactionsButton />
+					<CreateTransaction />
+				</div>
+			}
 		>
-			<div className="flex flex-col gap-4">
-				{listTransactionsQuery.data?.map((transaction) => (
-					<div className="grid grid-cols-12 gap-4" key={transaction.id}>
-						<div className="col-span-2">{transaction.description}</div>
-						<div className="col-span-2">{transaction.amount}</div>
-						<div className="col-span-2">
-							{transaction.createdAt?.toLocaleDateString()}
-						</div>
-						{/* <div className="col-span-2">{transaction.category}</div> */}
-						{/* <div className="col-span-2">{transaction.transactionAccount}</div> */}
-					</div>
-				))}
-			</div>
+			<TransactionsTable transactions={listTransactionsQuery.data ?? []} />
 		</PageContainer>
 	);
 }
