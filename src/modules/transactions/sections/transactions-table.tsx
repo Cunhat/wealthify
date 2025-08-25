@@ -4,7 +4,7 @@ import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/mixins";
 import dayjs from "dayjs";
-import React from "react";
+import AccountBadge from "../components/account-badge";
 
 type TransactionsTableProps = {
 	transactions: Transaction[];
@@ -55,23 +55,17 @@ export default function TransactionsTable({
 					</div>
 					<div className="flex flex-col gap-2">
 						{transactions.map((transaction) => (
-							<div key={transaction.id} className="grid grid-cols-12 gap-4">
-								<Checkbox className="col-span-1" />
-								<div className="text-sm col-span-5">
-									{transaction.description}
-								</div>
-
-								<div className="text-sm col-span-2">
-									<CategoryBadge category={transaction.category} />
-								</div>
-
-								<div className="text-sm col-span-2">
-									{transaction.transactionAccount?.name}
-								</div>
-
+							<div
+								key={transaction.id}
+								className="grid grid-cols-[20px_4fr_200px_1fr_100px] gap-4"
+							>
+								<Checkbox className="" />
+								<div className="text-sm">{transaction.description}</div>
+								<AccountBadge account={transaction?.transactionAccount} />
+								<CategoryBadge category={transaction.category} />
 								<div
 									className={cn(
-										"text-sm col-span-2",
+										"text-sm text-right",
 										transaction.type === "expense" ? "" : "text-green-500",
 									)}
 								>
