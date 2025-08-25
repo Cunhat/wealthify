@@ -24,7 +24,7 @@ export default function TransactionsTable({
 			return "Yesterday";
 		}
 
-		return formattedDate.format("ddd, MMM D");
+		return formattedDate.format("ddd, MMMM D");
 	}
 
 	function groupTransactionsByDate(transactions: Transaction[]) {
@@ -44,23 +44,26 @@ export default function TransactionsTable({
 
 		return groups;
 	}
+
 	const groupedTransactions = groupTransactionsByDate(transactions);
 
 	return (
 		<div className="flex flex-col gap-4 overflow-y-auto">
 			{Object.entries(groupedTransactions).map(([dateGroup, transactions]) => (
 				<div key={dateGroup} className="flex flex-col gap-2">
-					<div className="text-sm text-muted-foreground font-medium">
+					<div className="text-lg text-foreground font-medium pl-6">
 						{dateGroup}
 					</div>
 					<div className="flex flex-col gap-2">
 						{transactions.map((transaction) => (
 							<div
 								key={transaction.id}
-								className="grid grid-cols-[20px_4fr_200px_1fr_100px] gap-4"
+								className="grid grid-cols-[25px_4fr_200px_1fr_100px] items-center"
 							>
 								<Checkbox className="" />
-								<div className="text-sm">{transaction.description}</div>
+								<div className="text-sm text-foreground">
+									{transaction.description}
+								</div>
 								<AccountBadge account={transaction?.transactionAccount} />
 								<CategoryBadge category={transaction.category} />
 								<div
