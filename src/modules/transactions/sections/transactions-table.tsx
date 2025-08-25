@@ -4,7 +4,9 @@ import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/mixins";
 import dayjs from "dayjs";
+import { useState } from "react";
 import AccountBadge from "../components/account-badge";
+import SelectedTransactions from "../components/selected-transactions";
 
 type TransactionsTableProps = {
 	transactions: Transaction[];
@@ -13,6 +15,10 @@ type TransactionsTableProps = {
 export default function TransactionsTable({
 	transactions,
 }: TransactionsTableProps) {
+	const [selectedTransactions, setSelectedTransactions] = useState<
+		Transaction[]
+	>([]);
+
 	function formatDateGroup(date: Date) {
 		const formattedDate = dayjs(date);
 
@@ -45,22 +51,49 @@ export default function TransactionsTable({
 		return groups;
 	}
 
+	function handleSelectTransaction(
+		transaction: Transaction,
+		isSelected: boolean,
+	) {
+		if (isSelected) {
+			setSelectedTransactions((prev) => [...prev, transaction]);
+		} else {
+			setSelectedTransactions((prev) =>
+				prev.filter((t) => t.id !== transaction.id),
+			);
+		}
+	}
+
 	const groupedTransactions = groupTransactionsByDate(transactions);
 
 	return (
 		<div className="flex flex-col gap-4 overflow-y-auto">
+			<SelectedTransactions transactions={selectedTransactions} />
 			{Object.entries(groupedTransactions).map(([dateGroup, transactions]) => (
 				<div key={dateGroup} className="flex flex-col gap-2">
-					<div className="text-lg text-foreground font-medium pl-6">
+					<div className="text-lg text-foreground font-medium pl-8">
 						{dateGroup}
 					</div>
 					<div className="flex flex-col gap-2">
 						{transactions.map((transaction) => (
 							<div
 								key={transaction.id}
-								className="grid grid-cols-[25px_4fr_200px_1fr_100px] items-center"
+								className={cn(
+									"grid grid-cols-[25px_4fr_200px_1fr_100px] items-center px-2 py-1 rounded-sm transition-colors",
+									selectedTransactions.some(
+										(slt) => slt.id === transaction.id,
+									) && "bg-primary/10",
+								)}
 							>
-								<Checkbox className="" />
+								<Checkbox
+									className=""
+									checked={selectedTransactions.some(
+										(t) => t.id === transaction.id,
+									)}
+									onCheckedChange={(isSelected) =>
+										handleSelectTransaction(transaction, isSelected as boolean)
+									}
+								/>
 								<div className="text-sm text-foreground">
 									{transaction.description}
 								</div>
