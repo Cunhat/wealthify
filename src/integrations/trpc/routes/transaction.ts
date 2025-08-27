@@ -169,4 +169,22 @@ export const transactionRouter = {
 					),
 				);
 		}),
+	updateTransactionCategory: protectedProcedure
+		.input(
+			z.object({
+				transactionId: z.array(z.string()),
+				categoryId: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			await db
+				.update(transaction)
+				.set({ category: input.categoryId })
+				.where(
+					and(
+						inArray(transaction.id, input.transactionId),
+						eq(transaction.userId, ctx.user.id),
+					),
+				);
+		}),
 };
