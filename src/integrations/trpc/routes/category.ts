@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { category } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure } from "./init";
+import { protectedProcedure } from "../init";
 
 export const categoryRouter = {
 	createCategory: protectedProcedure

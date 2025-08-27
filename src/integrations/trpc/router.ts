@@ -1,8 +1,8 @@
 import { createTRPCRouter } from "./init";
 
-import { accountsRouter } from "./accounts";
-import { categoryRouter } from "./category";
-import { transactionRouter } from "./transaction";
+import { accountsRouter } from "./routes/accounts";
+import { categoryRouter } from "./routes/category";
+import { transactionRouter } from "./routes/transaction";
 
 export const trpcRouter = createTRPCRouter({
 	accounts: accountsRouter,

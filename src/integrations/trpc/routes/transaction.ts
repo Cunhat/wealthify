@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import { category, transaction, transactionAccount } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure } from "./init";
+import { protectedProcedure } from "../init";
 
 // Sample transaction descriptions for realistic data
 const SAMPLE_DESCRIPTIONS = [
@@ -75,7 +75,7 @@ export const transactionRouter = {
 		const transactions = [];
 
 		// Generate transactions from start of year to current date
-		let currentWeekStart = new Date(startOfYear);
+		const currentWeekStart = new Date(startOfYear);
 
 		while (currentWeekStart <= currentDate) {
 			// Generate 5-8 transactions per week for variety
@@ -156,12 +156,15 @@ export const transactionRouter = {
 		return transactions;
 	}),
 	deleteTransaction: protectedProcedure
-		.input(z.object({ id: z.string() }))
+		.input(z.object({ transactions: z.array(z.string()) }))
 		.mutation(async ({ ctx, input }) => {
 			await db
 				.delete(transaction)
 				.where(
-					eq(transaction.id, input.id) && eq(transaction.userId, ctx.user.id),
+					and(
+						inArray(transaction.id, input.transactions),
+						eq(transaction.userId, ctx.user.id),
+					),
 				);
 		}),
 };

@@ -4,21 +4,19 @@ import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/mixins";
 import dayjs from "dayjs";
-import { useState } from "react";
 import AccountBadge from "../components/account-badge";
-import SelectedTransactions from "../components/selected-transactions";
 
 type TransactionsTableProps = {
 	transactions: Transaction[];
+	selectedTransactions: Transaction[];
+	setSelectedTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
 };
 
 export default function TransactionsTable({
 	transactions,
+	selectedTransactions,
+	setSelectedTransactions,
 }: TransactionsTableProps) {
-	const [selectedTransactions, setSelectedTransactions] = useState<
-		Transaction[]
-	>([]);
-
 	function formatDateGroup(date: Date) {
 		const formattedDate = dayjs(date);
 
@@ -68,18 +66,17 @@ export default function TransactionsTable({
 
 	return (
 		<div className="flex flex-col gap-4 overflow-y-auto">
-			<SelectedTransactions transactions={selectedTransactions} />
 			{Object.entries(groupedTransactions).map(([dateGroup, transactions]) => (
 				<div key={dateGroup} className="flex flex-col gap-2">
 					<div className="text-lg text-foreground font-medium pl-8">
 						{dateGroup}
 					</div>
-					<div className="flex flex-col gap-2">
+					<div className="flex flex-col gap-1">
 						{transactions.map((transaction) => (
 							<div
 								key={transaction.id}
 								className={cn(
-									"grid grid-cols-[25px_4fr_200px_1fr_100px] items-center px-2 py-1 rounded-sm transition-colors",
+									"grid grid-cols-[25px_4fr_200px_1fr_100px] items-center px-2 py-2 rounded-sm transition-colors",
 									selectedTransactions.some(
 										(slt) => slt.id === transaction.id,
 									) && "bg-primary/10",

@@ -1,13 +1,19 @@
 import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
+
+import type { Transaction } from "@/lib/schemas";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import GenerateTransactionsButton from "../components/generate-transactions-button";
+import SelectedTransactions from "../components/selected-transactions";
 import CreateTransaction from "../sections/create-transaction";
 import TransactionsTable from "../sections/transactions-table";
 
 export default function TransactionsView() {
+	const [selectedTransactions, setSelectedTransactions] = useState<
+		Transaction[]
+	>([]);
 	const trpc = useTRPC();
 
 	const listTransactionsQuery = useQuery({
@@ -20,12 +26,6 @@ export default function TransactionsView() {
 		}
 	}, [listTransactionsQuery.isError]);
 
-	useEffect(() => {
-		if (listTransactionsQuery.data) {
-			console.log(listTransactionsQuery.data);
-		}
-	}, [listTransactionsQuery.data]);
-
 	if (listTransactionsQuery.isLoading) {
 		return <div>Loading...</div>;
 	}
@@ -34,13 +34,21 @@ export default function TransactionsView() {
 		<PageContainer
 			title="Transactions"
 			actionsComponent={
-				<div className="flex gap-2">
+				<div className="flex gap-2 w-full justify-between">
 					<GenerateTransactionsButton />
+					<SelectedTransactions
+						transactions={selectedTransactions}
+						setSelectedTransactions={setSelectedTransactions}
+					/>
 					<CreateTransaction />
 				</div>
 			}
 		>
-			<TransactionsTable transactions={listTransactionsQuery.data ?? []} />
+			<TransactionsTable
+				transactions={listTransactionsQuery.data ?? []}
+				selectedTransactions={selectedTransactions}
+				setSelectedTransactions={setSelectedTransactions}
+			/>
 		</PageContainer>
 	);
 }
