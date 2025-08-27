@@ -47,6 +47,7 @@ export const transactionRouter = {
 				transactionAccount: z.string().optional(),
 				category: z.string().optional(),
 				type: z.enum(["expense", "income"]),
+				createdAt: z.date().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -57,6 +58,7 @@ export const transactionRouter = {
 				transactionAccount: input.transactionAccount,
 				category: input.category,
 				type: input.type,
+				createdAt: input.createdAt,
 			});
 		}),
 	generateTransactions: protectedProcedure.mutation(async ({ ctx }) => {

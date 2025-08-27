@@ -134,9 +134,10 @@ export const transaction = pgTable("transaction", {
 		.$defaultFn(() => crypto.randomUUID()),
 	amount: decimal("amount").notNull(),
 	description: text("description"),
-	createdAt: timestamp("created_at").$defaultFn(
-		() => /* @__PURE__ */ new Date(),
-	),
+	createdAt: timestamp("created_at").notNull(),
+	updatedAt: timestamp("updated_at")
+		.$defaultFn(() => /* @__PURE__ */ new Date())
+		.notNull(),
 	type: text("type").notNull().default("expense"),
 	transactionAccount: text("transaction_account").references(
 		() => transactionAccount.id,
