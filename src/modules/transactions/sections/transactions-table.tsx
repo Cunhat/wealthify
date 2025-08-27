@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/mixins";
 import dayjs from "dayjs";
 import AccountBadge from "../components/account-badge";
+import TransactionRowMenu from "../components/transaction-row-menu";
 
 type TransactionsTableProps = {
 	transactions: Transaction[];
@@ -76,7 +77,7 @@ export default function TransactionsTable({
 							<div
 								key={transaction.id}
 								className={cn(
-									"grid grid-cols-[25px_4fr_200px_1fr_100px] items-center px-2 py-2 rounded-sm transition-colors",
+									"grid grid-cols-[25px_4fr_200px_1fr_100px_50px] items-center px-2 py-2 rounded-sm transition-colors",
 									selectedTransactions.some(
 										(slt) => slt.id === transaction.id,
 									) && "bg-primary/10",
@@ -103,6 +104,9 @@ export default function TransactionsTable({
 									)}
 								>
 									{formatCurrency(Number(transaction.amount))}
+								</div>
+								<div className="flex justify-center">
+									<TransactionRowMenu transaction={transaction} />
 								</div>
 							</div>
 						))}

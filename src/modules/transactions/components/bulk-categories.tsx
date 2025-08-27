@@ -14,13 +14,9 @@ import { toast } from "sonner";
 
 type BulkCategoriesProps = {
 	transactions: Transaction[];
-	setSelectedTransactions: (transactions: Transaction[]) => void;
 };
 
-export default function BulkCategories({
-	transactions,
-	setSelectedTransactions,
-}: BulkCategoriesProps) {
+export default function BulkCategories({ transactions }: BulkCategoriesProps) {
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
 

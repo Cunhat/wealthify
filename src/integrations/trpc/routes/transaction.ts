@@ -169,6 +169,42 @@ export const transactionRouter = {
 					),
 				);
 		}),
+	updateTransaction: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				amount: z.number().min(1, "Amount is required").optional(),
+				description: z.string().optional(),
+				transactionAccount: z.string().optional(),
+				category: z.string().optional(),
+				type: z.enum(["expense", "income"]).optional(),
+				createdAt: z.date().optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { id, ...updateData } = input;
+
+			// Only include fields that were provided
+			const fieldsToUpdate: any = {};
+			if (updateData.amount !== undefined)
+				fieldsToUpdate.amount = updateData.amount.toString();
+			if (updateData.description !== undefined)
+				fieldsToUpdate.description = updateData.description;
+			if (updateData.transactionAccount !== undefined)
+				fieldsToUpdate.transactionAccount = updateData.transactionAccount;
+			if (updateData.category !== undefined)
+				fieldsToUpdate.category = updateData.category;
+			if (updateData.type !== undefined) fieldsToUpdate.type = updateData.type;
+			if (updateData.createdAt !== undefined)
+				fieldsToUpdate.createdAt = updateData.createdAt;
+
+			await db
+				.update(transaction)
+				.set(fieldsToUpdate)
+				.where(
+					and(eq(transaction.id, id), eq(transaction.userId, ctx.user.id)),
+				);
+		}),
 	updateTransactionCategory: protectedProcedure
 		.input(
 			z.object({
