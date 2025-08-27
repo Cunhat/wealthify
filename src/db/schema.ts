@@ -84,6 +84,19 @@ export const transactionAccount = pgTable("transaction_account", {
 		.references(() => user.id, { onDelete: "cascade" }),
 });
 
+export const transactionAccountRelations = relations(
+	transactionAccount,
+	({ many, one }) => ({
+		transactions: many(transaction, {
+			relationName: "transactionAccount",
+		}),
+		user: one(user, {
+			fields: [transactionAccount.userId],
+			references: [user.id],
+		}),
+	}),
+);
+
 export const balanceAccount = pgTable("balance_account", {
 	id: text("id")
 		.primaryKey()
@@ -121,9 +134,11 @@ export const transaction = pgTable("transaction", {
 		.$defaultFn(() => crypto.randomUUID()),
 	amount: decimal("amount").notNull(),
 	description: text("description"),
-	createdAt: timestamp("created_at").$defaultFn(
-		() => /* @__PURE__ */ new Date(),
-	),
+	createdAt: timestamp("created_at").notNull(),
+	updatedAt: timestamp("updated_at")
+		.$defaultFn(() => /* @__PURE__ */ new Date())
+		.notNull(),
+	type: text("type").notNull().default("expense"),
 	transactionAccount: text("transaction_account").references(
 		() => transactionAccount.id,
 	),
@@ -132,6 +147,31 @@ export const transaction = pgTable("transaction", {
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 });
+
+export const transactionRelations = relations(transaction, ({ one }) => ({
+	transactionAccount: one(transactionAccount, {
+		fields: [transaction.transactionAccount],
+		references: [transactionAccount.id],
+	}),
+	category: one(category, {
+		fields: [transaction.category],
+		references: [category.id],
+	}),
+	user: one(user, {
+		fields: [transaction.userId],
+		references: [user.id],
+	}),
+}));
+
+export const categoryRelations = relations(category, ({ many, one }) => ({
+	transactions: many(transaction, {
+		relationName: "transactions",
+	}),
+	user: one(user, {
+		fields: [category.userId],
+		references: [user.id],
+	}),
+}));
 
 export const balanceAccountHistory = pgTable("balance_account_history", {
 	id: text("id")
@@ -158,3 +198,26 @@ export const balanceAccountHistory = pgTable("balance_account_history", {
 	december: decimal("december").notNull().default("0"),
 	year: integer("year").notNull().default(0),
 });
+
+export const balanceAccountRelations = relations(
+	balanceAccount,
+	({ many, one }) => ({
+		user: one(user, {
+			fields: [balanceAccount.userId],
+			references: [user.id],
+		}),
+		history: many(balanceAccountHistory, {
+			relationName: "balanceAccountHistory",
+		}),
+	}),
+);
+
+export const balanceAccountHistoryRelations = relations(
+	balanceAccountHistory,
+	({ one }) => ({
+		balanceAccount: one(balanceAccount, {
+			fields: [balanceAccountHistory.balanceAccountId],
+			references: [balanceAccount.id],
+		}),
+	}),
+);

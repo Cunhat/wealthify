@@ -3,7 +3,7 @@ import { balanceAccount, transactionAccount } from "@/db/schema";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure } from "./init";
+import { protectedProcedure } from "../init";
 
 export const accountsRouter = {
 	listAccounts: protectedProcedure.query(async ({ ctx }) => {
@@ -26,13 +26,12 @@ export const accountsRouter = {
 		const transactionAccountsQuery = await db.query.transactionAccount.findMany(
 			{
 				where: eq(transactionAccount.userId, ctx.user.id),
-				with: {
-					transactions: true,
-				},
 			},
 		);
 
-		return [...transactionAccountsQuery];
+		console.log(transactionAccountsQuery);
+
+		return transactionAccountsQuery;
 	}),
 	listBalanceAccounts: protectedProcedure.query(async ({ ctx }) => {
 		const balanceAccountsQuery = await db.query.balanceAccount.findMany({

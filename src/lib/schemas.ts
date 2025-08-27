@@ -1,6 +1,11 @@
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { balanceAccount, category, transactionAccount } from "../db/schema";
+import {
+	balanceAccount,
+	category,
+	transaction,
+	transactionAccount,
+} from "../db/schema";
 
 export const transactionAccountSelectSchema =
 	createSelectSchema(transactionAccount);
@@ -14,3 +19,16 @@ export type Account = TransactionAccount | BalanceAccount;
 
 export const categorySelectSchema = createSelectSchema(category);
 export type Category = z.infer<typeof categorySelectSchema>;
+
+// Base transaction schema (without relations)
+export const transactionSelectSchema = createSelectSchema(transaction);
+export type TransactionBase = z.infer<typeof transactionSelectSchema>;
+
+// Transaction schema with relations (what we get from TRPC queries)
+export const transactionWithRelationsSchema = transactionSelectSchema.extend({
+	category: categorySelectSchema.nullable(),
+	transactionAccount: transactionAccountSelectSchema.nullable(),
+});
+
+// Export Transaction with relations as the main Transaction type since that's what we use in components
+export type Transaction = z.infer<typeof transactionWithRelationsSchema>;
