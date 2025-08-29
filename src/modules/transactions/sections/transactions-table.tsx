@@ -2,8 +2,7 @@ import CategoryBadge from "@/components/category-badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
-import { formatCurrency } from "@/utils/mixins";
-import dayjs from "dayjs";
+import { formatCurrency, groupTransactionsByDate } from "@/utils/mixins";
 import AccountBadge from "../components/account-badge";
 import TransactionRowMenu from "../components/transaction-row-menu";
 
@@ -18,38 +17,6 @@ export default function TransactionsTable({
 	selectedTransactions,
 	setSelectedTransactions,
 }: TransactionsTableProps) {
-	function formatDateGroup(date: Date) {
-		const formattedDate = dayjs(date);
-
-		if (formattedDate.isSame(dayjs(), "day")) {
-			return "Today";
-		}
-
-		if (formattedDate.isSame(dayjs().subtract(1, "day"), "day")) {
-			return "Yesterday";
-		}
-
-		return formattedDate.format("ddd, MMMM D");
-	}
-
-	function groupTransactionsByDate(transactions: Transaction[]) {
-		const groups: { [key: string]: Transaction[] } = {};
-
-		for (const transaction of transactions) {
-			if (!transaction.createdAt) continue;
-
-			const dateGroup = formatDateGroup(transaction?.createdAt);
-
-			if (!groups[dateGroup]) {
-				groups[dateGroup] = [];
-			}
-
-			groups[dateGroup].push(transaction);
-		}
-
-		return groups;
-	}
-
 	function handleSelectTransaction(
 		transaction: Transaction,
 		isSelected: boolean,

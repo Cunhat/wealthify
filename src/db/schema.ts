@@ -164,9 +164,7 @@ export const transactionRelations = relations(transaction, ({ one }) => ({
 }));
 
 export const categoryRelations = relations(category, ({ many, one }) => ({
-	transactions: many(transaction, {
-		relationName: "transactions",
-	}),
+	transactions: many(transaction),
 	user: one(user, {
 		fields: [category.userId],
 		references: [user.id],

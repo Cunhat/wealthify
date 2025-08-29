@@ -1,3 +1,4 @@
+import Category from "@/modules/categories/views/category";
 import { createFileRoute } from "@tanstack/react-router";
 import z from "zod";
 
@@ -5,11 +6,12 @@ export const Route = createFileRoute("/_authed/categories/$categoryId")({
 	params: z.object({
 		categoryId: z.string(),
 	}),
-	component: RouteComponent,
+	loader: async ({ context, params }) => {
+		await context.queryClient.prefetchQuery(
+			context.trpc.categories.getCategory.queryOptions({
+				id: params.categoryId,
+			}),
+		);
+	},
+	component: Category,
 });
-
-function RouteComponent() {
-	const { categoryId } = Route.useParams();
-
-	return <div>Category ID: {categoryId}</div>;
-}

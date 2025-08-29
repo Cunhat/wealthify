@@ -51,10 +51,10 @@ export default function Categories() {
 
 	return (
 		<PageContainer title="Categories" actionsComponent={<CategoriesActions />}>
-			<div className="h-full grid grid-cols-[1fr_10px_1fr] gap-2">
+			<div className="h-full grid grid-cols-[1fr_10px_2fr] gap-2 overflow-hidden">
 				<ListCategories categories={categoriesQuery.data ?? []} />
 				<Separator orientation="vertical" className="h-full" />
-				<div className="flex flex-col gap-2">
+				<div className="flex flex-col gap-2 overflow-hidden">
 					<Outlet />
 				</div>
 			</div>

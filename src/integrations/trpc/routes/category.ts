@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { category } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
@@ -25,4 +26,27 @@ export const categoryRouter = {
 		});
 		return categories;
 	}),
+	getCategory: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.query(async ({ ctx, input }) => {
+			const response = await db.query.category.findFirst({
+				where: and(eq(category.id, input.id), eq(category.userId, ctx.user.id)),
+				with: {
+					transactions: {
+						with: {
+							transactionAccount: true,
+						},
+					},
+				},
+			});
+
+			if (!response) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Category not found",
+				});
+			}
+
+			return response;
+		}),
 };
