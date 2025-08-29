@@ -4,7 +4,7 @@ import DeleteTransactionsDialog from "./delete-transactions-dialog";
 
 type SelectedTransactionsProps = {
 	transactions: Transaction[];
-	setSelectedTransactions: (transactions: Transaction[]) => void;
+	setSelectedTransactions: React.Dispatch<React.SetStateAction<Set<string>>>;
 };
 
 export default function SelectedTransactions({

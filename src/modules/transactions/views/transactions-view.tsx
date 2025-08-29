@@ -3,7 +3,7 @@ import { useTRPC } from "@/integrations/trpc/react";
 
 import type { Transaction } from "@/lib/schemas";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import GenerateTransactionsButton from "../components/generate-transactions-button";
 import SelectedTransactions from "../components/selected-transactions";
@@ -11,9 +11,10 @@ import CreateTransaction from "../sections/create-transaction";
 import TransactionsTable from "../sections/transactions-table";
 
 export default function TransactionsView() {
-	const [selectedTransactions, setSelectedTransactions] = useState<
-		Transaction[]
-	>([]);
+	const [selectedTransactionIds, setSelectedTransactionIds] = useState<
+		Set<string>
+	>(new Set());
+
 	const trpc = useTRPC();
 
 	const listTransactionsQuery = useQuery({
@@ -25,6 +26,18 @@ export default function TransactionsView() {
 			toast.error("Error fetching transactions");
 		}
 	}, [listTransactionsQuery.isError]);
+
+	useEffect(() => {
+		console.log("selectedTransactionIds", selectedTransactionIds);
+	}, [selectedTransactionIds]);
+
+	const selectedTransactions = useMemo(() => {
+		if (!listTransactionsQuery.data) return [];
+
+		return listTransactionsQuery.data.filter((t) =>
+			selectedTransactionIds.has(t.id),
+		);
+	}, [listTransactionsQuery.data, selectedTransactionIds]);
 
 	if (listTransactionsQuery.isLoading) {
 		return <div>Loading...</div>;
@@ -38,7 +51,7 @@ export default function TransactionsView() {
 					<GenerateTransactionsButton />
 					<SelectedTransactions
 						transactions={selectedTransactions}
-						setSelectedTransactions={setSelectedTransactions}
+						setSelectedTransactions={setSelectedTransactionIds}
 					/>
 					<CreateTransaction />
 				</div>
@@ -46,8 +59,8 @@ export default function TransactionsView() {
 		>
 			<TransactionsTable
 				transactions={listTransactionsQuery.data ?? []}
-				selectedTransactions={selectedTransactions}
-				setSelectedTransactions={setSelectedTransactions}
+				selectedTransactions={selectedTransactionIds}
+				setSelectedTransactions={setSelectedTransactionIds}
 			/>
 		</PageContainer>
 	);

@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 type DeleteTransactionsDialogProps = {
 	transactions: Transaction[];
-	setSelectedTransactions: (transactions: Transaction[]) => void;
+	setSelectedTransactions: React.Dispatch<React.SetStateAction<Set<string>>>;
 };
 
 export default function DeleteTransactionsDialog({
@@ -36,7 +36,7 @@ export default function DeleteTransactionsDialog({
 			});
 			toast.success("Transactions deleted successfully");
 			setOpen(false);
-			setSelectedTransactions([]);
+			setSelectedTransactions(new Set());
 		},
 		onError: (error) => {
 			toast.error("Failed to delete transactions");
