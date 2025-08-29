@@ -14,7 +14,7 @@ export default function ListCategories({ categories }: ListCategoriesProps) {
 					params={{ categoryId: category.id }}
 					key={category.id}
 					style={{ "--category-color": category.color } as React.CSSProperties}
-					className="flex gap-1 rounded-md p-3 items-center hover:bg-[color:var(--category-color)]/5 hover:cursor-pointer transition-colors group"
+					className="flex gap-1 rounded-md py-2 px-3 items-center hover:bg-[color:var(--category-color)]/5 hover:cursor-pointer transition-colors group"
 				>
 					<div
 						className="h-2 w-2 rounded-full"
