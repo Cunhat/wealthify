@@ -6,6 +6,7 @@ import AccountBadge from "@/modules/transactions/components/account-badge";
 import { formatCurrency, groupTransactionsByDate } from "@/utils/mixins";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import CategoryActions from "../components/category-actions";
 
 export default function Category() {
 	const trpc = useTRPC();
@@ -38,6 +39,7 @@ export default function Category() {
 				/>
 				<span>{categoryQuery.data?.icon}</span>
 				<h1 className="text-lg font-semibold">{categoryQuery.data?.name}</h1>
+				<CategoryActions categoryId={categoryId} />
 			</div>
 			{categoryQuery.data?.transactions &&
 			categoryQuery.data?.transactions?.length > 0 ? (

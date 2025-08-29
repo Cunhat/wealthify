@@ -63,7 +63,15 @@ export default function TransactionsTable({
 									{transaction.description}
 								</div>
 								<AccountBadge account={transaction?.transactionAccount} />
-								<CategoryBadge category={transaction.category} />
+								{transaction.category ? (
+									<CategoryBadge category={transaction.category} />
+								) : (
+									<div className="text-sm text-foreground">
+										<span className="text-sm text-muted-foreground">
+											No category...
+										</span>
+									</div>
+								)}
 								<div
 									className={cn(
 										"text-sm text-right",

@@ -49,4 +49,42 @@ export const categoryRouter = {
 
 			return response;
 		}),
+	updateCategory: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				name: z.string().optional(),
+				icon: z.string().optional(),
+				color: z.string().optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { id, ...updateData } = input;
+
+			// Only include fields that were provided
+			const fieldsToUpdate: Partial<{
+				name: string;
+				icon: string;
+				color: string;
+			}> = {};
+
+			if (updateData.name !== undefined) fieldsToUpdate.name = updateData.name;
+			if (updateData.icon !== undefined) fieldsToUpdate.icon = updateData.icon;
+			if (updateData.color !== undefined)
+				fieldsToUpdate.color = updateData.color;
+
+			await db
+				.update(category)
+				.set(fieldsToUpdate)
+				.where(and(eq(category.id, id), eq(category.userId, ctx.user.id)));
+		}),
+	deleteCategory: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			await db
+				.delete(category)
+				.where(
+					and(eq(category.id, input.id), eq(category.userId, ctx.user.id)),
+				);
+		}),
 };
