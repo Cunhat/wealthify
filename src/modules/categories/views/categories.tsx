@@ -1,9 +1,9 @@
+import NotFound from "@/components/not-found";
 import PageContainer from "@/components/page-container";
 import { Separator } from "@/components/ui/separator";
 import { useTRPC } from "@/integrations/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet } from "@tanstack/react-router";
-import { Inbox } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import CategoriesActions from "../sections/categories-actions";
@@ -39,12 +39,7 @@ export default function Categories() {
 				title="Categories"
 				actionsComponent={<CategoriesActions />}
 			>
-				<div className="flex flex-col gap-2 items-center justify-center h-full">
-					<Inbox className="w-10 h-10 text-muted-foreground/50" />
-					<div className="flex flex-col gap-2 text-base text-muted-foreground/50">
-						No categories found...
-					</div>
-				</div>
+				<NotFound message="No categories found..." />
 			</PageContainer>
 		);
 	}

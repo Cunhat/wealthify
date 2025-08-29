@@ -1,3 +1,4 @@
+import NotFound from "@/components/not-found";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
 import type { Account } from "@/lib/schemas";
 import { formatCurrency } from "@/utils/mixins";
@@ -12,9 +13,7 @@ export default function AssetsTab({ mergedAccounts }: AssetsTabProps) {
 	if (!mergedAccounts?.length) {
 		return (
 			<AssetTabHeader>
-				<div className="h-full flex items-center justify-center">
-					<p className="text-foreground">No accounts found...</p>
-				</div>
+				<NotFound message="No accounts found..." />
 			</AssetTabHeader>
 		);
 	}

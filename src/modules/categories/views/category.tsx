@@ -1,12 +1,11 @@
+import NotFound from "@/components/not-found";
 import { useTRPC } from "@/integrations/trpc/react";
 import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import AccountBadge from "@/modules/transactions/components/account-badge";
-import TransactionsTable from "@/modules/transactions/sections/transactions-table";
 import { formatCurrency, groupTransactionsByDate } from "@/utils/mixins";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { Inbox } from "lucide-react";
 
 export default function Category() {
 	const trpc = useTRPC();
@@ -25,8 +24,6 @@ export default function Category() {
 	if (categoryQuery.isError) {
 		return <div>Error: {categoryQuery.error.message}</div>;
 	}
-
-	console.log(categoryQuery.data);
 
 	const groupedTransactions = groupTransactionsByDate(
 		categoryQuery.data?.transactions as Transaction[],
@@ -79,12 +76,7 @@ export default function Category() {
 					)}
 				</div>
 			) : (
-				<div className="flex-1 flex justify-center items-center flex-col gap-2">
-					<Inbox size={48} className="text-muted-foreground" />
-					<p className="text-sm text-muted-foreground">
-						No transactions found for this category
-					</p>
-				</div>
+				<NotFound message="No transactions found for this category" />
 			)}
 		</div>
 	);
