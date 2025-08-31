@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { category, transaction, transactionAccount } from "@/db/schema";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
@@ -146,17 +146,40 @@ export const transactionRouter = {
 			message: `Generated ${transactions.length} transactions successfully!`,
 		};
 	}),
-	listTransactions: protectedProcedure.query(async ({ ctx }) => {
-		const transactions = await db.query.transaction.findMany({
-			where: eq(transaction.userId, ctx.user.id),
-			with: {
-				transactionAccount: true,
-				category: true,
-			},
-			orderBy: (transaction, { desc }) => [desc(transaction.createdAt)],
-		});
-		return transactions;
-	}),
+	listTransactions: protectedProcedure
+		.input(
+			z.object({
+				cursor: z.date().nullish(),
+				limit: z.number().min(1),
+			}),
+		)
+		.query(async ({ ctx, input }) => {
+			const { cursor, limit } = input;
+
+			const transactions = await db.query.transaction.findMany({
+				where: and(
+					eq(transaction.userId, ctx.user.id),
+					cursor ? lt(transaction.createdAt, cursor) : undefined,
+				),
+				with: {
+					transactionAccount: true,
+					category: true,
+				},
+				limit: limit + 1,
+				orderBy: (transaction, { desc }) => [desc(transaction.createdAt)],
+			});
+
+			const hasMore = transactions.length > limit;
+
+			const items = hasMore ? transactions.slice(0, -1) : transactions;
+			const lastItem = items[items.length - 1];
+			const nextCursor = hasMore ? lastItem?.createdAt : undefined;
+
+			return {
+				transactions: items,
+				nextCursor,
+			};
+		}),
 	deleteTransaction: protectedProcedure
 		.input(z.object({ transactions: z.array(z.string()) }))
 		.mutation(async ({ ctx, input }) => {

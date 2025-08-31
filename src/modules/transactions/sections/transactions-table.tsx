@@ -1,8 +1,10 @@
 import CategoryBadge from "@/components/category-badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { formatCurrency, groupTransactionsByDate } from "@/utils/mixins";
+import type { UseInfiniteQueryResult } from "@tanstack/react-query";
 import { memo, useCallback, useMemo } from "react";
 import AccountBadge from "../components/account-badge";
 import TransactionRowMenu from "../components/transaction-row-menu";
@@ -11,12 +13,17 @@ type TransactionsTableProps = {
 	transactions: Transaction[];
 	selectedTransactions: Set<string>;
 	setSelectedTransactions: React.Dispatch<React.SetStateAction<Set<string>>>;
+	listTransactionsQuery: UseInfiniteQueryResult<{
+		transactions: Transaction[];
+		nextCursor: Date | null;
+	}>;
 };
 
 export default function TransactionsTable({
 	transactions,
 	selectedTransactions,
 	setSelectedTransactions,
+	listTransactionsQuery,
 }: TransactionsTableProps) {
 	const handleSelectTransaction = useCallback(
 		(transaction: Transaction, isSelected: boolean) => {
@@ -58,6 +65,20 @@ export default function TransactionsTable({
 					</div>
 				</div>
 			))}
+			{listTransactionsQuery.hasNextPage && (
+				<div className="flex justify-center">
+					<Button
+						onClick={() => listTransactionsQuery.fetchNextPage()}
+						variant="outline"
+						size="sm"
+						disabled={listTransactionsQuery.isFetchingNextPage}
+					>
+						{listTransactionsQuery.isFetchingNextPage
+							? "Loading..."
+							: "Load more"}
+					</Button>
+				</div>
+			)}
 		</div>
 	);
 }

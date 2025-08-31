@@ -1,8 +1,9 @@
 import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 
+import { Button } from "@/components/ui/button";
 import type { Transaction } from "@/lib/schemas";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import GenerateTransactionsButton from "../components/generate-transactions-button";
@@ -17,8 +18,12 @@ export default function TransactionsView() {
 
 	const trpc = useTRPC();
 
-	const listTransactionsQuery = useQuery({
-		...trpc.transactions.listTransactions.queryOptions(),
+	const listTransactionsQuery = useInfiniteQuery({
+		...trpc.transactions.listTransactions.infiniteQueryOptions({
+			limit: 100,
+		}),
+		getNextPageParam: (lastPage) => lastPage.nextCursor,
+		initialPageParam: null as Date | null,
 	});
 
 	useEffect(() => {
@@ -28,14 +33,14 @@ export default function TransactionsView() {
 	}, [listTransactionsQuery.isError]);
 
 	useEffect(() => {
-		console.log("selectedTransactionIds", selectedTransactionIds);
-	}, [selectedTransactionIds]);
+		console.log("selectedTransactionIds", listTransactionsQuery.data);
+	}, [listTransactionsQuery]);
 
 	const selectedTransactions = useMemo(() => {
 		if (!listTransactionsQuery.data) return [];
 
-		return listTransactionsQuery.data.filter((t) =>
-			selectedTransactionIds.has(t.id),
+		return listTransactionsQuery.data.pages.flatMap((page) =>
+			page.transactions.filter((t) => selectedTransactionIds.has(t.id)),
 		);
 	}, [listTransactionsQuery.data, selectedTransactionIds]);
 
@@ -58,9 +63,14 @@ export default function TransactionsView() {
 			}
 		>
 			<TransactionsTable
-				transactions={listTransactionsQuery.data ?? []}
+				transactions={
+					listTransactionsQuery.data?.pages.flatMap(
+						(page) => page.transactions,
+					) ?? []
+				}
 				selectedTransactions={selectedTransactionIds}
 				setSelectedTransactions={setSelectedTransactionIds}
+				listTransactionsQuery={listTransactionsQuery}
 			/>
 		</PageContainer>
 	);
