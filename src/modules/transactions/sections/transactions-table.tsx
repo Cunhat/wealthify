@@ -13,17 +13,18 @@ type TransactionsTableProps = {
 	transactions: Transaction[];
 	selectedTransactions: Set<string>;
 	setSelectedTransactions: React.Dispatch<React.SetStateAction<Set<string>>>;
-	listTransactionsQuery: UseInfiniteQueryResult<{
-		transactions: Transaction[];
-		nextCursor: Date | null;
-	}>;
+	hasNextPage: boolean;
+	fetchNextPage: () => void;
+	isFetchingNextPage: boolean;
 };
 
 export default function TransactionsTable({
 	transactions,
 	selectedTransactions,
 	setSelectedTransactions,
-	listTransactionsQuery,
+	hasNextPage,
+	fetchNextPage,
+	isFetchingNextPage,
 }: TransactionsTableProps) {
 	const handleSelectTransaction = useCallback(
 		(transaction: Transaction, isSelected: boolean) => {
@@ -65,17 +66,15 @@ export default function TransactionsTable({
 					</div>
 				</div>
 			))}
-			{listTransactionsQuery.hasNextPage && (
+			{hasNextPage && (
 				<div className="flex justify-center">
 					<Button
-						onClick={() => listTransactionsQuery.fetchNextPage()}
+						onClick={() => fetchNextPage()}
 						variant="outline"
 						size="sm"
-						disabled={listTransactionsQuery.isFetchingNextPage}
+						disabled={isFetchingNextPage}
 					>
-						{listTransactionsQuery.isFetchingNextPage
-							? "Loading..."
-							: "Load more"}
+						{isFetchingNextPage ? "Loading..." : "Load more"}
 					</Button>
 				</div>
 			)}

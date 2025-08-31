@@ -29,8 +29,6 @@ export const accountsRouter = {
 			},
 		);
 
-		console.log(transactionAccountsQuery);
-
 		return transactionAccountsQuery;
 	}),
 	listBalanceAccounts: protectedProcedure.query(async ({ ctx }) => {

@@ -1,19 +1,31 @@
 import TransactionsView from "@/modules/transactions/views/transactions-view";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { z } from "zod";
 
 export const Route = createFileRoute("/_authed/transactions")({
 	component: TransactionsView,
-	beforeLoad: async ({ context }) => {
+	validateSearch: z.object({
+		category: z.array(z.string()).optional().catch([]),
+	}),
+	beforeLoad: async ({ context, search }) => {
 		if (!context.user) {
 			throw redirect({ to: "/login" });
 		}
+
+		return {
+			search: search,
+		};
 	},
-	loader: async ({ context }) => {
+	loader: async (test) => {
+		const { context } = test;
+
 		await context.queryClient.prefetchQuery(
 			context.trpc.transactions.listTransactions.queryOptions({
 				limit: 100,
+				categoryNames: context.search.category,
 			}),
 		);
+
 		await context.queryClient.prefetchQuery(
 			context.trpc.accounts.listTransactionAccounts.queryOptions(),
 		);

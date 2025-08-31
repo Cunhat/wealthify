@@ -58,7 +58,7 @@ export const transactionRouter = {
 				transactionAccount: input.transactionAccount,
 				category: input.category,
 				type: input.type,
-				createdAt: input.createdAt,
+				createdAt: input.createdAt || new Date(),
 			});
 		}),
 	generateTransactions: protectedProcedure.mutation(async ({ ctx }) => {
@@ -151,16 +151,35 @@ export const transactionRouter = {
 			z.object({
 				cursor: z.date().nullish(),
 				limit: z.number().min(1),
+				categoryNames: z.array(z.string()).optional(),
 			}),
 		)
 		.query(async ({ ctx, input }) => {
-			const { cursor, limit } = input;
+			const { cursor, limit, categoryNames } = input;
 
+			// Build where conditions
+			const whereConditions = [eq(transaction.userId, ctx.user.id)];
+
+			if (cursor) {
+				whereConditions.push(lt(transaction.createdAt, cursor));
+			}
+
+			if (categoryNames && categoryNames.length > 0) {
+				const categories = await db.query.category.findMany({
+					where: inArray(category.name, categoryNames),
+				});
+
+				whereConditions.push(
+					inArray(
+						transaction.category,
+						categories.map((c) => c.id),
+					),
+				);
+			}
+
+			// If category filtering is requested, we need to join with category table
 			const transactions = await db.query.transaction.findMany({
-				where: and(
-					eq(transaction.userId, ctx.user.id),
-					cursor ? lt(transaction.createdAt, cursor) : undefined,
-				),
+				where: and(...whereConditions),
 				with: {
 					transactionAccount: true,
 					category: true,
@@ -168,6 +187,8 @@ export const transactionRouter = {
 				limit: limit + 1,
 				orderBy: (transaction, { desc }) => [desc(transaction.createdAt)],
 			});
+
+			// Filter by category names if provided
 
 			const hasMore = transactions.length > limit;
 
@@ -208,7 +229,14 @@ export const transactionRouter = {
 			const { id, ...updateData } = input;
 
 			// Only include fields that were provided
-			const fieldsToUpdate: any = {};
+			const fieldsToUpdate: Partial<{
+				amount: string;
+				description: string | null;
+				transactionAccount: string | null;
+				category: string | null;
+				type: "expense" | "income";
+				createdAt: Date;
+			}> = {};
 			if (updateData.amount !== undefined)
 				fieldsToUpdate.amount = updateData.amount.toString();
 			if (updateData.description !== undefined)

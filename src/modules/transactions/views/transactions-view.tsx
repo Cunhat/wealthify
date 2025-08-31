@@ -1,13 +1,12 @@
 import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 
-import { Button } from "@/components/ui/button";
-import type { Transaction } from "@/lib/schemas";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import GenerateTransactionsButton from "../components/generate-transactions-button";
 import SelectedTransactions from "../components/selected-transactions";
+import TransactionsFilters from "../components/transactions-filters";
 import CreateTransaction from "../sections/create-transaction";
 import TransactionsTable from "../sections/transactions-table";
 
@@ -17,10 +16,15 @@ export default function TransactionsView() {
 	>(new Set());
 
 	const trpc = useTRPC();
+	const search = useSearch({ from: "/_authed/transactions" });
 
 	const listTransactionsQuery = useInfiniteQuery({
 		...trpc.transactions.listTransactions.infiniteQueryOptions({
 			limit: 100,
+			categoryNames:
+				search.category && search.category.length > 0
+					? search.category
+					: undefined,
 		}),
 		getNextPageParam: (lastPage) => lastPage.nextCursor,
 		initialPageParam: null as Date | null,
@@ -31,10 +35,6 @@ export default function TransactionsView() {
 			toast.error("Error fetching transactions");
 		}
 	}, [listTransactionsQuery.isError]);
-
-	useEffect(() => {
-		console.log("selectedTransactionIds", listTransactionsQuery.data);
-	}, [listTransactionsQuery]);
 
 	const selectedTransactions = useMemo(() => {
 		if (!listTransactionsQuery.data) return [];
@@ -53,7 +53,8 @@ export default function TransactionsView() {
 			title="Transactions"
 			actionsComponent={
 				<div className="flex gap-2 w-full justify-between">
-					<GenerateTransactionsButton />
+					{/* <GenerateTransactionsButton /> */}
+					<TransactionsFilters />
 					<SelectedTransactions
 						transactions={selectedTransactions}
 						setSelectedTransactions={setSelectedTransactionIds}
@@ -70,7 +71,9 @@ export default function TransactionsView() {
 				}
 				selectedTransactions={selectedTransactionIds}
 				setSelectedTransactions={setSelectedTransactionIds}
-				listTransactionsQuery={listTransactionsQuery}
+				hasNextPage={listTransactionsQuery.hasNextPage}
+				fetchNextPage={listTransactionsQuery.fetchNextPage}
+				isFetchingNextPage={listTransactionsQuery.isFetchingNextPage}
 			/>
 		</PageContainer>
 	);
