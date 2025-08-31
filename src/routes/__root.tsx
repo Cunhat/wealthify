@@ -18,7 +18,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { useEffect } from "react";
-import { scan } from "react-scan";
 import { Toaster } from "sonner";
 
 interface MyRouterContext {
@@ -71,10 +70,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
-		// Make sure to run this only after hydration
-		scan({
-			enabled: true,
-		});
+		if (import.meta.env.DEV) {
+			import("react-scan").then(({ scan }) => {
+				scan({ enabled: true });
+			});
+		}
 	}, []);
 	return (
 		<html lang="en">

@@ -36,7 +36,7 @@ export default function DeleteTransactionsDialog({
 			});
 			toast.success("Transactions deleted successfully");
 			setOpen(false);
-			setSelectedTransactions(new Set());
+			setSelectedTransactions(new Set<string>());
 		},
 		onError: (error) => {
 			toast.error("Failed to delete transactions");
