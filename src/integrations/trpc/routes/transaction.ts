@@ -152,10 +152,11 @@ export const transactionRouter = {
 				cursor: z.date().nullish(),
 				limit: z.number().min(1),
 				categoryNames: z.array(z.string()).optional(),
+				accountNames: z.array(z.string()).optional(),
 			}),
 		)
 		.query(async ({ ctx, input }) => {
-			const { cursor, limit, categoryNames } = input;
+			const { cursor, limit, categoryNames, accountNames } = input;
 
 			// Build where conditions
 			const whereConditions = [eq(transaction.userId, ctx.user.id)];
@@ -173,6 +174,20 @@ export const transactionRouter = {
 					inArray(
 						transaction.category,
 						categories.map((c) => c.id),
+					),
+				);
+			}
+			console.log("accountNames", accountNames);
+			// Add account filtering
+			if (accountNames && accountNames.length > 0) {
+				const accounts = await db.query.transactionAccount.findMany({
+					where: inArray(transactionAccount.name, accountNames),
+				});
+
+				whereConditions.push(
+					inArray(
+						transaction.transactionAccount,
+						accounts.map((a) => a.id),
 					),
 				);
 			}

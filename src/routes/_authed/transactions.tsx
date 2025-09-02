@@ -6,6 +6,7 @@ export const Route = createFileRoute("/_authed/transactions")({
 	component: TransactionsView,
 	validateSearch: z.object({
 		category: z.array(z.string()).optional().catch([]),
+		account: z.array(z.string()).optional().catch([]),
 	}),
 	beforeLoad: async ({ context, search }) => {
 		if (!context.user) {
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/_authed/transactions")({
 			context.trpc.transactions.listTransactions.queryOptions({
 				limit: 100,
 				categoryNames: context.search.category,
+				accountNames: context.search.account,
 			}),
 		);
 

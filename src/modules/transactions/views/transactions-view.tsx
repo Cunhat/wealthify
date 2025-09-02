@@ -2,11 +2,14 @@ import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useSearch } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import SelectedTransactions from "../components/selected-transactions";
-import TransactionsFilters from "../components/transactions-filters";
+import {
+	AppliedFilters,
+	TransactionsFilters,
+} from "../components/transactions-filters";
 import CreateTransaction from "../sections/create-transaction";
 import TransactionsTable from "../sections/transactions-table";
 
@@ -16,6 +19,7 @@ export default function TransactionsView() {
 	>(new Set());
 
 	const trpc = useTRPC();
+	const navigate = useNavigate();
 	const search = useSearch({ from: "/_authed/transactions" });
 
 	const listTransactionsQuery = useInfiniteQuery({
@@ -24,6 +28,10 @@ export default function TransactionsView() {
 			categoryNames:
 				search.category && search.category.length > 0
 					? search.category
+					: undefined,
+			accountNames:
+				search.account && search.account.length > 0
+					? search.account
 					: undefined,
 		}),
 		getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -54,15 +62,16 @@ export default function TransactionsView() {
 			actionsComponent={
 				<div className="flex gap-2 w-full justify-between">
 					{/* <GenerateTransactionsButton /> */}
-					<TransactionsFilters />
 					<SelectedTransactions
 						transactions={selectedTransactions}
 						setSelectedTransactions={setSelectedTransactionIds}
 					/>
+					<TransactionsFilters />
 					<CreateTransaction />
 				</div>
 			}
 		>
+			<AppliedFilters />
 			<TransactionsTable
 				transactions={
 					listTransactionsQuery.data?.pages.flatMap(

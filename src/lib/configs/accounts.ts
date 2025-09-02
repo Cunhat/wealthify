@@ -61,6 +61,8 @@ export type AccountsGroupedByType = {
 		icon: LucideIcon;
 		iconBg: string;
 		iconFg: string;
+		iconBgHex: string;
+		iconFgHex: string;
 	}[];
 };
 
@@ -77,6 +79,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Landmark,
 				iconBg: "bg-blue-100",
 				iconFg: "text-blue-700",
+				iconBgHex: "#dbeafe",
+				iconFgHex: "#1d4ed8",
 			},
 			{
 				type: "savings_account",
@@ -85,6 +89,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Wallet,
 				iconBg: "bg-emerald-100",
 				iconFg: "text-emerald-700",
+				iconBgHex: "#d1fae5",
+				iconFgHex: "#047857",
 			},
 			{
 				type: "cash",
@@ -93,6 +99,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Coins,
 				iconBg: "bg-amber-100",
 				iconFg: "text-amber-700",
+				iconBgHex: "#fef3c7",
+				iconFgHex: "#b45309",
 			},
 			{
 				type: "money_market_account",
@@ -102,6 +110,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: BarChart3,
 				iconBg: "bg-violet-100",
 				iconFg: "text-violet-700",
+				iconBgHex: "#ede9fe",
+				iconFgHex: "#6d28d9",
 			},
 		],
 	},
@@ -117,6 +127,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: CreditCard,
 				iconBg: "bg-rose-100",
 				iconFg: "text-rose-700",
+				iconBgHex: "#ffe4e6",
+				iconFgHex: "#be123c",
 			},
 			{
 				type: "loan_account",
@@ -125,6 +137,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Landmark,
 				iconBg: "bg-orange-100",
 				iconFg: "text-orange-700",
+				iconBgHex: "#fed7aa",
+				iconFgHex: "#c2410c",
 			},
 			{
 				type: "mortgage",
@@ -133,6 +147,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Home,
 				iconBg: "bg-cyan-100",
 				iconFg: "text-cyan-700",
+				iconBgHex: "#cffafe",
+				iconFgHex: "#0e7490",
 			},
 			{
 				type: "line_of_credit",
@@ -141,6 +157,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: LineChart,
 				iconBg: "bg-lime-100",
 				iconFg: "text-lime-700",
+				iconBgHex: "#ecfccb",
+				iconFgHex: "#4d7c0f",
 			},
 		],
 	},
@@ -157,6 +175,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: LineChart,
 				iconBg: "bg-indigo-100",
 				iconFg: "text-indigo-700",
+				iconBgHex: "#e0e7ff",
+				iconFgHex: "#4338ca",
 			},
 			{
 				type: "retirement_account",
@@ -165,6 +185,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Shield,
 				iconBg: "bg-teal-100",
 				iconFg: "text-teal-700",
+				iconBgHex: "#ccfbf1",
+				iconFgHex: "#0f766e",
 			},
 			{
 				type: "crypto_wallet",
@@ -173,6 +195,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Bitcoin,
 				iconBg: "bg-yellow-100",
 				iconFg: "text-yellow-700",
+				iconBgHex: "#fef9c3",
+				iconFgHex: "#a16207",
 			},
 			{
 				type: "mutual_fund_account",
@@ -181,6 +205,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Layers,
 				iconBg: "bg-fuchsia-100",
 				iconFg: "text-fuchsia-700",
+				iconBgHex: "#fae8ff",
+				iconFgHex: "#a21caf",
 			},
 		],
 	},
@@ -196,6 +222,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Building2,
 				iconBg: "bg-slate-100",
 				iconFg: "text-slate-700",
+				iconBgHex: "#f1f5f9",
+				iconFgHex: "#334155",
 			},
 			{
 				type: "vehicle",
@@ -204,6 +232,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Car,
 				iconBg: "bg-sky-100",
 				iconFg: "text-sky-700",
+				iconBgHex: "#e0f2fe",
+				iconFgHex: "#0369a1",
 			},
 			{
 				type: "other_assets",
@@ -213,6 +243,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Package,
 				iconBg: "bg-neutral-100",
 				iconFg: "text-neutral-700",
+				iconBgHex: "#f5f5f5",
+				iconFgHex: "#404040",
 			},
 		],
 	},
@@ -228,6 +260,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Receipt,
 				iconBg: "bg-zinc-100",
 				iconFg: "text-zinc-700",
+				iconBgHex: "#f4f4f5",
+				iconFgHex: "#3f3f46",
 			},
 			{
 				type: "taxes_owed",
@@ -236,6 +270,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: Percent,
 				iconBg: "bg-red-100",
 				iconFg: "text-red-700",
+				iconBgHex: "#fee2e2",
+				iconFgHex: "#b91c1c",
 			},
 			{
 				type: "other_debts",
@@ -244,6 +280,8 @@ export const AccountTypeGroups: AccountsGroupedByType[] = [
 				icon: TrendingDown,
 				iconBg: "bg-stone-100",
 				iconFg: "text-stone-700",
+				iconBgHex: "#f5f5f4",
+				iconFgHex: "#44403c",
 			},
 		],
 	},
