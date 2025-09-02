@@ -3,6 +3,7 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
+import AccountActions from "../components/account-actions";
 
 export default function AccountView() {
 	const { accountId } = useParams({ from: "/_authed/accounts/$accountId" });
@@ -31,8 +32,11 @@ export default function AccountView() {
 	}
 
 	return (
-		<PageContainer title="Account Details">
-			{accountQuery.data?.name}
+		<PageContainer
+			title="Account Details"
+			actionsComponent={<AccountActions accountId={accountId} />}
+		>
+			{accountQuery.data?.account.name}
 		</PageContainer>
 	);
 }
