@@ -1,8 +1,9 @@
+import AccountView from "@/modules/accounts/views/account-view";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import z from "zod";
 
 export const Route = createFileRoute("/_authed/accounts/$accountId")({
-	component: AccountDetailsView,
+	component: AccountView,
 	params: z.object({
 		accountId: z.string(),
 	}),
@@ -10,6 +11,13 @@ export const Route = createFileRoute("/_authed/accounts/$accountId")({
 		if (!context.user) {
 			throw redirect({ to: "/login" });
 		}
+	},
+	loader: async ({ context, params }) => {
+		await context.queryClient.prefetchQuery(
+			context.trpc.accounts.getAccount.queryOptions({
+				id: params.accountId,
+			}),
+		);
 	},
 	head: () => ({
 		meta: [
@@ -19,14 +27,3 @@ export const Route = createFileRoute("/_authed/accounts/$accountId")({
 		],
 	}),
 });
-
-function AccountDetailsView() {
-	const { accountId } = Route.useParams();
-
-	return (
-		<div className="p-6">
-			<h1 className="text-2xl font-bold">Account Details</h1>
-			<p className="text-muted-foreground">Account ID: {accountId}</p>
-		</div>
-	);
-}

@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { balanceAccount, transactionAccount } from "@/db/schema";
-import type { TRPCRouterRecord } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
@@ -66,5 +66,25 @@ export const accountsRouter = {
 					name: input.name,
 				});
 			}
+		}),
+	getAccount: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.query(async ({ ctx, input }) => {
+			const balanceAccountResponse = await db.query.balanceAccount.findFirst({
+				where: and(
+					eq(balanceAccount.id, input.id),
+					eq(balanceAccount.userId, ctx.user.id),
+				),
+			});
+			if (balanceAccountResponse) {
+				return balanceAccountResponse;
+			}
+			const account = await db.query.transactionAccount.findFirst({
+				where: and(
+					eq(transactionAccount.id, input.id),
+					eq(transactionAccount.userId, ctx.user.id),
+				),
+			});
+			return account;
 		}),
 } satisfies TRPCRouterRecord;
