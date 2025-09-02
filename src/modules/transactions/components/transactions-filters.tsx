@@ -161,8 +161,6 @@ export function AppliedFilters() {
 	const navigate = useNavigate();
 	const search = useSearch({ from: "/_authed/transactions" });
 
-	console.log(search);
-
 	// Function to remove a specific category from the URL
 	const removeCategoryFilter = (categoryName: string) => {
 		const selectedCategories = search.category || [];
@@ -236,8 +234,6 @@ export function AppliedFilters() {
 						const accountInfo = AccountTypeGroups.flatMap(
 							(elem) => elem.children,
 						).find((child) => child.type === account.type);
-
-						console.log(accountInfo);
 
 						return (
 							<button

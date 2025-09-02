@@ -177,7 +177,7 @@ export const transactionRouter = {
 					),
 				);
 			}
-			console.log("accountNames", accountNames);
+
 			// Add account filtering
 			if (accountNames && accountNames.length > 0) {
 				const accounts = await db.query.transactionAccount.findMany({
