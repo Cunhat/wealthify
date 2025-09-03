@@ -150,26 +150,27 @@ export const accountsRouter = {
 	deleteAccount: protectedProcedure
 		.input(z.object({ id: z.string(), isTransactionAccount: z.boolean() }))
 		.mutation(async ({ ctx, input }) => {
+			console.log(input);
 			if (input.isTransactionAccount) {
-				await db
+				const result = await db
 					.delete(transactionAccount)
 					.where(
 						and(
 							eq(transactionAccount.id, input.id),
 							eq(transactionAccount.userId, ctx.user.id),
 						),
-					)
-					.returning({ id: transactionAccount.id });
+					);
+				console.log(result);
 			} else {
-				await db
+				console.log("deleting balance account");
+				const result = await db
 					.delete(balanceAccount)
 					.where(
 						and(
 							eq(balanceAccount.id, input.id),
 							eq(balanceAccount.userId, ctx.user.id),
 						),
-					)
-					.returning({ id: balanceAccount.id });
+					);
 			}
 		}),
 } satisfies TRPCRouterRecord;

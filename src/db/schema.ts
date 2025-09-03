@@ -141,6 +141,7 @@ export const transaction = pgTable("transaction", {
 	type: text("type").notNull().default("expense"),
 	transactionAccount: text("transaction_account").references(
 		() => transactionAccount.id,
+		{ onDelete: "cascade" },
 	),
 	category: text("category").references(() => category.id, {
 		onDelete: "set null",
