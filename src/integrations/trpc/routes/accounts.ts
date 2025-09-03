@@ -99,36 +99,20 @@ export const accountsRouter = {
 			z.object({
 				id: z.string(),
 				name: z.string().min(1, "Account name is required"),
-				balance: z.number().min(0, "Balance must be non-negative"),
+				type: z.string().min(1, "Account type is required"),
 				initialBalance: z
 					.number()
 					.min(0, "Initial balance must be non-negative"),
+				isTransactionAccount: z.boolean(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			// First, try to update in balanceAccount
-			const balanceAccountResult = await db
-				.update(balanceAccount)
-				.set({
-					name: input.name,
-					balance: input.balance.toString(),
-					initialBalance: input.initialBalance.toString(),
-				})
-				.where(
-					and(
-						eq(balanceAccount.id, input.id),
-						eq(balanceAccount.userId, ctx.user.id),
-					),
-				)
-				.returning({ id: balanceAccount.id });
-
-			// If no rows were affected, try transactionAccount
-			if (balanceAccountResult.length === 0) {
-				const transactionAccountResult = await db
+			if (input.isTransactionAccount) {
+				await db
 					.update(transactionAccount)
 					.set({
 						name: input.name,
-						balance: input.balance.toString(),
+						type: input.type,
 						initialBalance: input.initialBalance.toString(),
 					})
 					.where(
@@ -138,13 +122,20 @@ export const accountsRouter = {
 						),
 					)
 					.returning({ id: transactionAccount.id });
-
-				if (transactionAccountResult.length === 0) {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "Account not found",
-					});
-				}
+			} else {
+				await db
+					.update(balanceAccount)
+					.set({
+						name: input.name,
+						type: input.type,
+						initialBalance: input.initialBalance.toString(),
+					})
+					.where(
+						and(
+							eq(balanceAccount.id, input.id),
+							eq(balanceAccount.userId, ctx.user.id),
+						),
+					);
 			}
 		}),
 	deleteAccount: protectedProcedure
