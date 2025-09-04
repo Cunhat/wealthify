@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
 import AccountActions from "../components/account-actions";
+import BalanceAccount from "../sections/balance-account";
 import TransactionAccount from "../sections/transaction-account";
 
 export default function AccountView() {
@@ -48,7 +49,7 @@ export default function AccountView() {
 			title="Account Details"
 			actionsComponent={<AccountActions accountId={accountId} />}
 		>
-			{accountQuery.data?.account.name}
+			<BalanceAccount account={accountQuery.data?.account} />
 		</PageContainer>
 	);
 }
