@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { balanceAccount, transactionAccount } from "@/db/schema";
-import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
+import type { TRPCRouterRecord } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
@@ -86,6 +86,13 @@ export const accountsRouter = {
 					eq(transactionAccount.id, input.id),
 					eq(transactionAccount.userId, ctx.user.id),
 				),
+				with: {
+					transactions: {
+						with: {
+							category: true,
+						},
+					},
+				},
 			});
 
 			if (account) {
@@ -141,9 +148,8 @@ export const accountsRouter = {
 	deleteAccount: protectedProcedure
 		.input(z.object({ id: z.string(), isTransactionAccount: z.boolean() }))
 		.mutation(async ({ ctx, input }) => {
-			console.log(input);
 			if (input.isTransactionAccount) {
-				const result = await db
+				await db
 					.delete(transactionAccount)
 					.where(
 						and(
@@ -151,10 +157,8 @@ export const accountsRouter = {
 							eq(transactionAccount.userId, ctx.user.id),
 						),
 					);
-				console.log(result);
 			} else {
-				console.log("deleting balance account");
-				const result = await db
+				await db
 					.delete(balanceAccount)
 					.where(
 						and(

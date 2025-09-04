@@ -2,7 +2,28 @@ import { AccountTypeGroups } from "@/lib/configs/accounts";
 import type { Account } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
-export default function AccountBadge({ account }: { account: Account | null }) {
+const SIZES = {
+	default: {
+		outerIcon: "h-6 w-6",
+		innerIcon: "h-3 w-3",
+		text: "text-sm",
+	},
+	lg: {
+		outerIcon: "h-8 w-8",
+		innerIcon: "h-4 w-4",
+		text: "text-base",
+	},
+};
+
+type AccountBadgeProps = {
+	account: Account | null;
+	size?: keyof typeof SIZES;
+};
+
+export default function AccountBadge({
+	account,
+	size = "default",
+}: AccountBadgeProps) {
 	if (!account) {
 		return null;
 	}
@@ -19,14 +40,15 @@ export default function AccountBadge({ account }: { account: Account | null }) {
 		<div className="flex gap-1 items-center">
 			<div
 				className={cn(
-					"h-6 w-6 rounded-full flex items-center justify-center",
+					"rounded-full flex items-center justify-center",
+					SIZES[size].outerIcon,
 					AccountInfo?.iconBg,
 					AccountInfo?.iconFg,
 				)}
 			>
-				<AccountInfo.icon className="h-3 w-3" />
+				<AccountInfo.icon className={SIZES[size].innerIcon} />
 			</div>
-			<p className="text-sm">{account.name}</p>
+			<p className={SIZES[size].text}>{account.name}</p>
 		</div>
 	);
 }

@@ -4,7 +4,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { formatCurrency, groupTransactionsByDate } from "@/utils/mixins";
-import type { UseInfiniteQueryResult } from "@tanstack/react-query";
 import { memo, useCallback, useMemo } from "react";
 import AccountBadge from "../components/account-badge";
 import TransactionRowMenu from "../components/transaction-row-menu";

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
 import AccountActions from "../components/account-actions";
+import TransactionAccount from "../sections/transaction-account";
 
 export default function AccountView() {
 	const { accountId } = useParams({ from: "/_authed/accounts/$accountId" });
@@ -27,6 +28,17 @@ export default function AccountView() {
 					<CircleAlert className="w-10 h-10 text-muted-foreground/50" />
 					<h1 className="text-xl font-bold">Something went wrong...</h1>
 				</div>
+			</PageContainer>
+		);
+	}
+
+	if (accountQuery.data?.isTransactionAccount) {
+		return (
+			<PageContainer
+				title="Account Details"
+				actionsComponent={<AccountActions accountId={accountId} />}
+			>
+				<TransactionAccount account={accountQuery.data?.account} />
 			</PageContainer>
 		);
 	}

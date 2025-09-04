@@ -1,13 +1,5 @@
 import { Button } from "@/components/ui/button";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
@@ -15,27 +7,11 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTRPC } from "@/integrations/trpc/react";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
-import type { Account } from "@/lib/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { Edit, EllipsisVertical, Loader, Trash2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Edit, EllipsisVertical, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 import DeleteAccountDialog from "./delete-account-dialog";
 import EditAccountDialog from "./edit-account-dialog";
 
@@ -64,12 +40,6 @@ export default function AccountActions({ accountId }: AccountActionsProps) {
 		return null;
 	}
 
-	// Find the account type label for display
-	const accountTypeLabel =
-		AccountTypeGroups.flatMap((group) => group.children).find(
-			(account) => account.type === accountQuery.data?.account.type,
-		)?.label || accountQuery.data?.account.type;
-
 	return (
 		<>
 			<DropdownMenu>
@@ -80,14 +50,13 @@ export default function AccountActions({ accountId }: AccountActionsProps) {
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
-					<DropdownMenuLabel>Actions</DropdownMenuLabel>
+					<DropdownMenuLabel>Account Actions</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 
 					<DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
 						<Edit className="h-4 w-4" />
 						Edit Account
 					</DropdownMenuItem>
-					<DropdownMenuSeparator />
 					<DropdownMenuItem
 						onClick={() => setDeleteDialogOpen(true)}
 						className="text-destructive focus:text-destructive"
