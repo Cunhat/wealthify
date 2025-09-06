@@ -12,7 +12,6 @@ import {
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -79,7 +78,6 @@ export default function UpdateBalanceDialog({
 	});
 
 	function onSubmit(values: FormValues) {
-		console.log(values);
 		addBalanceUpdateMutation.mutate({
 			id: account.id,
 			balance: values.balance,

@@ -101,6 +101,13 @@ export const accountsRouter = {
 					eq(balanceAccount.id, input.id),
 					eq(balanceAccount.userId, ctx.user.id),
 				),
+				with: {
+					history: {
+						orderBy: (balanceAccountHistory, { desc }) => [
+							desc(balanceAccountHistory.year),
+						],
+					},
+				},
 			});
 
 			if (balanceAccountResponse) {
