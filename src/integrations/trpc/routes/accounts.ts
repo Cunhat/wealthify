@@ -7,6 +7,7 @@ import {
 import type { TRPCRouterRecord } from "@trpc/server";
 import dayjs from "dayjs";
 import { and, eq } from "drizzle-orm";
+import { CloudCog } from "lucide-react";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
@@ -221,7 +222,9 @@ export const accountsRouter = {
 				)
 				.returning();
 
-			if (balanceHistory) {
+			console.log(balanceHistory);
+
+			if (balanceHistory && balanceHistory.length > 0) {
 				const mostRecentYearHistory =
 					await db.query.balanceAccountHistory.findFirst({
 						where: and(
@@ -259,6 +262,14 @@ export const accountsRouter = {
 							),
 						);
 				}
+			} else {
+				await db.insert(balanceAccountHistory).values({
+					balanceAccountId: input.id,
+					balance: input.balance.toString(),
+					year: year,
+					[month]: input.balance.toString(),
+					userId: ctx.user.id,
+				});
 			}
 		}),
 } satisfies TRPCRouterRecord;

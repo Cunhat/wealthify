@@ -15,8 +15,6 @@ export default function BalanceAccount({ account }: BalanceAccountProps) {
 		return dayjs().month(monthIndex).format("MMMM").toLowerCase();
 	});
 
-	console.log(months);
-
 	return (
 		<div className="h-screen grid grid-cols-[2fr_10px_1fr] overflow-hidden gap-4">
 			<div className="h-full flex flex-col gap-4 overflow-y-auto">
