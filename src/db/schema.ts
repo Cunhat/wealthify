@@ -95,22 +95,6 @@ export const transactionAccountRelations = relations(
 	}),
 );
 
-export const balanceAccount = pgTable("balance_account", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	type: text("type").notNull(),
-	name: text("name").notNull(),
-	balance: decimal("balance").notNull().default("0"),
-	initialBalance: decimal("initial_balance").notNull().default("0"),
-	createdAt: timestamp("created_at").$defaultFn(
-		() => /* @__PURE__ */ new Date(),
-	),
-	userId: text("user_id")
-		.notNull()
-		.references(() => user.id, { onDelete: "cascade" }),
-});
-
 export const category = pgTable("category", {
 	id: text("id")
 		.primaryKey()
@@ -172,6 +156,23 @@ export const categoryRelations = relations(category, ({ many, one }) => ({
 	}),
 }));
 
+export const balanceAccount = pgTable("balance_account", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	type: text("type").notNull(),
+	name: text("name").notNull(),
+	balance: decimal("balance").notNull().default("0"),
+	initialBalance: decimal("initial_balance").notNull().default("0"),
+	initialBalanceDate: timestamp("initial_balance_date").notNull(),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
+
 export const balanceAccountHistory = pgTable("balance_account_history", {
 	id: text("id")
 		.primaryKey()
@@ -205,9 +206,7 @@ export const balanceAccountRelations = relations(
 			fields: [balanceAccount.userId],
 			references: [user.id],
 		}),
-		history: many(balanceAccountHistory, {
-			relationName: "balanceAccountHistory",
-		}),
+		history: many(balanceAccountHistory),
 	}),
 );
 
