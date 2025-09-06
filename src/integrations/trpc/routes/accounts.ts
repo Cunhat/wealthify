@@ -222,8 +222,6 @@ export const accountsRouter = {
 				)
 				.returning();
 
-			console.log(balanceHistory);
-
 			if (balanceHistory && balanceHistory.length > 0) {
 				const mostRecentYearHistory =
 					await db.query.balanceAccountHistory.findFirst({
