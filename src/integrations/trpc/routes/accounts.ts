@@ -80,6 +80,7 @@ export const accountsRouter = {
 						balance: account.initialBalance,
 						year: yearToCreate,
 						[monthsToCreate]: account.initialBalance,
+						userId: ctx.user.id,
 					});
 				}
 			} else {
@@ -191,6 +192,66 @@ export const accountsRouter = {
 							eq(balanceAccount.userId, ctx.user.id),
 						),
 					);
+			}
+		}),
+	updateBalance: protectedProcedure
+		.input(z.object({ id: z.string(), balance: z.number(), date: z.date() }))
+		.mutation(async ({ ctx, input }) => {
+			const month = dayjs(input.date).format("MMMM").toLowerCase();
+			const year = dayjs(input.date).year();
+
+			const balanceHistory = await db
+				.update(balanceAccountHistory)
+				.set({
+					[month]: input.balance.toString(),
+				})
+				.where(
+					and(
+						eq(balanceAccountHistory.balanceAccountId, input.id),
+						eq(balanceAccountHistory.userId, ctx.user.id),
+						eq(balanceAccountHistory.year, year),
+					),
+				)
+				.returning();
+
+			if (balanceHistory) {
+				const mostRecentYearHistory =
+					await db.query.balanceAccountHistory.findFirst({
+						where: and(
+							eq(balanceAccountHistory.balanceAccountId, input.id),
+							eq(balanceAccountHistory.userId, ctx.user.id),
+						),
+						orderBy: (balanceAccountHistory, { desc }) => [
+							desc(balanceAccountHistory.year),
+						],
+					});
+
+				let latestMonthValue = null;
+				if (mostRecentYearHistory) {
+					for (let i = 11; i > -1; i--) {
+						const monthName = dayjs().month(i).format("MMMM").toLowerCase();
+						const value =
+							mostRecentYearHistory[
+								monthName as keyof typeof mostRecentYearHistory
+							];
+						if (value !== null && value !== undefined) {
+							latestMonthValue = value as string;
+							break;
+						}
+					}
+				}
+
+				if (latestMonthValue !== null) {
+					await db
+						.update(balanceAccount)
+						.set({ balance: latestMonthValue })
+						.where(
+							and(
+								eq(balanceAccount.id, input.id),
+								eq(balanceAccount.userId, ctx.user.id),
+							),
+						);
+				}
 			}
 		}),
 } satisfies TRPCRouterRecord;

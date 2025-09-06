@@ -1,7 +1,10 @@
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import AccountBadge from "@/modules/transactions/components/account-badge";
 import { formatCurrency } from "@/utils/mixins";
+import { Scale } from "lucide-react";
 import React from "react";
+import UpdateBalanceDialog from "../components/update-balance-dialog";
 
 type BalanceAccountProps = {
 	account: any; // TODO: fix this
@@ -19,7 +22,12 @@ export default function BalanceAccount({ account }: BalanceAccountProps) {
 				</div>
 			</div>
 			<Separator orientation="vertical" />
-			<div>dsds</div>
+			<div className="h-full overflow-y-auto">
+				<div className="flex justify-between">
+					<h2 className="text-base font-medium">Balance History</h2>
+					<UpdateBalanceDialog account={account} />
+				</div>
+			</div>
 		</div>
 	);
 }
