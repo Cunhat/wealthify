@@ -1,6 +1,11 @@
 import { db } from "@/db";
-import { balanceAccount, transactionAccount } from "@/db/schema";
+import {
+	balanceAccount,
+	balanceAccountHistory,
+	transactionAccount,
+} from "@/db/schema";
 import type { TRPCRouterRecord } from "@trpc/server";
+import dayjs from "dayjs";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
@@ -51,14 +56,32 @@ export const accountsRouter = {
 		)
 		.mutation(async ({ ctx, input }) => {
 			if (input.main_type === "balance") {
-				await db.insert(balanceAccount).values({
-					userId: ctx.user.id,
-					type: input.type,
-					balance: input.balance.toString(),
-					initialBalance: input.balance.toString(),
-					name: input.name,
-					initialBalanceDate: input.initialBalanceDate || new Date(),
-				});
+				const [account] = await db
+					.insert(balanceAccount)
+					.values({
+						userId: ctx.user.id,
+						type: input.type,
+						balance: input.balance.toString(),
+						initialBalance: input.balance.toString(),
+						name: input.name,
+						initialBalanceDate: input.initialBalanceDate || new Date(),
+					})
+					.returning();
+
+				// Create initial balance history
+				if (account) {
+					const yearToCreate = dayjs(account.initialBalanceDate).year();
+					const monthsToCreate = dayjs(account.initialBalanceDate)
+						.format("MMMM")
+						.toLowerCase();
+
+					await db.insert(balanceAccountHistory).values({
+						balanceAccountId: account.id,
+						balance: account.initialBalance,
+						year: yearToCreate,
+						[monthsToCreate]: account.initialBalance,
+					});
+				}
 			} else {
 				await db.insert(transactionAccount).values({
 					userId: ctx.user.id,
