@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { category, transaction, transactionAccount } from "@/db/schema";
+import type { Transaction } from "@/lib/schemas";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
@@ -51,15 +52,51 @@ export const transactionRouter = {
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			await db.insert(transaction).values({
-				userId: ctx.user.id,
-				amount: input.amount.toString(),
-				description: input.description,
-				transactionAccount: input.transactionAccount,
-				category: input.category,
-				type: input.type,
-				createdAt: input.createdAt || new Date(),
-			});
+			// Create the transaction
+			const createdTransaction = await db
+				.insert(transaction)
+				.values({
+					userId: ctx.user.id,
+					amount: input.amount.toString(),
+					description: input.description,
+					transactionAccount: input.transactionAccount,
+					category: input.category,
+					type: input.type,
+					createdAt: input.createdAt || new Date(),
+				})
+				.returning();
+
+			// Update account balance if transaction account is specified
+			if (input.transactionAccount && createdTransaction) {
+				const currentAccount = await db.query.transactionAccount.findFirst({
+					where: and(
+						eq(transactionAccount.id, input.transactionAccount),
+						eq(transactionAccount.userId, ctx.user.id),
+					),
+				});
+
+				if (currentAccount) {
+					const currentBalance = Number.parseFloat(currentAccount.balance);
+					let newBalance: number;
+
+					// For expenses, subtract from balance; for income, add to balance
+					if (input.type === "expense") {
+						newBalance = currentBalance - input.amount;
+					} else {
+						newBalance = currentBalance + input.amount;
+					}
+
+					await db
+						.update(transactionAccount)
+						.set({ balance: newBalance.toString() })
+						.where(
+							and(
+								eq(transactionAccount.id, input.transactionAccount),
+								eq(transactionAccount.userId, ctx.user.id),
+							),
+						);
+				}
+			}
 		}),
 	generateTransactions: protectedProcedure.mutation(async ({ ctx }) => {
 		// Get user's accounts and categories
@@ -219,6 +256,15 @@ export const transactionRouter = {
 	deleteTransaction: protectedProcedure
 		.input(z.object({ transactions: z.array(z.string()) }))
 		.mutation(async ({ ctx, input }) => {
+			// Get the transactions to be deleted to reverse their balance effects
+			const transactionsToDelete = await db.query.transaction.findMany({
+				where: and(
+					inArray(transaction.id, input.transactions),
+					eq(transaction.userId, ctx.user.id),
+				),
+			});
+
+			// First delete the transactions
 			await db
 				.delete(transaction)
 				.where(
@@ -227,6 +273,47 @@ export const transactionRouter = {
 						eq(transaction.userId, ctx.user.id),
 					),
 				);
+
+			const listOfAccountsToUpdate = new Set<string>();
+
+			for (const txn of transactionsToDelete) {
+				if (txn.transactionAccount) {
+					listOfAccountsToUpdate.add(txn.transactionAccount);
+				}
+			}
+
+			for (const accountId of listOfAccountsToUpdate) {
+				const account = await db.query.transactionAccount.findFirst({
+					where: and(
+						eq(transactionAccount.id, accountId),
+						eq(transactionAccount.userId, ctx.user.id),
+					),
+				});
+
+				if (account) {
+					const currentBalance = Number.parseFloat(account.balance);
+
+					const newBalance = transactionsToDelete
+						.filter((txn) => txn.transactionAccount === accountId)
+						.reduce((acc, txn) => {
+							if (txn.type === "expense") {
+								return acc + Number.parseFloat(txn.amount);
+							}
+
+							return acc - Number.parseFloat(txn.amount);
+						}, currentBalance);
+
+					await db
+						.update(transactionAccount)
+						.set({ balance: newBalance.toString() })
+						.where(
+							and(
+								eq(transactionAccount.id, accountId),
+								eq(transactionAccount.userId, ctx.user.id),
+							),
+						);
+				}
+			}
 		}),
 	updateTransaction: protectedProcedure
 		.input(
@@ -242,6 +329,15 @@ export const transactionRouter = {
 		)
 		.mutation(async ({ ctx, input }) => {
 			const { id, ...updateData } = input;
+
+			// Get the current transaction to understand what's changing
+			const currentTransaction = await db.query.transaction.findFirst({
+				where: and(eq(transaction.id, id), eq(transaction.userId, ctx.user.id)),
+			});
+
+			if (!currentTransaction) {
+				throw new Error("Transaction not found");
+			}
 
 			// Only include fields that were provided
 			const fieldsToUpdate: Partial<{
@@ -264,12 +360,124 @@ export const transactionRouter = {
 			if (updateData.createdAt !== undefined)
 				fieldsToUpdate.createdAt = updateData.createdAt;
 
+			// Handle balance updates when amount, type, or account changes
+			const oldAmount = Number.parseFloat(currentTransaction.amount);
+			const newAmount = updateData.amount ?? oldAmount;
+			const oldType = currentTransaction.type as "expense" | "income";
+			const newType = updateData.type ?? oldType;
+			const oldAccountId = currentTransaction.transactionAccount;
+			const newAccountId = updateData.transactionAccount ?? oldAccountId;
+
+			// Update the transaction
 			await db
 				.update(transaction)
 				.set(fieldsToUpdate)
 				.where(
 					and(eq(transaction.id, id), eq(transaction.userId, ctx.user.id)),
 				);
+
+			// Handle balance adjustments
+			if (oldAccountId && newAccountId) {
+				if (oldAccountId === newAccountId) {
+					// Same account, adjust for amount/type changes
+					const account = await db.query.transactionAccount.findFirst({
+						where: and(
+							eq(transactionAccount.id, oldAccountId),
+							eq(transactionAccount.userId, ctx.user.id),
+						),
+					});
+
+					if (account) {
+						const currentBalance = Number.parseFloat(account.balance);
+
+						// Reverse the old transaction effect
+						let balanceAfterReverse = currentBalance;
+						if (oldType === "expense") {
+							balanceAfterReverse += oldAmount; // Add back the expense
+						} else {
+							balanceAfterReverse -= oldAmount; // Remove the income
+						}
+
+						// Apply the new transaction effect
+						let newBalance = balanceAfterReverse;
+						if (newType === "expense") {
+							newBalance -= newAmount; // Subtract the new expense
+						} else {
+							newBalance += newAmount; // Add the new income
+						}
+
+						await db
+							.update(transactionAccount)
+							.set({ balance: newBalance.toString() })
+							.where(
+								and(
+									eq(transactionAccount.id, oldAccountId),
+									eq(transactionAccount.userId, ctx.user.id),
+								),
+							);
+					}
+				} else {
+					// Different accounts, reverse from old and apply to new
+
+					// Reverse from old account
+					const oldAccount = await db.query.transactionAccount.findFirst({
+						where: and(
+							eq(transactionAccount.id, oldAccountId),
+							eq(transactionAccount.userId, ctx.user.id),
+						),
+					});
+
+					if (oldAccount) {
+						const oldBalance = Number.parseFloat(oldAccount.balance);
+						let newOldBalance = oldBalance;
+
+						if (oldType === "expense") {
+							newOldBalance += oldAmount; // Add back the expense
+						} else {
+							newOldBalance -= oldAmount; // Remove the income
+						}
+
+						await db
+							.update(transactionAccount)
+							.set({ balance: newOldBalance.toString() })
+							.where(
+								and(
+									eq(transactionAccount.id, oldAccountId),
+									eq(transactionAccount.userId, ctx.user.id),
+								),
+							);
+					}
+
+					// Apply to new account
+					const newAccount = await db.query.transactionAccount.findFirst({
+						where: and(
+							eq(transactionAccount.id, newAccountId),
+							eq(transactionAccount.userId, ctx.user.id),
+						),
+					});
+
+					if (newAccount) {
+						const newAccountBalance = Number.parseFloat(newAccount.balance);
+						let updatedBalance = newAccountBalance;
+
+						if (newType === "expense") {
+							updatedBalance -= newAmount; // Subtract the expense
+						} else {
+							updatedBalance += newAmount; // Add the income
+						}
+
+						await db
+							.update(transactionAccount)
+							.set({ balance: updatedBalance.toString() })
+							.where(
+								and(
+									eq(transactionAccount.id, newAccountId),
+									eq(transactionAccount.userId, ctx.user.id),
+								),
+							);
+					}
+				}
+			}
 		}),
 	updateTransactionCategory: protectedProcedure
 		.input(
