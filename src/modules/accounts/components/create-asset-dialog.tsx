@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
 	Dialog,
 	DialogClose,
@@ -19,6 +20,11 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
 	Select,
@@ -31,9 +37,11 @@ import {
 } from "@/components/ui/select";
 import { useTRPC } from "@/integrations/trpc/react";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader, PlusIcon } from "lucide-react";
+import dayjs from "dayjs";
+import { CalendarIcon, Loader, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -63,13 +71,25 @@ export default function CreateAssetDialog() {
 	);
 }
 
-const formSchema = z.object({
-	main_type: z.union([z.literal("transactional"), z.literal("balance")]),
-	type: z.string().min(1, "Account type is required"),
-	balance: z.number().min(0, "Balance must be non-negative"),
-	initial_balance: z.number().min(0, "Initial balance must be non-negative"),
-	name: z.string().min(1, "Account name is required"),
-});
+const formSchema = z.union([
+	z.object({
+		main_type: z.literal("transactional"),
+		type: z.string().min(1, "Account type is required"),
+		balance: z.number().min(0, "Balance must be non-negative"),
+		initial_balance: z.number().min(0, "Initial balance must be non-negative"),
+		name: z.string().min(1, "Account name is required"),
+	}),
+	z.object({
+		main_type: z.literal("balance"),
+		type: z.string().min(1, "Account type is required"),
+		balance: z.number().min(0, "Balance must be non-negative"),
+		initial_balance: z.number().min(0, "Initial balance must be non-negative"),
+		initialBalanceDate: z
+			.date()
+			.max(new Date(), "Initial balance date must be in the past"),
+		name: z.string().min(1, "Account name is required"),
+	}),
+]);
 
 function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 	const trpc = useTRPC();
@@ -230,6 +250,50 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 							</FormItem>
 						)}
 					/>
+					{form.watch("main_type") === "balance" && (
+						<FormField
+							control={form.control}
+							name="initialBalanceDate"
+							render={({ field }) => (
+								<FormItem className="flex flex-col">
+									<FormLabel>Date</FormLabel>
+									<Popover modal>
+										<PopoverTrigger asChild>
+											<FormControl>
+												<Button
+													type="button"
+													variant={"outline"}
+													className={cn(
+														"w-full pl-3 text-left font-normal",
+														!field.value && "text-muted-foreground",
+													)}
+												>
+													{field.value ? (
+														dayjs(field.value).format("DD/MM/YYYY")
+													) : (
+														<span>Pick a date</span>
+													)}
+													<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+												</Button>
+											</FormControl>
+										</PopoverTrigger>
+										<PopoverContent className="w-auto p-0" align="start">
+											<Calendar
+												mode="single"
+												selected={field.value}
+												onSelect={field.onChange}
+												disabled={(date) =>
+													date > new Date() || date < new Date("1900-01-01")
+												}
+												captionLayout="dropdown"
+											/>
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					)}
 					<DialogFooter className="flex gap-2">
 						<DialogClose asChild>
 							<Button variant="outline">Cancel</Button>

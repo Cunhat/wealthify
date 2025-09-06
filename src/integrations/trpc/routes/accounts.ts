@@ -46,6 +46,7 @@ export const accountsRouter = {
 				balance: z.number(),
 				initial_balance: z.number(),
 				name: z.string(),
+				initialBalanceDate: z.date().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -56,6 +57,7 @@ export const accountsRouter = {
 					balance: input.balance.toString(),
 					initialBalance: input.balance.toString(),
 					name: input.name,
+					initialBalanceDate: input.initialBalanceDate || new Date(),
 				});
 			} else {
 				await db.insert(transactionAccount).values({
