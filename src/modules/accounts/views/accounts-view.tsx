@@ -1,3 +1,4 @@
+import NotFound from "@/components/not-found";
 import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
@@ -43,14 +44,7 @@ export default function AccountsView() {
 	if (accounts.length === 0) {
 		return (
 			<PageContainer title="Accounts">
-				<div className="flex h-full text-center">
-					<p className="text-muted-foreground mb-4">
-						You don't have any accounts yet.
-					</p>
-					<p className="text-sm text-muted-foreground">
-						Create your first account to get started.
-					</p>
-				</div>
+				<NotFound message="No accounts found" />
 			</PageContainer>
 		);
 	}

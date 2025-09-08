@@ -1,6 +1,7 @@
 import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 
+import NotFound from "@/components/not-found";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -19,7 +20,7 @@ export default function TransactionsView() {
 	>(new Set());
 
 	const trpc = useTRPC();
-	const navigate = useNavigate();
+
 	const search = useSearch({ from: "/_authed/transactions" });
 
 	const listTransactionsQuery = useInfiniteQuery({
@@ -55,6 +56,26 @@ export default function TransactionsView() {
 	if (listTransactionsQuery.isLoading) {
 		return <div>Loading...</div>;
 	}
+
+	if (
+		listTransactionsQuery.data?.pages.flatMap((page) => page.transactions)
+			.length === 0
+	) {
+		return (
+			<PageContainer
+				title="Transactions"
+				actionsComponent={
+					<div className="flex gap-2 w-full justify-between">
+						<CreateTransaction />
+					</div>
+				}
+			>
+				<NotFound message="No transactions found" />
+			</PageContainer>
+		);
+	}
+
+	console.log(listTransactionsQuery.data);
 
 	return (
 		<PageContainer
