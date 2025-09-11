@@ -62,6 +62,21 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				rel: "stylesheet",
 				href: appCss,
 			},
+			// Favicon and app icons
+			{
+				rel: "icon",
+				href: "/icon.png",
+				type: "image/png",
+			},
+			{
+				rel: "apple-touch-icon",
+				href: "/icon.png",
+			},
+			// PWA manifest
+			{
+				rel: "manifest",
+				href: "/manifest.json",
+			},
 		],
 	}),
 
