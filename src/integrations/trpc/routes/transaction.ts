@@ -1,6 +1,5 @@
 import { db } from "@/db";
 import { category, transaction, transactionAccount } from "@/db/schema";
-import type { Transaction } from "@/lib/schemas";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
@@ -113,6 +112,12 @@ export const transactionRouter = {
 		const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
 		const transactions = [];
 
+		// Track running balances for each account to prevent negative balances
+		const runningBalances = new Map<string, number>();
+		for (const account of userAccounts) {
+			runningBalances.set(account.id, Number.parseFloat(account.balance));
+		}
+
 		// Generate transactions from start of year to current date
 		const currentWeekStart = new Date(startOfYear);
 
@@ -133,10 +138,33 @@ export const transactionRouter = {
 				const isIncome = Math.random() < 0.2; // 20% chance of income
 				const type = isIncome ? "income" : "expense";
 
-				// Generate positive amounts based on type
-				const amount = isIncome
-					? (Math.random() * 1000 + 100).toFixed(2) // Income: $100-$1100
-					: (Math.random() * 400 + 10).toFixed(2); // Expense: $10-$410
+				// Random account if they exist
+				const randomAccount =
+					userAccounts.length > 0
+						? userAccounts[Math.floor(Math.random() * userAccounts.length)]
+						: null;
+
+				// Generate positive amounts based on type, but check balance for expenses
+				let amount: string;
+				if (isIncome) {
+					amount = (Math.random() * 1000 + 100).toFixed(2); // Income: $100-$1100
+				} else {
+					// For expenses, ensure we don't go below $50 minimum balance
+					const maxExpense = randomAccount
+						? Math.max(10, (runningBalances.get(randomAccount.id) || 0) - 50)
+						: 400;
+					amount = (Math.random() * Math.min(maxExpense, 400) + 10).toFixed(2); // Expense: $10-$410 or available balance
+				}
+
+				// Skip this transaction if it would cause negative balance
+				if (!isIncome && randomAccount) {
+					const currentBalance = runningBalances.get(randomAccount.id) || 0;
+					const expenseAmount = Number.parseFloat(amount);
+					if (currentBalance - expenseAmount < 50) {
+						// Skip this expense transaction to maintain minimum balance
+						continue;
+					}
+				}
 
 				// Random description
 				const description =
@@ -144,23 +172,27 @@ export const transactionRouter = {
 						Math.floor(Math.random() * SAMPLE_DESCRIPTIONS.length)
 					];
 
-				// Random account and category if they exist
-				const randomAccount =
-					userAccounts.length > 0
-						? userAccounts[Math.floor(Math.random() * userAccounts.length)].id
-						: null;
-
 				const randomCategory =
 					userCategories.length > 0
 						? userCategories[Math.floor(Math.random() * userCategories.length)]
 								.id
 						: null;
 
+				// Update running balance
+				if (randomAccount) {
+					const currentBalance = runningBalances.get(randomAccount.id) || 0;
+					const amountValue = Number.parseFloat(amount);
+					const newBalance = isIncome
+						? currentBalance + amountValue
+						: currentBalance - amountValue;
+					runningBalances.set(randomAccount.id, newBalance);
+				}
+
 				transactions.push({
 					userId: ctx.user.id,
 					amount: amount,
 					description: description,
-					transactionAccount: randomAccount,
+					transactionAccount: randomAccount?.id || null,
 					category: randomCategory,
 					type: type,
 					createdAt: transactionDate,
@@ -176,6 +208,50 @@ export const transactionRouter = {
 		for (let i = 0; i < transactions.length; i += batchSize) {
 			const batch = transactions.slice(i, i + batchSize);
 			await db.insert(transaction).values(batch);
+		}
+
+		// Update account balances based on generated transactions
+		const accountBalanceChanges = new Map<string, number>();
+
+		// Calculate balance changes for each account
+		for (const txn of transactions) {
+			if (txn.transactionAccount) {
+				const currentChange =
+					accountBalanceChanges.get(txn.transactionAccount) || 0;
+				const amount = Number.parseFloat(txn.amount);
+
+				// For expenses, subtract from balance; for income, add to balance
+				const balanceChange = txn.type === "expense" ? -amount : amount;
+				accountBalanceChanges.set(
+					txn.transactionAccount,
+					currentChange + balanceChange,
+				);
+			}
+		}
+
+		// Update each account's balance
+		for (const [accountId, balanceChange] of accountBalanceChanges) {
+			const currentAccount = await db.query.transactionAccount.findFirst({
+				where: and(
+					eq(transactionAccount.id, accountId),
+					eq(transactionAccount.userId, ctx.user.id),
+				),
+			});
+
+			if (currentAccount) {
+				const currentBalance = Number.parseFloat(currentAccount.balance);
+				const newBalance = currentBalance + balanceChange;
+
+				await db
+					.update(transactionAccount)
+					.set({ balance: newBalance.toString() })
+					.where(
+						and(
+							eq(transactionAccount.id, accountId),
+							eq(transactionAccount.userId, ctx.user.id),
+						),
+					);
+			}
 		}
 
 		return {

@@ -2,11 +2,11 @@ import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 
 import NotFound from "@/components/not-found";
-import { Button } from "@/components/ui/button";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import GenerateTransactionsButton from "../components/generate-transactions-button";
 import SelectedTransactions from "../components/selected-transactions";
 import {
 	AppliedFilters,
@@ -23,9 +23,6 @@ export default function TransactionsView() {
 	const trpc = useTRPC();
 
 	const search = useSearch({ from: "/_authed/transactions" });
-	const navigate = useNavigate();
-
-	console.log(search);
 
 	const listTransactionsQuery = useInfiniteQuery({
 		...trpc.transactions.listTransactions.infiniteQueryOptions({
@@ -72,6 +69,7 @@ export default function TransactionsView() {
 				actionsComponent={
 					<div className="flex gap-2 w-full justify-between">
 						<CreateTransaction />
+						{/* <GenerateTransactionsButton /> */}
 					</div>
 				}
 			>
@@ -85,7 +83,7 @@ export default function TransactionsView() {
 			title="Transactions"
 			actionsComponent={
 				<div className="flex gap-2 w-full justify-between">
-					{/* <GenerateTransactionsButton /> */}
+					{/* {process.env.DEV === "DEV" && <GenerateTransactionsButton />} */}
 					<SelectedTransactions
 						transactions={selectedTransactions}
 						setSelectedTransactions={setSelectedTransactionIds}
