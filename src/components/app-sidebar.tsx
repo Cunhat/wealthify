@@ -92,7 +92,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 						>
 							<a href="/">
 								<img src="/icon.png" alt="Wealthify" className="size-6" />
-								<span className="text-base font-semibold">Acme Inc.</span>
+								<span className="text-base font-semibold">Wealthify</span>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
