@@ -2,6 +2,7 @@ import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 
 import NotFound from "@/components/not-found";
+import { Button } from "@/components/ui/button";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -22,6 +23,9 @@ export default function TransactionsView() {
 	const trpc = useTRPC();
 
 	const search = useSearch({ from: "/_authed/transactions" });
+	const navigate = useNavigate();
+
+	console.log(search);
 
 	const listTransactionsQuery = useInfiniteQuery({
 		...trpc.transactions.listTransactions.infiniteQueryOptions({
@@ -59,7 +63,8 @@ export default function TransactionsView() {
 
 	if (
 		listTransactionsQuery.data?.pages.flatMap((page) => page.transactions)
-			.length === 0
+			.length === 0 &&
+		Object.keys(search).length === 0
 	) {
 		return (
 			<PageContainer
@@ -74,8 +79,6 @@ export default function TransactionsView() {
 			</PageContainer>
 		);
 	}
-
-	console.log(listTransactionsQuery.data);
 
 	return (
 		<PageContainer
@@ -105,6 +108,12 @@ export default function TransactionsView() {
 				fetchNextPage={listTransactionsQuery.fetchNextPage}
 				isFetchingNextPage={listTransactionsQuery.isFetchingNextPage}
 			/>
+			{Object.keys(search).length > 0 &&
+				!listTransactionsQuery.isLoading &&
+				listTransactionsQuery.data?.pages.flatMap((page) => page.transactions)
+					.length === 0 && (
+					<NotFound message="No transactions found with the current filters" />
+				)}
 		</PageContainer>
 	);
 }
