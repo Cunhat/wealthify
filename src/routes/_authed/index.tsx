@@ -26,6 +26,10 @@ export const Route = createFileRoute("/_authed/")({
 				accountNames: [],
 			}),
 		);
+
+		await context.queryClient.prefetchQuery(
+			context.trpc.history.getUserHistory.queryOptions(),
+		);
 	},
 	head: () => ({
 		meta: [
