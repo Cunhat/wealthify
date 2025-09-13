@@ -69,7 +69,7 @@ export default function TransactionsView() {
 				actionsComponent={
 					<div className="flex gap-2 w-full justify-between">
 						<CreateTransaction />
-						{/* <GenerateTransactionsButton /> */}
+						<GenerateTransactionsButton />
 					</div>
 				}
 			>
@@ -83,7 +83,7 @@ export default function TransactionsView() {
 			title="Transactions"
 			actionsComponent={
 				<div className="flex gap-2 w-full justify-between">
-					{/* {process.env.DEV === "DEV" && <GenerateTransactionsButton />} */}
+					<GenerateTransactionsButton />
 					<SelectedTransactions
 						transactions={selectedTransactions}
 						setSelectedTransactions={setSelectedTransactionIds}

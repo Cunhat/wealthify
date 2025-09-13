@@ -310,6 +310,73 @@ export const transactionRouter = {
 			}
 		}
 
+		// Update transaction account history for generated transactions
+		const historyUpdates = new Map<string, Map<string, number>>(); // accountId -> { "year-month": amount }
+
+		// Group transactions by account, year, and month
+		for (const txn of transactions) {
+			if (txn.transactionAccount) {
+				const accountId = txn.transactionAccount;
+				const year = dayjs(txn.createdAt).year();
+				const month = dayjs(txn.createdAt).format("MMMM").toLowerCase();
+				const yearMonth = `${year}-${month}`;
+				const amount = Number.parseFloat(txn.amount);
+
+				if (!historyUpdates.has(accountId)) {
+					historyUpdates.set(accountId, new Map());
+				}
+
+				const accountHistory = historyUpdates.get(accountId);
+				if (!accountHistory) continue;
+				const currentAmount = accountHistory.get(yearMonth) || 0;
+
+				// Calculate the balance change based on transaction type
+				const balanceChange = txn.type === "expense" ? -amount : amount;
+				accountHistory.set(yearMonth, currentAmount + balanceChange);
+			}
+		}
+
+		// Apply history updates
+		for (const [accountId, yearMonthUpdates] of historyUpdates) {
+			for (const [yearMonth, totalChange] of yearMonthUpdates) {
+				const [year, month] = yearMonth.split("-");
+				const yearNum = Number.parseInt(year);
+
+				// Find or create history record
+				const existingHistory =
+					await db.query.transactionAccountHistory.findFirst({
+						where: and(
+							eq(transactionAccountHistory.transactionAccountId, accountId),
+							eq(transactionAccountHistory.userId, ctx.user.id),
+							eq(transactionAccountHistory.year, yearNum),
+						),
+					});
+
+				if (!existingHistory) {
+					// Create new history record
+					await db.insert(transactionAccountHistory).values({
+						transactionAccountId: accountId,
+						year: yearNum,
+						[month]: totalChange.toFixed(2),
+						userId: ctx.user.id,
+					});
+				} else {
+					// Update existing history record
+					const currentMonthBalance = Number(
+						existingHistory[month as keyof typeof existingHistory] ?? 0,
+					);
+					const newMonthBalance = currentMonthBalance + totalChange;
+
+					await db
+						.update(transactionAccountHistory)
+						.set({
+							[month]: newMonthBalance.toFixed(2),
+						})
+						.where(eq(transactionAccountHistory.id, existingHistory.id));
+				}
+			}
+		}
+
 		return {
 			count: transactions.length,
 			message: `Generated ${transactions.length} transactions successfully!`,
