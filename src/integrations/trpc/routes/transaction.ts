@@ -1,5 +1,12 @@
 import { db } from "@/db";
-import { category, transaction, transactionAccount } from "@/db/schema";
+import {
+	category,
+	transaction,
+	transactionAccount,
+	transactionAccountHistory,
+} from "@/db/schema";
+import { balanceTransactionCalculator } from "@/lib/utils";
+import dayjs from "dayjs";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
@@ -94,6 +101,55 @@ export const transactionRouter = {
 								eq(transactionAccount.userId, ctx.user.id),
 							),
 						);
+
+					const tranAccountHistory =
+						await db.query.transactionAccountHistory.findFirst({
+							where: and(
+								eq(
+									transactionAccountHistory.transactionAccountId,
+									input.transactionAccount,
+								),
+								eq(transactionAccountHistory.userId, ctx.user.id),
+								eq(
+									transactionAccountHistory.year,
+									dayjs(input.createdAt).year(),
+								),
+							),
+						});
+
+					const transactionMonth = dayjs(input.createdAt)
+						.format("MMMM")
+						.toLowerCase();
+
+					if (!tranAccountHistory) {
+						await db.insert(transactionAccountHistory).values({
+							transactionAccountId: input.transactionAccount,
+							year: dayjs(input.createdAt).year(),
+							[transactionMonth]: balanceTransactionCalculator(
+								input.type,
+								input.amount,
+								0,
+							).toString(),
+							userId: ctx.user.id,
+						});
+					} else {
+						const newBalance = balanceTransactionCalculator(
+							input.type,
+							input.amount,
+							Number(
+								tranAccountHistory[
+									transactionMonth as keyof typeof tranAccountHistory
+								] ?? 0,
+							),
+						);
+
+						await db
+							.update(transactionAccountHistory)
+							.set({
+								[transactionMonth]: newBalance,
+							})
+							.where(eq(transactionAccountHistory.id, tranAccountHistory.id));
+					}
 				}
 			}
 		}),

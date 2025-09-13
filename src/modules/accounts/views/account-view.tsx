@@ -1,5 +1,6 @@
 import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
+import type { TransactionAccountWithTransactions } from "@/lib/schemas";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
@@ -39,7 +40,12 @@ export default function AccountView() {
 				title="Account Details"
 				actionsComponent={<AccountActions accountId={accountId} />}
 			>
-				<TransactionAccount account={accountQuery.data?.account} />
+				<TransactionAccount
+					account={
+						accountQuery.data
+							?.account as unknown as TransactionAccountWithTransactions
+					}
+				/>
 			</PageContainer>
 		);
 	}

@@ -10,3 +10,18 @@ export function capitalizeFirstLetter(str: string) {
 
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export function balanceTransactionCalculator(
+	type: "expense" | "income",
+	amount: number,
+	currentBalance: number,
+) {
+	let newBalance: number;
+	if (type === "expense") {
+		newBalance = currentBalance - amount;
+	} else {
+		newBalance = currentBalance + amount;
+	}
+
+	return newBalance.toFixed(2);
+}
