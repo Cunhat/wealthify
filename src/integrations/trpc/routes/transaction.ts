@@ -444,6 +444,54 @@ export const transactionRouter = {
 								eq(transactionAccount.userId, ctx.user.id),
 							),
 						);
+
+					// Update transaction account history for deleted transactions
+					const accountTransactions = transactionsToDelete.filter(
+						(txn) => txn.transactionAccount === accountId,
+					);
+
+					for (const txn of accountTransactions) {
+						const tranAccountHistory =
+							await db.query.transactionAccountHistory.findFirst({
+								where: and(
+									eq(transactionAccountHistory.transactionAccountId, accountId),
+									eq(transactionAccountHistory.userId, ctx.user.id),
+									eq(
+										transactionAccountHistory.year,
+										dayjs(txn.createdAt).year(),
+									),
+								),
+							});
+
+						const transactionMonth = dayjs(txn.createdAt)
+							.format("MMMM")
+							.toLowerCase();
+
+						if (tranAccountHistory) {
+							// Reverse the transaction effect on history
+							const currentMonthBalance = Number(
+								tranAccountHistory[
+									transactionMonth as keyof typeof tranAccountHistory
+								] ?? 0,
+							);
+
+							// For deletion, we reverse the effect:
+							// - If it was an expense, we add it back (opposite of subtraction)
+							// - If it was income, we subtract it (opposite of addition)
+							const reversedBalance = balanceTransactionCalculator(
+								txn.type === "expense" ? "income" : "expense",
+								Number.parseFloat(txn.amount),
+								currentMonthBalance,
+							);
+
+							await db
+								.update(transactionAccountHistory)
+								.set({
+									[transactionMonth]: reversedBalance,
+								})
+								.where(eq(transactionAccountHistory.id, tranAccountHistory.id));
+						}
+					}
 				}
 			}
 		}),
@@ -508,7 +556,10 @@ export const transactionRouter = {
 					and(eq(transaction.id, id), eq(transaction.userId, ctx.user.id)),
 				);
 
-			// Handle balance adjustments
+			// Handle balance adjustments and history updates
+			const oldCreatedAt = currentTransaction.createdAt;
+			const newCreatedAt = updateData.createdAt ?? oldCreatedAt;
+
 			if (oldAccountId && newAccountId) {
 				if (oldAccountId === newAccountId) {
 					// Same account, adjust for amount/type changes
@@ -547,6 +598,105 @@ export const transactionRouter = {
 									eq(transactionAccount.userId, ctx.user.id),
 								),
 							);
+
+						// Update transaction account history
+						// Handle old transaction date/month
+						const oldTransactionHistory =
+							await db.query.transactionAccountHistory.findFirst({
+								where: and(
+									eq(
+										transactionAccountHistory.transactionAccountId,
+										oldAccountId,
+									),
+									eq(transactionAccountHistory.userId, ctx.user.id),
+									eq(
+										transactionAccountHistory.year,
+										dayjs(oldCreatedAt).year(),
+									),
+								),
+							});
+
+						const oldTransactionMonth = dayjs(oldCreatedAt)
+							.format("MMMM")
+							.toLowerCase();
+
+						if (oldTransactionHistory) {
+							// Reverse the old transaction effect from history
+							const oldMonthBalance = Number(
+								oldTransactionHistory[
+									oldTransactionMonth as keyof typeof oldTransactionHistory
+								] ?? 0,
+							);
+
+							const reversedOldBalance = balanceTransactionCalculator(
+								oldType === "expense" ? "income" : "expense",
+								oldAmount,
+								oldMonthBalance,
+							);
+
+							await db
+								.update(transactionAccountHistory)
+								.set({
+									[oldTransactionMonth]: reversedOldBalance,
+								})
+								.where(
+									eq(transactionAccountHistory.id, oldTransactionHistory.id),
+								);
+						}
+
+						// Handle new transaction date/month (if different from old)
+						const newTransactionYear = dayjs(newCreatedAt).year();
+						const newTransactionMonth = dayjs(newCreatedAt)
+							.format("MMMM")
+							.toLowerCase();
+
+						const newTransactionHistory =
+							await db.query.transactionAccountHistory.findFirst({
+								where: and(
+									eq(
+										transactionAccountHistory.transactionAccountId,
+										oldAccountId,
+									),
+									eq(transactionAccountHistory.userId, ctx.user.id),
+									eq(transactionAccountHistory.year, newTransactionYear),
+								),
+							});
+
+						if (!newTransactionHistory) {
+							// Create new history record for the new year
+							await db.insert(transactionAccountHistory).values({
+								transactionAccountId: oldAccountId,
+								year: newTransactionYear,
+								[newTransactionMonth]: balanceTransactionCalculator(
+									newType,
+									newAmount,
+									0,
+								).toString(),
+								userId: ctx.user.id,
+							});
+						} else {
+							// Update existing history record
+							const newMonthBalance = Number(
+								newTransactionHistory[
+									newTransactionMonth as keyof typeof newTransactionHistory
+								] ?? 0,
+							);
+
+							const updatedNewBalance = balanceTransactionCalculator(
+								newType,
+								newAmount,
+								newMonthBalance,
+							);
+
+							await db
+								.update(transactionAccountHistory)
+								.set({
+									[newTransactionMonth]: updatedNewBalance,
+								})
+								.where(
+									eq(transactionAccountHistory.id, newTransactionHistory.id),
+								);
+						}
 					}
 				} else {
 					// Different accounts, reverse from old and apply to new
@@ -578,6 +728,49 @@ export const transactionRouter = {
 									eq(transactionAccount.userId, ctx.user.id),
 								),
 							);
+
+						// Update old account history - reverse the transaction
+						const oldTransactionHistory =
+							await db.query.transactionAccountHistory.findFirst({
+								where: and(
+									eq(
+										transactionAccountHistory.transactionAccountId,
+										oldAccountId,
+									),
+									eq(transactionAccountHistory.userId, ctx.user.id),
+									eq(
+										transactionAccountHistory.year,
+										dayjs(oldCreatedAt).year(),
+									),
+								),
+							});
+
+						const oldTransactionMonth = dayjs(oldCreatedAt)
+							.format("MMMM")
+							.toLowerCase();
+
+						if (oldTransactionHistory) {
+							const oldMonthBalance = Number(
+								oldTransactionHistory[
+									oldTransactionMonth as keyof typeof oldTransactionHistory
+								] ?? 0,
+							);
+
+							const reversedOldBalance = balanceTransactionCalculator(
+								oldType === "expense" ? "income" : "expense",
+								oldAmount,
+								oldMonthBalance,
+							);
+
+							await db
+								.update(transactionAccountHistory)
+								.set({
+									[oldTransactionMonth]: reversedOldBalance,
+								})
+								.where(
+									eq(transactionAccountHistory.id, oldTransactionHistory.id),
+								);
+						}
 					}
 
 					// Apply to new account
@@ -607,6 +800,60 @@ export const transactionRouter = {
 									eq(transactionAccount.userId, ctx.user.id),
 								),
 							);
+
+						// Update new account history - add the new transaction
+						const newTransactionYear = dayjs(newCreatedAt).year();
+						const newTransactionMonth = dayjs(newCreatedAt)
+							.format("MMMM")
+							.toLowerCase();
+
+						const newTransactionHistory =
+							await db.query.transactionAccountHistory.findFirst({
+								where: and(
+									eq(
+										transactionAccountHistory.transactionAccountId,
+										newAccountId,
+									),
+									eq(transactionAccountHistory.userId, ctx.user.id),
+									eq(transactionAccountHistory.year, newTransactionYear),
+								),
+							});
+
+						if (!newTransactionHistory) {
+							// Create new history record for the new account/year
+							await db.insert(transactionAccountHistory).values({
+								transactionAccountId: newAccountId,
+								year: newTransactionYear,
+								[newTransactionMonth]: balanceTransactionCalculator(
+									newType,
+									newAmount,
+									0,
+								).toString(),
+								userId: ctx.user.id,
+							});
+						} else {
+							// Update existing history record for new account
+							const newMonthBalance = Number(
+								newTransactionHistory[
+									newTransactionMonth as keyof typeof newTransactionHistory
+								] ?? 0,
+							);
+
+							const updatedNewBalance = balanceTransactionCalculator(
+								newType,
+								newAmount,
+								newMonthBalance,
+							);
+
+							await db
+								.update(transactionAccountHistory)
+								.set({
+									[newTransactionMonth]: updatedNewBalance,
+								})
+								.where(
+									eq(transactionAccountHistory.id, newTransactionHistory.id),
+								);
+						}
 					}
 				}
 			}
