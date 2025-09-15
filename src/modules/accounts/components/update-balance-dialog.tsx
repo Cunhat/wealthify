@@ -164,6 +164,10 @@ export default function UpdateBalanceDialog({
 												disabled={(date) =>
 													date > new Date() || date < new Date("1900-01-01")
 												}
+												hidden={{
+													before: new Date(account.initialBalanceDate),
+												}}
+												startMonth={new Date(account.initialBalanceDate)}
 												captionLayout="dropdown"
 											/>
 										</PopoverContent>
