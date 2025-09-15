@@ -1,4 +1,5 @@
 import { Separator } from "@/components/ui/separator";
+import type { BalanceAccountWithHistory } from "@/lib/schemas";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import AccountBadge from "@/modules/transactions/components/account-badge";
 import { formatCurrency } from "@/utils/mixins";
@@ -6,7 +7,7 @@ import dayjs from "dayjs";
 import UpdateBalanceDialog from "../components/update-balance-dialog";
 
 type BalanceAccountProps = {
-	account: any; // TODO: fix this
+	account: BalanceAccountWithHistory;
 };
 
 export default function BalanceAccount({ account }: BalanceAccountProps) {

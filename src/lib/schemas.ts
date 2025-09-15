@@ -2,6 +2,7 @@ import { createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
 import {
 	balanceAccount,
+	balanceAccountHistory,
 	category,
 	transaction,
 	transactionAccount,
@@ -41,3 +42,16 @@ export const transactionWithRelationsSchema = transactionSelectSchema.extend({
 
 // Export Transaction with relations as the main Transaction type since that's what we use in components
 export type Transaction = z.infer<typeof transactionWithRelationsSchema>;
+
+export const balanceAccountHistorySelectSchema = createSelectSchema(
+	balanceAccountHistory,
+);
+
+export const balanceAccountWithHistorySchema =
+	balanceAccountSelectSchema.extend({
+		history: balanceAccountHistorySelectSchema.array(),
+	});
+
+export type BalanceAccountWithHistory = z.infer<
+	typeof balanceAccountWithHistorySchema
+>;
