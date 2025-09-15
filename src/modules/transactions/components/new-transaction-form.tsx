@@ -36,6 +36,7 @@ import { AccountTypeGroups } from "@/lib/configs/accounts";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import { CalendarIcon } from "lucide-react";
+import { useEffect, useMemo } from "react";
 
 const formSchema = z.object({
 	amount: z.number().min(1, "Amount is required"),
@@ -78,6 +79,18 @@ export default function NewTransactionForm({
 			createdAt: dayjs().toDate(),
 		},
 	});
+
+	const transactionAccount = form.watch("transactionAccount");
+
+	const minDate = useMemo(() => {
+		return transactionAccount
+			? new Date(
+					accountsQuery.data?.find(
+						(account) => account.id === transactionAccount,
+					)?.initialBalanceDate || "1900-01-01",
+				)
+			: new Date("1900-01-01");
+	}, [transactionAccount, accountsQuery.data]);
 
 	const createTransactionMutation = useMutation({
 		...trpc.transactions.createTransaction.mutationOptions(),
@@ -181,7 +194,13 @@ export default function NewTransactionForm({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Transaction Account</FormLabel>
-							<Select onValueChange={field.onChange} value={field.value}>
+							<Select
+								onValueChange={(value) => {
+									field.onChange(value);
+									form.setValue("createdAt", undefined);
+								}}
+								value={field.value}
+							>
 								<FormControl>
 									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Select an account" />
@@ -197,7 +216,7 @@ export default function NewTransactionForm({
 											(account) => accountTypes.includes(account.type),
 										);
 
-										if (!accountsInGroup) return null;
+										if (accountsInGroup?.length === 0) return null;
 
 										return (
 											<SelectGroup key={group.name}>
@@ -217,48 +236,54 @@ export default function NewTransactionForm({
 					)}
 				/>
 
-				<FormField
-					control={form.control}
-					name="createdAt"
-					render={({ field }) => (
-						<FormItem className="flex flex-col">
-							<FormLabel>Date</FormLabel>
-							<Popover modal>
-								<PopoverTrigger asChild>
-									<FormControl>
-										<Button
-											type="button"
-											variant={"outline"}
-											className={cn(
-												"w-full pl-3 text-left font-normal",
-												!field.value && "text-muted-foreground",
-											)}
-										>
-											{field.value ? (
-												dayjs(field.value).format("DD/MM/YYYY")
-											) : (
-												<span>Pick a date</span>
-											)}
-											<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-										</Button>
-									</FormControl>
-								</PopoverTrigger>
-								<PopoverContent className="w-auto p-0" align="start">
-									<Calendar
-										mode="single"
-										selected={field.value}
-										onSelect={field.onChange}
-										disabled={(date) =>
-											date > new Date() || date < new Date("1900-01-01")
-										}
-										captionLayout="dropdown"
-									/>
-								</PopoverContent>
-							</Popover>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+				{transactionAccount && (
+					<FormField
+						control={form.control}
+						name="createdAt"
+						render={({ field }) => (
+							<FormItem className="flex flex-col">
+								<FormLabel>Date</FormLabel>
+								<Popover modal>
+									<PopoverTrigger asChild>
+										<FormControl>
+											<Button
+												type="button"
+												variant={"outline"}
+												className={cn(
+													"w-full pl-3 text-left font-normal",
+													!field.value && "text-muted-foreground",
+												)}
+											>
+												{field.value ? (
+													dayjs(field.value).format("DD/MM/YYYY")
+												) : (
+													<span>Pick a date</span>
+												)}
+												<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+											</Button>
+										</FormControl>
+									</PopoverTrigger>
+									<PopoverContent className="w-auto p-0" align="start">
+										<Calendar
+											mode="single"
+											selected={field.value}
+											onSelect={field.onChange}
+											disabled={(date) =>
+												date > new Date() || date < new Date("1900-01-01")
+											}
+											captionLayout="dropdown"
+											hidden={{
+												before: minDate,
+											}}
+											startMonth={minDate}
+										/>
+									</PopoverContent>
+								</Popover>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				)}
 
 				<FormField
 					control={form.control}

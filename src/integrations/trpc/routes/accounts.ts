@@ -84,12 +84,14 @@ export const accountsRouter = {
 					});
 				}
 			} else {
+				console.log(input.initialBalanceDate);
 				await db.insert(transactionAccount).values({
 					userId: ctx.user.id,
 					type: input.type,
 					balance: input.balance.toString(),
 					initialBalance: input.balance.toString(),
 					name: input.name,
+					initialBalanceDate: input.initialBalanceDate || new Date(),
 				});
 			}
 		}),

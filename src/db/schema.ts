@@ -76,6 +76,7 @@ export const transactionAccount = pgTable("transaction_account", {
 	name: text("name").notNull(),
 	balance: decimal("balance").notNull().default("0"),
 	initialBalance: decimal("initial_balance").notNull().default("0"),
+	initialBalanceDate: timestamp("initial_balance_date").notNull(),
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
 	),

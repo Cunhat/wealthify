@@ -78,6 +78,9 @@ const formSchema = z.union([
 		balance: z.number().min(0, "Balance must be non-negative"),
 		initial_balance: z.number().min(0, "Initial balance must be non-negative"),
 		name: z.string().min(1, "Account name is required"),
+		initialBalanceDate: z
+			.date()
+			.max(new Date(), "Initial balance date must be in the past"),
 	}),
 	z.object({
 		main_type: z.literal("balance"),
@@ -103,6 +106,7 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 			balance: 0,
 			initial_balance: 0,
 			name: "",
+			initialBalanceDate: undefined,
 		},
 	});
 
@@ -250,50 +254,55 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 							</FormItem>
 						)}
 					/>
-					{form.watch("main_type") === "balance" && (
-						<FormField
-							control={form.control}
-							name="initialBalanceDate"
-							render={({ field }) => (
-								<FormItem className="flex flex-col">
-									<FormLabel>Date</FormLabel>
-									<Popover modal>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													type="button"
-													variant={"outline"}
-													className={cn(
-														"w-full pl-3 text-left font-normal",
-														!field.value && "text-muted-foreground",
-													)}
-												>
-													{field.value ? (
-														dayjs(field.value).format("DD/MM/YYYY")
-													) : (
-														<span>Pick a date</span>
-													)}
-													<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className="w-auto p-0" align="start">
-											<Calendar
-												mode="single"
-												selected={field.value}
-												onSelect={field.onChange}
-												disabled={(date) =>
-													date > new Date() || date < new Date("1900-01-01")
-												}
-												captionLayout="dropdown"
-											/>
-										</PopoverContent>
-									</Popover>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					)}
+					<FormField
+						control={form.control}
+						name="initialBalanceDate"
+						render={({ field }) => (
+							<FormItem className="flex flex-col">
+								<FormLabel>Initial Balance Date</FormLabel>
+								<Popover modal>
+									<PopoverTrigger asChild>
+										<FormControl>
+											<Button
+												type="button"
+												variant={"outline"}
+												className={cn(
+													"w-full pl-3 text-left font-normal",
+													!field.value && "text-muted-foreground",
+												)}
+											>
+												{field.value ? (
+													dayjs(field.value).format("DD/MM/YYYY")
+												) : (
+													<span>Pick a date</span>
+												)}
+												<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+											</Button>
+										</FormControl>
+									</PopoverTrigger>
+									<PopoverContent className="w-auto p-0" align="start">
+										<Calendar
+											mode="single"
+											selected={field.value}
+											onSelect={field.onChange}
+											disabled={(date) =>
+												date > new Date() || date < new Date("1900-01-01")
+											}
+											captionLayout="dropdown"
+										/>
+									</PopoverContent>
+								</Popover>
+								<FormMessage />
+								<FormDescription>
+									Beware that you will not be able to add{" "}
+									{form.watch("main_type") === "transactional"
+										? "transactions"
+										: "balances updates"}{" "}
+									before this date!
+								</FormDescription>
+							</FormItem>
+						)}
+					/>
 					<DialogFooter className="flex gap-2">
 						<DialogClose asChild>
 							<Button variant="outline">Cancel</Button>

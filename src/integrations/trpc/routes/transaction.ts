@@ -128,7 +128,7 @@ export const transactionRouter = {
 							[transactionMonth]: balanceTransactionCalculator(
 								input.type,
 								input.amount,
-								0,
+								Number(currentAccount.balance),
 							).toString(),
 							userId: ctx.user.id,
 						});
