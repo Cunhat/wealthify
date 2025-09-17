@@ -15,10 +15,6 @@ export const balanceAccountSelectSchema = createSelectSchema(balanceAccount);
 
 export type TransactionAccount = z.infer<typeof transactionAccountSelectSchema>;
 
-const accountWithTransactionsSchema = transactionAccountSelectSchema.extend({
-	transactions: transactionAccountSelectSchema.array(),
-});
-
 export type TransactionAccountWithTransactions = z.infer<
 	typeof accountWithTransactionsSchema
 >;
@@ -55,3 +51,7 @@ export const balanceAccountWithHistorySchema =
 export type BalanceAccountWithHistory = z.infer<
 	typeof balanceAccountWithHistorySchema
 >;
+
+const accountWithTransactionsSchema = transactionAccountSelectSchema.extend({
+	transactions: transactionSelectSchema.array(),
+});
