@@ -89,7 +89,6 @@ export const transactionAccountRelations = relations(
 	transactionAccount,
 	({ many, one }) => ({
 		transactions: many(transaction),
-		history: many(transactionAccountHistory),
 		user: one(user, {
 			fields: [transactionAccount.userId],
 			references: [user.id],
@@ -134,37 +133,6 @@ export const transaction = pgTable("transaction", {
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 });
-
-export const transactionAccountHistory = pgTable(
-	"transaction_account_history",
-	{
-		id: text("id")
-			.primaryKey()
-			.$defaultFn(() => crypto.randomUUID()),
-		createdAt: timestamp("created_at").$defaultFn(
-			() => /* @__PURE__ */ new Date(),
-		),
-		transactionAccountId: text("transaction_account_id")
-			.notNull()
-			.references(() => transactionAccount.id, { onDelete: "cascade" }),
-		january: decimal("january"),
-		february: decimal("february"),
-		march: decimal("march"),
-		april: decimal("april"),
-		may: decimal("may"),
-		june: decimal("june"),
-		july: decimal("july"),
-		august: decimal("august"),
-		september: decimal("september"),
-		october: decimal("october"),
-		november: decimal("november"),
-		december: decimal("december"),
-		year: integer("year").notNull(),
-		userId: text("user_id")
-			.notNull()
-			.references(() => user.id, { onDelete: "cascade" }),
-	},
-);
 
 export const transactionRelations = relations(transaction, ({ one }) => ({
 	transactionAccount: one(transactionAccount, {
