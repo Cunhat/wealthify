@@ -3,7 +3,6 @@ import {
 	balanceAccount,
 	balanceAccountHistory,
 	transactionAccount,
-	transactionAccountHistory,
 } from "@/db/schema";
 import type { TRPCRouterRecord } from "@trpc/server";
 import dayjs from "dayjs";
@@ -85,27 +84,14 @@ export const accountsRouter = {
 					});
 				}
 			} else {
-				const [transAcc] = await db
-					.insert(transactionAccount)
-					.values({
-						userId: ctx.user.id,
-						type: input.type,
-						balance: input.balance.toString(),
-						initialBalance: input.balance.toString(),
-						name: input.name,
-						initialBalanceDate: input.initialBalanceDate || new Date(),
-					})
-					.returning();
-
-				if (transAcc) {
-					await db.insert(transactionAccountHistory).values({
-						userId: ctx.user.id,
-						transactionAccountId: transAcc.id,
-						year: dayjs(transAcc.initialBalanceDate).year(),
-						[dayjs(transAcc.initialBalanceDate).format("MMMM").toLowerCase()]:
-							transAcc.initialBalance,
-					});
-				}
+				await db.insert(transactionAccount).values({
+					userId: ctx.user.id,
+					type: input.type,
+					balance: input.balance.toString(),
+					initialBalance: input.balance.toString(),
+					name: input.name,
+					initialBalanceDate: input.initialBalanceDate || new Date(),
+				});
 			}
 		}),
 	getAccount: protectedProcedure

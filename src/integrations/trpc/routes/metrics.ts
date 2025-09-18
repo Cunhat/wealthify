@@ -48,18 +48,18 @@ export const metricsRouter = {
 				const currDateYear = dayjs(dateIterator).year();
 				const currDateMonth = dayjs(dateIterator).format("MMMM").toLowerCase();
 
-				const netWorthForDate = harmonizedBalanceHistory.find(
+				const netWorthForDate = harmonizedBalanceHistory.filter(
 					(elem) => elem.year === currDateYear,
 				);
 
 				const key = dayjs(dateIterator).format("MMM YYYY");
 
-				netWorthData[key] =
-					(netWorthData[key] ?? 0) +
-					Number(
-						netWorthForDate?.[currDateMonth as keyof typeof netWorthForDate] ??
-							0,
-					);
+				const totalNetWorthForDate = netWorthForDate?.reduce(
+					(acc, elem) => acc + Number(elem[currDateMonth as keyof typeof elem]),
+					0,
+				);
+
+				netWorthData[key] = (netWorthData[key] ?? 0) + totalNetWorthForDate;
 
 				dateIterator = dayjs(dateIterator).add(1, "month").toDate();
 			}
