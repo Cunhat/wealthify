@@ -39,16 +39,9 @@ export const metricsRouter = {
 				},
 			);
 
-			// Extract history records and account data for harmonization
-			const balanceAccountsHistory = balanceAccountsWithHistory.flatMap(
-				(account) => account.history,
-			);
-			const balanceAccountsData = balanceAccountsWithHistory;
-
 			// Harmonize balance account history to fill gaps
 			const harmonizedBalanceHistory = harmonizeBalanceAccountHistory(
-				balanceAccountsHistory,
-				balanceAccountsData,
+				balanceAccountsWithHistory,
 			);
 
 			while (dayjs(dateIterator).isBefore(dayjs())) {
@@ -70,6 +63,8 @@ export const metricsRouter = {
 
 				dateIterator = dayjs(dateIterator).add(1, "month").toDate();
 			}
+
+			// Calculate net worth for transaction accounts
 
 			dateIterator = dayjs().subtract(1, "year").startOf("month").toDate();
 

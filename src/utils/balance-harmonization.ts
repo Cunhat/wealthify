@@ -1,5 +1,8 @@
-import type { balanceAccount, balanceAccountHistory } from "@/db/schema";
-import type { TransactionAccountWithTransactions } from "@/lib/schemas";
+import type {
+	BalanceAccountHistory,
+	BalanceAccountWithHistory,
+	TransactionAccountWithTransactions,
+} from "@/lib/schemas";
 import dayjs from "dayjs";
 
 type MonthName =
@@ -16,44 +19,30 @@ type MonthName =
 	| "november"
 	| "december";
 
-// Harmonize balance account history by filling gaps with previous values
+const monthNames: MonthName[] = [
+	"january",
+	"february",
+	"march",
+	"april",
+	"may",
+	"june",
+	"july",
+	"august",
+	"september",
+	"october",
+	"november",
+	"december",
+];
+
 export const harmonizeBalanceAccountHistory = (
-	historyRecords: (typeof balanceAccountHistory.$inferSelect)[],
-	accounts: (typeof balanceAccount.$inferSelect)[],
-): (typeof balanceAccountHistory.$inferSelect)[] => {
-	const monthNames: MonthName[] = [
-		"january",
-		"february",
-		"march",
-		"april",
-		"may",
-		"june",
-		"july",
-		"august",
-		"september",
-		"october",
-		"november",
-		"december",
-	];
+	accountsWithHistory: BalanceAccountWithHistory[],
+) => {
+	const harmonizedRecords: BalanceAccountHistory[] = [];
 
-	// Group by account ID
-	const accountGroups = new Map<string, typeof historyRecords>();
-	for (const record of historyRecords) {
-		if (!accountGroups.has(record.balanceAccountId)) {
-			accountGroups.set(record.balanceAccountId, []);
-		}
-		const group = accountGroups.get(record.balanceAccountId);
-		if (group) {
-			group.push(record);
-		}
-	}
-
-	const harmonizedRecords: typeof historyRecords = [];
-
-	// Process each account
-	for (const [accountId, records] of accountGroups) {
-		const account = accounts.find((acc) => acc.id === accountId);
-		if (!account) continue;
+	// Process each account with its history
+	for (const accountWithHistory of accountsWithHistory) {
+		const account = accountWithHistory;
+		const records = accountWithHistory.history;
 
 		// Sort records by year
 		const sortedRecords = [...records].sort((a, b) => a.year - b.year);
