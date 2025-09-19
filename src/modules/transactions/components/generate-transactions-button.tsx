@@ -13,9 +13,9 @@ export default function GenerateTransactionsButton() {
 		onSuccess: (data) => {
 			toast.success(data.message);
 			// Invalidate transactions query to refresh the list
-			// queryClient.invalidateQueries({
-			// 	queryKey: trpc.transactions.listTransactions.getQueryKey(),
-			// });
+			queryClient.invalidateQueries({
+				queryKey: ["transactions", "listTransactions"],
+			});
 		},
 		onError: (error) => {
 			toast.error(`Failed to generate transactions: ${error.message}`);
@@ -25,7 +25,7 @@ export default function GenerateTransactionsButton() {
 	const handleGenerate = () => {
 		if (
 			confirm(
-				"This will generate sample transactions for the entire year. Are you sure?",
+				"This will generate 50 sample transactions from your account creation dates to today. Are you sure?",
 			)
 		) {
 			generateTransactionsMutation.mutate();

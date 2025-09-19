@@ -1,43 +1,8 @@
 import { db } from "@/db";
 import { category, transaction, transactionAccount } from "@/db/schema";
-import dayjs from "dayjs";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
-
-// Sample transaction descriptions for realistic data
-const SAMPLE_DESCRIPTIONS = [
-	"Grocery shopping",
-	"Gas station",
-	"Coffee shop",
-	"Restaurant dinner",
-	"Online shopping",
-	"Utility bill",
-	"Insurance payment",
-	"Gym membership",
-	"Pharmacy",
-	"Movie tickets",
-	"Public transport",
-	"Parking fee",
-	"Subscription service",
-	"Hardware store",
-	"Bookstore",
-	"Clothing store",
-	"Electronics",
-	"Home improvement",
-	"Medical appointment",
-	"Hair salon",
-	"Fast food",
-	"Taxi ride",
-	"Hotel booking",
-	"Car maintenance",
-	"Pet supplies",
-	"Gift purchase",
-	"Bank fee",
-	"Interest payment",
-	"Tax payment",
-	"Charity donation",
-];
 
 export const transactionRouter = {
 	createTransaction: protectedProcedure
@@ -99,191 +64,300 @@ export const transactionRouter = {
 			}
 		}),
 	generateTransactions: protectedProcedure.mutation(async ({ ctx }) => {
-		// Get user's accounts and categories
-		const userAccounts = await db.query.transactionAccount.findMany({
+		// Get all transaction accounts for this user
+		const transactionAccounts = await db.query.transactionAccount.findMany({
 			where: eq(transactionAccount.userId, ctx.user.id),
 		});
 
-		const userCategories = await db.query.category.findMany({
+		if (transactionAccounts.length === 0) {
+			throw new Error(
+				"No transaction accounts found. Please create at least one transaction account first.",
+			);
+		}
+
+		// Get all categories for this user
+		const categories = await db.query.category.findMany({
 			where: eq(category.userId, ctx.user.id),
 		});
 
-		// If no accounts or categories exist, we'll create transactions without them
-		const currentDate = new Date();
-		const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
-		const transactions = [];
-
-		// Track running balances for each account to prevent negative balances
-		const runningBalances = new Map<string, number>();
-		for (const account of userAccounts) {
-			runningBalances.set(account.id, Number.parseFloat(account.balance));
+		if (categories.length === 0) {
+			throw new Error(
+				"No categories found. Please create at least one category first.",
+			);
 		}
 
-		// Generate transactions from start of year to current date
-		const currentWeekStart = new Date(startOfYear);
+		// Determine date range based on account initial balance dates
+		const today = new Date();
 
-		while (currentWeekStart <= currentDate) {
-			// Generate 5-8 transactions per week for variety
-			const transactionsPerWeek = Math.floor(Math.random() * 4) + 5; // 5-8 transactions
+		// Find the earliest initial balance date among all accounts
+		const earliestInitialDate = transactionAccounts.reduce(
+			(earliest, account) => {
+				return account.initialBalanceDate < earliest
+					? account.initialBalanceDate
+					: earliest;
+			},
+			transactionAccounts[0].initialBalanceDate,
+		);
 
-			for (let i = 0; i < transactionsPerWeek; i++) {
-				// Random day within the week
-				const dayOffset = Math.floor(Math.random() * 7);
-				const transactionDate = new Date(currentWeekStart);
-				transactionDate.setDate(transactionDate.getDate() + dayOffset);
+		// Use the earliest initial balance date as start, today as end
+		const actualStartDate = earliestInitialDate;
+		const actualEndDate = today;
 
-				// Don't generate transactions in the future
-				if (transactionDate > currentDate) break;
+		// Fixed number of transactions to generate
+		const numberOfTransactions = 50;
 
-				// Determine transaction type (80% expenses, 20% income)
-				const isIncome = Math.random() < 0.2; // 20% chance of income
-				const type = isIncome ? "income" : "expense";
+		// Generate realistic transaction patterns
+		const generatedTransactions = [];
+		const accountBalances: Record<string, number> = {};
 
-				// Random account if they exist
-				const randomAccount =
-					userAccounts.length > 0
-						? userAccounts[Math.floor(Math.random() * userAccounts.length)]
-						: null;
-
-				// Generate positive amounts based on type, but check balance for expenses
-				let amount: string;
-				if (isIncome) {
-					amount = (Math.random() * 1000 + 100).toFixed(2); // Income: $100-$1100
-				} else {
-					// For expenses, ensure we don't go below $50 minimum balance
-					const maxExpense = randomAccount
-						? Math.max(10, (runningBalances.get(randomAccount.id) || 0) - 50)
-						: 400;
-					amount = (Math.random() * Math.min(maxExpense, 400) + 10).toFixed(2); // Expense: $10-$410 or available balance
-				}
-
-				// Skip this transaction if it would cause negative balance
-				if (!isIncome && randomAccount) {
-					const currentBalance = runningBalances.get(randomAccount.id) || 0;
-					const expenseAmount = Number.parseFloat(amount);
-					if (currentBalance - expenseAmount < 50) {
-						// Skip this expense transaction to maintain minimum balance
-						continue;
-					}
-				}
-
-				// Random description
-				const description =
-					SAMPLE_DESCRIPTIONS[
-						Math.floor(Math.random() * SAMPLE_DESCRIPTIONS.length)
-					];
-
-				const randomCategory =
-					userCategories.length > 0
-						? userCategories[Math.floor(Math.random() * userCategories.length)]
-								.id
-						: null;
-
-				// Update running balance
-				if (randomAccount) {
-					const currentBalance = runningBalances.get(randomAccount.id) || 0;
-					const amountValue = Number.parseFloat(amount);
-					const newBalance = isIncome
-						? currentBalance + amountValue
-						: currentBalance - amountValue;
-					runningBalances.set(randomAccount.id, newBalance);
-				}
-
-				transactions.push({
-					userId: ctx.user.id,
-					amount: amount,
-					description: description,
-					transactionAccount: randomAccount?.id || null,
-					category: randomCategory,
-					type: type,
-					createdAt: transactionDate,
-				});
-			}
-
-			// Move to next week
-			currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+		// Initialize account balances
+		for (const account of transactionAccounts) {
+			accountBalances[account.id] = Number.parseFloat(account.balance);
 		}
 
-		// Insert all transactions in batches to avoid overwhelming the database
-		const batchSize = 100;
-		for (let i = 0; i < transactions.length; i += batchSize) {
-			const batch = transactions.slice(i, i + batchSize);
-			await db.insert(transaction).values(batch);
-		}
+		// Enhanced transaction descriptions by category type
+		const transactionTemplates = {
+			groceries: [
+				"Grocery shopping at Supermarket",
+				"Weekly groceries",
+				"Fresh produce shopping",
+				"Bulk grocery purchase",
+				"Organic food shopping",
+			],
+			dining: [
+				"Restaurant dinner",
+				"Coffee shop",
+				"Fast food lunch",
+				"Pizza delivery",
+				"Breakfast at cafe",
+				"Food delivery",
+			],
+			transportation: [
+				"Gas station fill-up",
+				"Public transport ticket",
+				"Taxi ride",
+				"Uber ride",
+				"Parking fee",
+				"Car maintenance",
+			],
+			utilities: [
+				"Electricity bill",
+				"Water bill",
+				"Internet service",
+				"Phone bill",
+				"Gas bill",
+			],
+			entertainment: [
+				"Movie tickets",
+				"Streaming subscription",
+				"Concert tickets",
+				"Gaming purchase",
+				"Book purchase",
+			],
+			health: [
+				"Pharmacy purchase",
+				"Medical appointment",
+				"Gym membership",
+				"Health insurance",
+				"Dental checkup",
+			],
+			shopping: [
+				"Online shopping",
+				"Clothing purchase",
+				"Electronics store",
+				"Home improvement",
+				"Hardware store",
+			],
+			income: [
+				"Salary payment",
+				"Freelance payment",
+				"Investment return",
+				"Bonus payment",
+				"Side hustle income",
+				"Gift received",
+			],
+		};
 
-		// Update account balances based on generated transactions
-		const accountBalanceChanges = new Map<string, number>();
+		// Generate income transactions first to ensure positive balances
+		const incomeTransactions = Math.floor(numberOfTransactions * 0.2); // 20% income
 
-		// Calculate balance changes for each account
-		for (const txn of transactions) {
-			if (txn.transactionAccount) {
-				const currentChange =
-					accountBalanceChanges.get(txn.transactionAccount) || 0;
-				const amount = Number.parseFloat(txn.amount);
+		for (let i = 0; i < numberOfTransactions; i++) {
+			const isIncome = i < incomeTransactions;
+			const randomAccount =
+				transactionAccounts[
+					Math.floor(Math.random() * transactionAccounts.length)
+				];
+			const randomCategory =
+				categories[Math.floor(Math.random() * categories.length)];
 
-				// For expenses, subtract from balance; for income, add to balance
-				const balanceChange = txn.type === "expense" ? -amount : amount;
-				accountBalanceChanges.set(
-					txn.transactionAccount,
-					currentChange + balanceChange,
+			// Generate random date within range
+			const randomTime =
+				actualStartDate.getTime() +
+				Math.random() * (actualEndDate.getTime() - actualStartDate.getTime());
+			const transactionDate = new Date(randomTime);
+
+			// Ensure transaction date is after the specific account's initial balance date
+			const accountStartDate =
+				randomAccount.initialBalanceDate > actualStartDate
+					? randomAccount.initialBalanceDate
+					: actualStartDate;
+
+			if (transactionDate < accountStartDate) {
+				transactionDate.setTime(
+					accountStartDate.getTime() +
+						Math.random() *
+							(actualEndDate.getTime() - accountStartDate.getTime()),
 				);
 			}
-		}
 
-		// Update each account's balance
-		for (const [accountId, balanceChange] of accountBalanceChanges) {
-			const currentAccount = await db.query.transactionAccount.findFirst({
-				where: and(
-					eq(transactionAccount.id, accountId),
-					eq(transactionAccount.userId, ctx.user.id),
-				),
-			});
+			// Generate realistic amounts based on transaction type
+			let amount: number;
+			let description: string;
 
-			if (currentAccount) {
-				const currentBalance = Number.parseFloat(currentAccount.balance);
-				const newBalance = currentBalance + balanceChange;
-
-				await db
-					.update(transactionAccount)
-					.set({ balance: newBalance.toString() })
-					.where(
-						and(
-							eq(transactionAccount.id, accountId),
-							eq(transactionAccount.userId, ctx.user.id),
-						),
-					);
-			}
-		}
-
-		// Update transaction account history for generated transactions
-		const historyUpdates = new Map<string, Map<string, number>>(); // accountId -> { "year-month": amount }
-
-		// Group transactions by account, year, and month
-		for (const txn of transactions) {
-			if (txn.transactionAccount) {
-				const accountId = txn.transactionAccount;
-				const year = dayjs(txn.createdAt).year();
-				const month = dayjs(txn.createdAt).format("MMMM").toLowerCase();
-				const yearMonth = `${year}-${month}`;
-				const amount = Number.parseFloat(txn.amount);
-
-				if (!historyUpdates.has(accountId)) {
-					historyUpdates.set(accountId, new Map());
+			if (isIncome) {
+				// Income amounts: $500 - $5000
+				amount = Math.floor(Math.random() * 4500) + 500;
+				description =
+					transactionTemplates.income[
+						Math.floor(Math.random() * transactionTemplates.income.length)
+					];
+			} else {
+				// Expense amounts: $5 - $500, with occasional larger purchases
+				if (Math.random() < 0.1) {
+					// 10% chance of larger purchase ($200-$1000)
+					amount = Math.floor(Math.random() * 800) + 200;
+				} else {
+					// Regular expenses ($5-$200)
+					amount = Math.floor(Math.random() * 195) + 5;
 				}
 
-				const accountHistory = historyUpdates.get(accountId);
-				if (!accountHistory) continue;
-				const currentAmount = accountHistory.get(yearMonth) || 0;
-
-				// Calculate the balance change based on transaction type
-				const balanceChange = txn.type === "expense" ? -amount : amount;
-				accountHistory.set(yearMonth, currentAmount + balanceChange);
+				// Choose description based on category name or random
+				const categoryName = randomCategory.name.toLowerCase();
+				if (categoryName.includes("food") || categoryName.includes("grocery")) {
+					description =
+						transactionTemplates.groceries[
+							Math.floor(Math.random() * transactionTemplates.groceries.length)
+						];
+				} else if (
+					categoryName.includes("transport") ||
+					categoryName.includes("car")
+				) {
+					description =
+						transactionTemplates.transportation[
+							Math.floor(
+								Math.random() * transactionTemplates.transportation.length,
+							)
+						];
+				} else if (
+					categoryName.includes("dining") ||
+					categoryName.includes("restaurant")
+				) {
+					description =
+						transactionTemplates.dining[
+							Math.floor(Math.random() * transactionTemplates.dining.length)
+						];
+				} else if (
+					categoryName.includes("utility") ||
+					categoryName.includes("bill")
+				) {
+					description =
+						transactionTemplates.utilities[
+							Math.floor(Math.random() * transactionTemplates.utilities.length)
+						];
+				} else if (
+					categoryName.includes("entertainment") ||
+					categoryName.includes("fun")
+				) {
+					description =
+						transactionTemplates.entertainment[
+							Math.floor(
+								Math.random() * transactionTemplates.entertainment.length,
+							)
+						];
+				} else if (
+					categoryName.includes("health") ||
+					categoryName.includes("medical")
+				) {
+					description =
+						transactionTemplates.health[
+							Math.floor(Math.random() * transactionTemplates.health.length)
+						];
+				} else if (
+					categoryName.includes("shopping") ||
+					categoryName.includes("retail")
+				) {
+					description =
+						transactionTemplates.shopping[
+							Math.floor(Math.random() * transactionTemplates.shopping.length)
+						];
+				} else {
+					// Fallback to general descriptions
+					const allDescriptions = Object.values(transactionTemplates).flat();
+					description =
+						allDescriptions[Math.floor(Math.random() * allDescriptions.length)];
+				}
 			}
+
+			// Check if expense would make balance negative, and adjust if needed
+			if (!isIncome && accountBalances[randomAccount.id] - amount < 0) {
+				// Either reduce the amount or skip this transaction
+				const maxExpense = Math.floor(accountBalances[randomAccount.id] * 0.8); // Keep 20% buffer
+				if (maxExpense > 5) {
+					amount = Math.floor(Math.random() * (maxExpense - 5)) + 5;
+				} else {
+					continue; // Skip this transaction if account balance is too low
+				}
+			}
+
+			// Update projected balance
+			if (isIncome) {
+				accountBalances[randomAccount.id] += amount;
+			} else {
+				accountBalances[randomAccount.id] -= amount;
+			}
+
+			generatedTransactions.push({
+				userId: ctx.user.id,
+				amount: amount.toString(),
+				description,
+				transactionAccount: randomAccount.id,
+				category: randomCategory.id,
+				type: isIncome ? "income" : "expense",
+				createdAt: transactionDate,
+			});
+		}
+
+		// Sort transactions by date for realistic progression
+		generatedTransactions.sort(
+			(a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+		);
+
+		// Insert all transactions
+		await db.insert(transaction).values(generatedTransactions);
+
+		// Update account balances
+		for (const account of transactionAccounts) {
+			await db
+				.update(transactionAccount)
+				.set({ balance: accountBalances[account.id].toString() })
+				.where(
+					and(
+						eq(transactionAccount.id, account.id),
+						eq(transactionAccount.userId, ctx.user.id),
+					),
+				);
 		}
 
 		return {
-			count: transactions.length,
-			message: `Generated ${transactions.length} transactions successfully!`,
+			success: true,
+			generated: generatedTransactions.length,
+			message: `Successfully generated ${generatedTransactions.length} realistic transactions.`,
+			accountBalances: Object.fromEntries(
+				transactionAccounts.map((account) => [
+					account.name,
+					accountBalances[account.id],
+				]),
+			),
 		};
 	}),
 	listTransactions: protectedProcedure
@@ -480,8 +554,6 @@ export const transactionRouter = {
 				);
 
 			// Handle balance adjustments and history updates
-			const oldCreatedAt = currentTransaction.createdAt;
-			const newCreatedAt = updateData.createdAt ?? oldCreatedAt;
 
 			if (oldAccountId && newAccountId) {
 				if (oldAccountId === newAccountId) {

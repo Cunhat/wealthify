@@ -72,14 +72,14 @@ export const metricsRouter = {
 				await db.query.transactionAccount.findMany({
 					where: and(eq(transactionAccount.userId, ctx.user.id)),
 					with: {
-						transactions: {
-							where: gte(transaction.createdAt, dateIterator),
-						},
+						transactions: true,
 					},
 				});
 
 			for (const account of getTransactionsFromTransAcc) {
 				const netWorthDataForTransAcc = calculateAccountNetWorth(account);
+
+				console.log(netWorthDataForTransAcc);
 
 				for (const key in netWorthDataForTransAcc) {
 					netWorthData[key] = netWorthData[key] + netWorthDataForTransAcc[key];
