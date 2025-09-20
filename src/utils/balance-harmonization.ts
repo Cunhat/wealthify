@@ -105,6 +105,8 @@ export const calculateAccountNetWorth = (
 				dayjs(elem.createdAt).isSame(dateIterator, "year"),
 		);
 
+		console.log(`=============> ${account.name}:`, monthlyTransactions);
+
 		currNetWorth = monthlyTransactions?.reduce((acc, elem) => {
 			if (elem.type === "expense") {
 				return acc - Number(elem.amount);

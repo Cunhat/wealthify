@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { category, transaction, transactionAccount } from "@/db/schema";
+import dayjs from "dayjs";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
@@ -17,6 +18,15 @@ export const transactionRouter = {
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
+			console.log(
+				"=============> SERVER DATA",
+				dayjs().format("YYYY-MM-DD HH:mm:ss"),
+			);
+
+			console.log(
+				"=============> CREATED AT",
+				dayjs(input.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+			);
 			// Create the transaction
 			const createdTransaction = await db
 				.insert(transaction)

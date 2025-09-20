@@ -79,7 +79,7 @@ export const metricsRouter = {
 			for (const account of getTransactionsFromTransAcc) {
 				const netWorthDataForTransAcc = calculateAccountNetWorth(account);
 
-				console.log(netWorthDataForTransAcc);
+				console.log(account.name, netWorthDataForTransAcc);
 
 				for (const key in netWorthDataForTransAcc) {
 					netWorthData[key] = netWorthData[key] + netWorthDataForTransAcc[key];
