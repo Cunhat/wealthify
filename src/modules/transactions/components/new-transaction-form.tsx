@@ -10,7 +10,6 @@ import { DialogFooter } from "@/components/ui/dialog";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -35,8 +34,11 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 import { CalendarIcon } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 const formSchema = z.object({
 	amount: z.number().min(1, "Amount is required"),
@@ -76,7 +78,7 @@ export default function NewTransactionForm({
 			transactionAccount: "",
 			category: "",
 			type: "expense",
-			createdAt: dayjs().toDate(),
+			createdAt: dayjs().utc().toDate(),
 		},
 	});
 
@@ -84,12 +86,14 @@ export default function NewTransactionForm({
 
 	const minDate = useMemo(() => {
 		return transactionAccount
-			? new Date(
+			? dayjs(
 					accountsQuery.data?.find(
 						(account) => account.id === transactionAccount,
 					)?.initialBalanceDate || "1900-01-01",
 				)
-			: new Date("1900-01-01");
+					.utc()
+					.toDate()
+			: dayjs("1900-01-01").utc().toDate();
 	}, [transactionAccount, accountsQuery.data]);
 
 	const createTransactionMutation = useMutation({
@@ -269,7 +273,8 @@ export default function NewTransactionForm({
 											selected={field.value}
 											onSelect={field.onChange}
 											disabled={(date) =>
-												date > new Date() || date < new Date("1900-01-01")
+												date > dayjs().utc().toDate() ||
+												date < dayjs("1900-01-01").utc().toDate()
 											}
 											captionLayout="dropdown"
 											hidden={{

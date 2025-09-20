@@ -16,8 +16,6 @@ type TransactionAccountProps = {
 export default function TransactionAccount({
 	account,
 }: TransactionAccountProps) {
-	console.log(account);
-
 	const groupedTransactions = useMemo(
 		() =>
 			groupTransactionsByDate(account.transactions as unknown as Transaction[]),

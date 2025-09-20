@@ -18,15 +18,6 @@ export const transactionRouter = {
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			console.log(
-				"=============> SERVER DATA",
-				dayjs().format("YYYY-MM-DD HH:mm:ss"),
-			);
-
-			console.log(
-				"=============> CREATED AT",
-				dayjs(input.createdAt).format("YYYY-MM-DD HH:mm:ss"),
-			);
 			// Create the transaction
 			const createdTransaction = await db
 				.insert(transaction)
@@ -37,7 +28,7 @@ export const transactionRouter = {
 					transactionAccount: input.transactionAccount,
 					category: input.category,
 					type: input.type,
-					createdAt: input.createdAt || new Date(),
+					createdAt: dayjs(input.createdAt).toDate(),
 				})
 				.returning();
 
