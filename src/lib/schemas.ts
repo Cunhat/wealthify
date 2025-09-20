@@ -4,6 +4,7 @@ import {
 	balanceAccount,
 	balanceAccountHistory,
 	category,
+	recurringTransaction,
 	transaction,
 	transactionAccount,
 } from "../db/schema";
@@ -61,3 +62,9 @@ export const balanceAccountHistorySchema = createSelectSchema(
 );
 
 export type BalanceAccountHistory = typeof balanceAccountHistory.$inferSelect;
+
+// Recurring transaction schema
+export const recurringTransactionSelectSchema =
+	createSelectSchema(recurringTransaction);
+
+export type RecurringTransaction = typeof recurringTransaction.$inferSelect;

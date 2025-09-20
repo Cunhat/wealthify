@@ -244,7 +244,17 @@ export const recurringTransaction = pgTable("recurring_transaction", {
 	updatedAt: timestamp("updated_at")
 		.$defaultFn(() => /* @__PURE__ */ new Date())
 		.notNull(),
+	category: text("category").references(() => category.id, {
+		onDelete: "set null",
+	}),
 	userId: text("user_id")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 });
+
+export const recurringTransactionRelations = relations(
+	recurringTransaction,
+	({ one }) => ({
+		category: one(category),
+	}),
+);

@@ -1,6 +1,7 @@
 import {
 	IconDashboard,
 	IconInnerShadowTop,
+	IconRepeat,
 	IconTags,
 } from "@tabler/icons-react";
 import type * as React from "react";
@@ -17,7 +18,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import type { User } from "better-auth";
-import { BadgeEuro, Wallet } from "lucide-react";
+import { BadgeEuro, CalendarSync, Wallet } from "lucide-react";
 
 const data = {
 	user: {
@@ -46,11 +47,11 @@ const data = {
 			url: "/categories",
 			icon: IconTags,
 		},
-		// {
-		// 	title: "Projects",
-		// 	url: "#",
-		// 	icon: IconFolder,
-		// },
+		{
+			title: "Recurring",
+			url: "/recurring",
+			icon: CalendarSync,
+		},
 		// {
 		// 	title: "Team",
 		// 	url: "#",
