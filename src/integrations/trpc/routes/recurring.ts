@@ -39,6 +39,9 @@ export const recurringRouter = {
 			orderBy: (recurringTransaction, { desc }) => [
 				desc(recurringTransaction.createdAt),
 			],
+			with: {
+				category: true,
+			},
 		});
 
 		return recurringTransactions;

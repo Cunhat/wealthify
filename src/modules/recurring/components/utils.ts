@@ -12,11 +12,15 @@ export const frequencyMonthsSchema = z.union([
 export type FrequencyMonths = z.infer<typeof frequencyMonthsSchema>;
 
 // Define the frequency options
-export const frequencyOptions: { value: FrequencyMonths; label: string }[] = [
-	{ value: "monthly", label: "Every month" },
-	{ value: "bimonthly", label: "Every 2 months" },
-	{ value: "quarterly", label: "Every 3 months" },
-	{ value: "fourMonths", label: "Every 4 months" },
-	{ value: "semester", label: "Every 6 months" },
-	{ value: "yearly", label: "Annually" },
+export const frequencyOptions: {
+	value: FrequencyMonths;
+	label: string;
+	multiplier: number;
+}[] = [
+	{ value: "monthly", label: "Every month", multiplier: 12 },
+	{ value: "bimonthly", label: "Every 2 months", multiplier: 6 },
+	{ value: "quarterly", label: "Every 3 months", multiplier: 4 },
+	{ value: "fourMonths", label: "Every 4 months", multiplier: 3 },
+	{ value: "semester", label: "Every 6 months", multiplier: 2 },
+	{ value: "yearly", label: "Annually", multiplier: 1 },
 ];

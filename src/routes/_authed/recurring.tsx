@@ -7,5 +7,9 @@ export const Route = createFileRoute("/_authed/recurring")({
 		await context.queryClient.prefetchQuery(
 			context.trpc.categories.listCategories.queryOptions(),
 		);
+
+		await context.queryClient.prefetchQuery(
+			context.trpc.recurring.listRecurringTransactions.queryOptions(),
+		);
 	},
 });

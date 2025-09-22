@@ -157,6 +157,7 @@ export const categoryRelations = relations(category, ({ many, one }) => ({
 		fields: [category.userId],
 		references: [user.id],
 	}),
+	recurringTransactions: many(recurringTransaction),
 }));
 
 export const balanceAccount = pgTable("balance_account", {
@@ -255,6 +256,9 @@ export const recurringTransaction = pgTable("recurring_transaction", {
 export const recurringTransactionRelations = relations(
 	recurringTransaction,
 	({ one }) => ({
-		category: one(category),
+		category: one(category, {
+			fields: [recurringTransaction.category],
+			references: [category.id],
+		}),
 	}),
 );
