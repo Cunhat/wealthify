@@ -7,11 +7,17 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import {
+	ChartContainer,
+	ChartTooltip,
+	ChartTooltipContent,
+} from "@/components/ui/chart";
 import { Separator } from "@/components/ui/separator";
 import { useTRPC } from "@/integrations/trpc/react";
 import { formatCurrency } from "@/utils/mixins";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { frequencyOptions } from "../components/utils";
 import RecurringActions from "../sections/recurring-actions";
 
@@ -52,20 +58,33 @@ export default function RecurringView() {
 
 		while (currentDateIterator.isBefore(dayjs().endOf("year"))) {
 			if (currentDateIterator.isSame(firstOcc, "month")) {
-				fullYearRecurring[dayjs(currentDateIterator).format("MMM YYYY")] =
-					(fullYearRecurring[dayjs(currentDateIterator).format("MMM YYYY")] ??
-						0) + Number(transaction.amount);
+				fullYearRecurring[dayjs(currentDateIterator).format("MMM")] =
+					(fullYearRecurring[dayjs(currentDateIterator).format("MMM")] ?? 0) +
+					Number(transaction.amount);
 				firstOcc = dayjs(firstOcc).add(interval, "month");
 			} else {
-				fullYearRecurring[dayjs(currentDateIterator).format("MMM YYYY")] =
-					(fullYearRecurring[dayjs(currentDateIterator).format("MMM YYYY")] ??
-						0) + 0;
+				fullYearRecurring[dayjs(currentDateIterator).format("MMM")] =
+					(fullYearRecurring[dayjs(currentDateIterator).format("MMM")] ?? 0) +
+					0;
 			}
 			currentDateIterator = currentDateIterator.add(1, "month");
 		}
 	}
 
-	console.log(fullYearRecurring);
+	// Format data for the chart
+	const chartData = Object.entries(fullYearRecurring).map(
+		([month, amount]) => ({
+			month: month,
+			amount: amount,
+		}),
+	);
+
+	const chartConfig = {
+		amount: {
+			label: "Amount",
+			color: "var(--chart-1)",
+		},
+	};
 
 	return (
 		<PageContainer
@@ -127,6 +146,37 @@ export default function RecurringView() {
 								{formatCurrency(totalAnnualAmount ?? 0)}
 							</p>
 						</div>
+					</Card>
+					<Card className="p-6">
+						<CardHeader className="p-0 pb-4">
+							<CardTitle>Monthly Breakdown</CardTitle>
+							<CardDescription>
+								Recurring transactions by month for {dayjs().format("YYYY")}
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="p-0">
+							<ChartContainer config={chartConfig} className="h-[300px] w-full">
+								<BarChart data={chartData}>
+									<XAxis
+										dataKey="month"
+										tick={{ fontSize: 12 }}
+										tickLine={false}
+										axisLine={false}
+									/>
+									<CartesianGrid vertical={false} />
+
+									<ChartTooltip
+										cursor={false}
+										content={<ChartTooltipContent indicator="line" />}
+									/>
+									<Bar
+										dataKey="amount"
+										fill="var(--color-amount)"
+										radius={[4, 4, 0, 0]}
+									/>
+								</BarChart>
+							</ChartContainer>
+						</CardContent>
 					</Card>
 				</div>
 			</div>
