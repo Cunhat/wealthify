@@ -45,7 +45,7 @@ export default function NetWorthWidget() {
 			<CardContent>
 				<ChartContainer
 					config={chartConfig}
-					className="aspect-auto h-[250px] w-full"
+					className="aspect-auto h-[200px] w-full"
 				>
 					<AreaChart
 						accessibilityLayer

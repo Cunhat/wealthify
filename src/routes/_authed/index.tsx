@@ -1,10 +1,8 @@
-import NetWorthWidget from "@/components/net-worth-widget";
-import PageContainer from "@/components/page-container";
-import AccountsWidget from "@/modules/accounts/sections/accounts-widget";
+import DashboardView from "@/modules/dashboard/views/dashboard-view";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authed/")({
-	component: App,
+	component: DashboardView,
 	beforeLoad: ({ context }) => {
 		if (!context.user) {
 			throw redirect({ to: "/login" });
@@ -16,11 +14,7 @@ export const Route = createFileRoute("/_authed/")({
 		);
 
 		await context.queryClient.prefetchQuery(
-			context.trpc.transactions.listTransactions.queryOptions({
-				limit: 100,
-				categoryNames: [],
-				accountNames: [],
-			}),
+			context.trpc.metrics.getIncomeVsExpenses.queryOptions(),
 		);
 
 		await context.queryClient.prefetchQuery(
@@ -35,18 +29,3 @@ export const Route = createFileRoute("/_authed/")({
 		],
 	}),
 });
-
-function App() {
-	return (
-		<PageContainer title="Dashboard">
-			<div className="grid grid-cols-[350px_1fr] grid-rows-[1fr_auto] gap-6 h-full overflow-hidden">
-				<AccountsWidget />
-				<div className="grid grid-cols-2 gap-4 h-full overflow-y-auto">
-					<div className="col-span-2 h-full">
-						<NetWorthWidget />
-					</div>
-				</div>
-			</div>
-		</PageContainer>
-	);
-}
