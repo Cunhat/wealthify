@@ -1,4 +1,5 @@
 import CategoryBadge from "@/components/category-badge";
+import NotFound from "@/components/not-found";
 import PageContainer from "@/components/page-container";
 import {
 	Card,
@@ -33,7 +34,14 @@ export default function RecurringView() {
 	}
 
 	if (recurringTransactionsQuery.data?.length === 0) {
-		return <div>No recurring transactions found</div>;
+		return (
+			<PageContainer
+				title="Recurring Transactions"
+				actionsComponent={<RecurringActions />}
+			>
+				<NotFound message="No recurring transactions found" />
+			</PageContainer>
+		);
 	}
 
 	const totalAnnualAmount = recurringTransactionsQuery.data?.reduce(
