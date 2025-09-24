@@ -134,7 +134,6 @@ export const metricsRouter = {
 				),
 			});
 
-			console.log(currDateIterator.format("MMM"));
 			currDateIterator = dayjs(currDateIterator).add(1, "month");
 		}
 
