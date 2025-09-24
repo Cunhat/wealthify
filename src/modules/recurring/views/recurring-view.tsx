@@ -59,7 +59,7 @@ export default function RecurringView() {
 	for (const transaction of recurringTransactionsQuery.data ?? []) {
 		const interval =
 			frequencyOptions.find((opt) => opt.value === transaction.frequency)
-				?.multiplier ?? 0;
+				?.interval ?? 0;
 
 		let currentDateIterator = dayjs().startOf("year").startOf("month");
 		let firstOcc = dayjs(transaction.firstOccurrence);
