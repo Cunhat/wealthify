@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { recurringTransaction } from "@/db/schema";
 import { frequencyMonthsSchema } from "@/modules/recurring/components/utils";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
@@ -57,7 +57,7 @@ export const recurringRouter = {
 				category: z.string().optional(),
 			}),
 		)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
 			const { id, ...updateData } = input;
 
 			// Build update object, filtering out undefined values
@@ -83,7 +83,12 @@ export const recurringRouter = {
 			const updatedRecurringTransaction = await db
 				.update(recurringTransaction)
 				.set(updateValues)
-				.where(eq(recurringTransaction.id, id))
+				.where(
+					and(
+						eq(recurringTransaction.id, id),
+						eq(recurringTransaction.userId, ctx.user.id),
+					),
+				)
 				.returning();
 
 			return updatedRecurringTransaction[0];
@@ -91,9 +96,14 @@ export const recurringRouter = {
 
 	deleteRecurringTransaction: protectedProcedure
 		.input(z.object({ id: z.string() }))
-		.mutation(async ({ input }) => {
+		.mutation(async ({ ctx, input }) => {
 			await db
 				.delete(recurringTransaction)
-				.where(eq(recurringTransaction.id, input.id));
+				.where(
+					and(
+						eq(recurringTransaction.id, input.id),
+						eq(recurringTransaction.userId, ctx.user.id),
+					),
+				);
 		}),
 };
