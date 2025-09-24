@@ -136,9 +136,7 @@ export default function RecurringView() {
 						</div>
 						<div className="flex items-center justify-end">
 							<p className="text-xl @md/main:text-lg font-semibold">
-								{formatCurrency(
-									fullYearRecurring[dayjs().format("MMM YYYY")] ?? 0,
-								)}
+								{formatCurrency(fullYearRecurring[dayjs().format("MMM")] ?? 0)}
 							</p>
 						</div>
 					</Card>
