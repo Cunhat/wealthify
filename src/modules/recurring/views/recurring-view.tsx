@@ -13,14 +13,16 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
+
 import { Separator } from "@/components/ui/separator";
 import { useTRPC } from "@/integrations/trpc/react";
 import { formatCurrency } from "@/utils/mixins";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { frequencyOptions } from "../components/utils";
 import RecurringActions from "../sections/recurring-actions";
+import RecurringTransactionMenuActions from "../sections/recurring-transaction-menu-actions";
 
 export default function RecurringView() {
 	const trpc = useTRPC();
@@ -104,7 +106,7 @@ export default function RecurringView() {
 					{recurringTransactionsQuery.data?.map((transaction) => (
 						<div
 							key={transaction.id}
-							className="grid grid-cols-[2fr_1fr_auto] gap-2"
+							className="grid grid-cols-[2fr_1fr_auto_auto] gap-2 relative"
 						>
 							<div className="flex items-center gap-2">
 								<p>{transaction.description}</p>
@@ -119,9 +121,18 @@ export default function RecurringView() {
 							<div className="flex justify-end items-center gap-2">
 								<CategoryBadge category={transaction.category} />
 							</div>
-							<div className="text-right">
+							<div className="text-right flex items-center gap-2">
 								{formatCurrency(Number(transaction.amount))}
+
+								<span className="text-xs text-muted-foreground/50">|</span>
+								{formatCurrency(
+									Number(transaction.amount) *
+										(frequencyOptions.find(
+											(option) => option.value === transaction.frequency,
+										)?.multiplier ?? 0),
+								)}
 							</div>
+							<RecurringTransactionMenuActions transaction={transaction} />
 						</div>
 					))}
 				</div>

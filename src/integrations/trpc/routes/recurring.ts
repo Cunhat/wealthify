@@ -46,10 +46,52 @@ export const recurringRouter = {
 
 		return recurringTransactions;
 	}),
+	updateRecurringTransaction: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				amount: z.number().min(1, "Amount is required").optional(),
+				description: z.string().optional(),
+				firstOccurrence: z.date().optional(),
+				frequency: frequencyMonthsSchema.optional(),
+				category: z.string().optional(),
+			}),
+		)
+		.mutation(async ({ input }) => {
+			const { id, ...updateData } = input;
+
+			// Build update object, filtering out undefined values
+			const updateValues: Record<string, string | Date> = {};
+			if (updateData.amount !== undefined) {
+				updateValues.amount = updateData.amount.toString();
+			}
+			if (updateData.description !== undefined) {
+				updateValues.description = updateData.description;
+			}
+			if (updateData.firstOccurrence !== undefined) {
+				updateValues.firstOccurrence = updateData.firstOccurrence;
+			}
+			if (updateData.frequency !== undefined) {
+				updateValues.frequency = updateData.frequency;
+			}
+			if (updateData.category !== undefined) {
+				updateValues.category = updateData.category;
+			}
+
+			updateValues.updatedAt = new Date();
+
+			const updatedRecurringTransaction = await db
+				.update(recurringTransaction)
+				.set(updateValues)
+				.where(eq(recurringTransaction.id, id))
+				.returning();
+
+			return updatedRecurringTransaction[0];
+		}),
 
 	deleteRecurringTransaction: protectedProcedure
 		.input(z.object({ id: z.string() }))
-		.mutation(async ({ ctx, input }) => {
+		.mutation(async ({ input }) => {
 			await db
 				.delete(recurringTransaction)
 				.where(eq(recurringTransaction.id, input.id));

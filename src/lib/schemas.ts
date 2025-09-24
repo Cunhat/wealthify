@@ -67,4 +67,6 @@ export type BalanceAccountHistory = typeof balanceAccountHistory.$inferSelect;
 export const recurringTransactionSelectSchema =
 	createSelectSchema(recurringTransaction);
 
-export type RecurringTransaction = typeof recurringTransaction.$inferSelect;
+export type RecurringTransaction = typeof recurringTransaction.$inferSelect & {
+	category: Category;
+};
