@@ -64,6 +64,85 @@ export const transactionRouter = {
 				}
 			}
 		}),
+	bulkCreateTransactions: protectedProcedure
+		.input(
+			z.object({
+				transactions: z.array(
+					z.object({
+						amount: z.number().min(0.01, "Amount must be positive"),
+						description: z.string(),
+						transactionAccount: z.string().optional(),
+						category: z.string().optional(),
+						type: z.enum(["expense", "income"]),
+						createdAt: z.date(),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			// Prepare transactions for bulk insert
+			const transactionsToInsert = input.transactions.map((tx) => ({
+				userId: ctx.user.id,
+				amount: tx.amount.toString(),
+				description: tx.description,
+				transactionAccount: tx.transactionAccount,
+				category: tx.category,
+				type: tx.type,
+				createdAt: tx.createdAt,
+			}));
+
+			// Insert all transactions
+			const createdTransactions = await db
+				.insert(transaction)
+				.values(transactionsToInsert)
+				.returning();
+
+			// Update account balances for transactions with accounts
+			const accountBalanceUpdates = new Map<string, number>();
+
+			for (const tx of input.transactions) {
+				if (tx.transactionAccount) {
+					const currentChange =
+						accountBalanceUpdates.get(tx.transactionAccount) || 0;
+					const amountChange = tx.type === "expense" ? -tx.amount : tx.amount;
+					accountBalanceUpdates.set(
+						tx.transactionAccount,
+						currentChange + amountChange,
+					);
+				}
+			}
+
+			// // Apply balance updates
+			// for (const [accountId, balanceChange] of accountBalanceUpdates) {
+			// 	const currentAccount = await db.query.transactionAccount.findFirst({
+			// 		where: and(
+			// 			eq(transactionAccount.id, accountId),
+			// 			eq(transactionAccount.userId, ctx.user.id),
+			// 		),
+			// 	});
+
+			// 	if (currentAccount) {
+			// 		const currentBalance = Number.parseFloat(currentAccount.balance);
+			// 		const newBalance = currentBalance + balanceChange;
+
+			// 		await db
+			// 			.update(transactionAccount)
+			// 			.set({ balance: newBalance.toString() })
+			// 			.where(
+			// 				and(
+			// 					eq(transactionAccount.id, accountId),
+			// 					eq(transactionAccount.userId, ctx.user.id),
+			// 				),
+			// 			);
+			// 	}
+			// }
+
+			return {
+				success: true,
+				created: createdTransactions.length,
+				message: `Successfully created ${createdTransactions.length} transactions from CSV`,
+			};
+		}),
 	generateTransactions: protectedProcedure.mutation(async ({ ctx }) => {
 		// Get all transaction accounts for this user
 		const transactionAccounts = await db.query.transactionAccount.findMany({

@@ -25,3 +25,5 @@ export function balanceTransactionCalculator(
 
 	return newBalance.toFixed(2);
 }
+
+export const normalizeSpaces = (str: string) => str.replace(/\s+/g, " ").trim();
