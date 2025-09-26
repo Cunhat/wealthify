@@ -9,5 +9,9 @@ export default function IncomeVsExpensesWidget() {
 		...trpc.metrics.getIncomeVsExpenses.queryOptions(),
 	});
 
+	if (incomeVsExpensesQuery.isLoading) {
+		return <div>Loading...</div>;
+	}
+
 	return <IncomeVsExpensesChart data={incomeVsExpensesQuery.data ?? []} />;
 }

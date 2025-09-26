@@ -1,3 +1,4 @@
+import NetWorthEvolutionWidget from "@/components/net-worth-evolution-widget";
 import NetWorthWidget from "@/components/net-worth-widget";
 import PageContainer from "@/components/page-container";
 import AccountsWidget from "@/modules/accounts/sections/accounts-widget";
@@ -10,7 +11,7 @@ export default function DashboardView() {
 				<AccountsWidget />
 				<div className="flex flex-col gap-4 overflow-y-auto">
 					<NetWorthWidget />
-
+					<NetWorthEvolutionWidget />
 					<IncomeVsExpensesWidget />
 				</div>
 			</div>
