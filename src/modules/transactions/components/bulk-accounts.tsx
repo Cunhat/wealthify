@@ -37,7 +37,8 @@ export default function BulkAccounts({ transactions }: BulkAccountsProps) {
 				queryKey: trpc.transactions.listTransactions.queryKey(),
 			});
 		},
-		onError: () => {
+		onError: (error) => {
+			console.error(error);
 			toast.error("Failed to update transaction account");
 		},
 	});
@@ -60,7 +61,7 @@ export default function BulkAccounts({ transactions }: BulkAccountsProps) {
 							key={account.id}
 							onClick={() => {
 								updateTransactionAccount.mutate({
-									transactionId: transactions.map((t) => t.id),
+									transactions: transactions,
 									accountId: account.id,
 								});
 							}}

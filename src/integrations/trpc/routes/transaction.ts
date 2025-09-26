@@ -1,5 +1,6 @@
 import { db } from "@/db";
-import { category, transaction, transactionAccount } from "@/db/schema";
+import { account, account, category, transaction, transactionAccount } from "@/db/schema";
+import { transactionSelectSchema } from "@/lib/schemas";
 import dayjs from "dayjs";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
@@ -758,18 +759,48 @@ export const transactionRouter = {
 	updateTransactionAccount: protectedProcedure
 		.input(
 			z.object({
-				transactionId: z.array(z.string()),
+				transactions: z.array(z.any()),
 				accountId: z.string(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			await db
+			console.log(input);
+			 await db
 				.update(transaction)
 				.set({ transactionAccount: input.accountId })
 				.where(
 					and(
-						inArray(transaction.id, input.transactionId),
+						inArray(
+							transaction.id,
+							input.transactions.map((t) => t.id),
+						),
 						eq(transaction.userId, ctx.user.id),
+					),
+				)
+				.returning();
+
+			const accountToUpdate = await db.query.transactionAccount.findFirst({
+				where: and(
+					eq(transactionAccount.id, input.accountId),
+					eq(transactionAccount.userId, ctx.user.id),
+				),
+			});
+
+			const totalAmount = input.transactions.reduce((acc, t) => {
+				if (t.type === "expense") {
+					return acc - Number.parseFloat(t.amount);
+				}
+
+				return acc + Number.parseFloat(t.amount);
+			}, Number.parseFloat(accountToUpdate?.balance ?? "0"));
+
+			await db
+				.update(transactionAccount)
+				.set({ balance: totalAmount.toString() })
+				.where(
+					and(
+						eq(transactionAccount.id, input.accountId),
+						eq(transactionAccount.userId, ctx.user.id),
 					),
 				);
 		}),
