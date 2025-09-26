@@ -109,7 +109,13 @@ const TransactionRow = memo(
 					}
 				/>
 				<div className="text-sm text-foreground">{transaction.description}</div>
-				<AccountBadge account={transaction?.transactionAccount} />
+				{transaction.transactionAccount ? (
+					<AccountBadge account={transaction?.transactionAccount} />
+				) : (
+					<div className="text-sm text-foreground">
+						<span className="text-sm text-muted-foreground">No account...</span>
+					</div>
+				)}
 				{transaction.category ? (
 					<CategoryBadge category={transaction.category} />
 				) : (
