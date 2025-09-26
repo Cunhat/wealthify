@@ -15,12 +15,21 @@ import { useState } from "react";
 import CsvUpload from "../components/csv-upload";
 
 export default function UploadTransactionsFromFile() {
+	const [open, setOpen] = useState<boolean>(false);
+	const [step, setStep] = useState<number>(0);
 	const [csvData, setCsvData] = useState<Record<string, string>[]>([]);
 
 	console.log(csvData);
 
 	return (
-		<AlertDialog>
+		<AlertDialog
+			open={open}
+			onOpenChange={() => {
+				setOpen(!open);
+				setStep(0);
+				setCsvData([]);
+			}}
+		>
 			<AlertDialogTrigger asChild>
 				<Button variant="outline" size="icon">
 					<FileUp className="w-4 h-4" />
@@ -33,11 +42,8 @@ export default function UploadTransactionsFromFile() {
 						Upload a CSV file to import your transactions.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
-				<CsvUpload setCsvData={setCsvData} />
-				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction>Continue</AlertDialogAction>
-				</AlertDialogFooter>
+				{step === 0 && <CsvUpload setCsvData={setCsvData} setStep={setStep} />}
+				{step === 1 && <div>Step 1</div>}
 			</AlertDialogContent>
 		</AlertDialog>
 	);
