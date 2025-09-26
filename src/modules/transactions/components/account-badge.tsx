@@ -43,10 +43,11 @@ export default function AccountBadge({
 					"rounded-full flex items-center justify-center",
 					SIZES[size].outerIcon,
 					AccountInfo?.iconBg,
-					AccountInfo?.iconFg,
 				)}
 			>
-				<AccountInfo.icon className={SIZES[size].innerIcon} />
+				<AccountInfo.icon
+					className={cn(SIZES[size].innerIcon, AccountInfo?.iconFg)}
+				/>
 			</div>
 			<p className={SIZES[size].text}>{account.name}</p>
 		</div>

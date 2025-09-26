@@ -1,4 +1,5 @@
 import type { Transaction } from "@/lib/schemas";
+import BulkAccounts from "./bulk-accounts";
 import BulkCategories from "./bulk-categories";
 import DeleteTransactionsDialog from "./delete-transactions-dialog";
 
@@ -16,7 +17,9 @@ export default function SelectedTransactions({
 	return (
 		<div className="flex justify-center items-center gap-2">
 			<p className="text-sm">{transactions.length} selected</p>
+			<BulkAccounts transactions={transactions} />
 			<BulkCategories transactions={transactions} />
+
 			<DeleteTransactionsDialog
 				transactions={transactions}
 				setSelectedTransactions={setSelectedTransactions}
