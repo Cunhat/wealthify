@@ -14,6 +14,7 @@ import {
 } from "../components/transactions-filters";
 import CreateTransaction from "../sections/create-transaction";
 import TransactionsTable from "../sections/transactions-table";
+import UploadTransactionsFromFile from "../sections/upload-transactions-from-file";
 
 export default function TransactionsView() {
 	const [selectedTransactionIds, setSelectedTransactionIds] = useState<
@@ -69,7 +70,8 @@ export default function TransactionsView() {
 				actionsComponent={
 					<div className="flex gap-2 w-full justify-between">
 						<CreateTransaction />
-						<GenerateTransactionsButton />
+						<UploadTransactionsFromFile />
+						{/* <GenerateTransactionsButton /> */}
 					</div>
 				}
 			>
@@ -83,12 +85,13 @@ export default function TransactionsView() {
 			title="Transactions"
 			actionsComponent={
 				<div className="flex gap-2 w-full justify-between">
-					<GenerateTransactionsButton />
+					{/* <GenerateTransactionsButton /> */}
 					<SelectedTransactions
 						transactions={selectedTransactions}
 						setSelectedTransactions={setSelectedTransactionIds}
 					/>
 					<TransactionsFilters />
+					<UploadTransactionsFromFile />
 					<CreateTransaction />
 				</div>
 			}
