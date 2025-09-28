@@ -4,6 +4,9 @@ import type {
 	TransactionAccountWithTransactions,
 } from "@/lib/schemas";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 type MonthName =
 	| "january"
@@ -96,11 +99,11 @@ export const calculateAccountNetWorth = (
 	console.log(`${account.name} ---->`, account);
 	console.log("Date ----> ", dayjs().format("DD/MM/YYYY HH:mm:ss"));
 
-	let dateIterator = dayjs(account.initialBalanceDate);
+	let dateIterator = dayjs(account.initialBalanceDate).local();
 	let currNetWorth = Number(account.initialBalance);
 
-	while (dayjs(dateIterator).isBefore(dayjs())) {
-		const key = dayjs(dateIterator).format("MMM YYYY");
+	while (dateIterator.isBefore(dayjs().local())) {
+		const key = dateIterator.format("MMM YYYY");
 
 		const monthlyTransactions = account.transactions.filter(
 			(elem) =>
