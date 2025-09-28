@@ -31,6 +31,9 @@ export const accountsRouter = {
 		const transactionAccountsQuery = await db.query.transactionAccount.findMany(
 			{
 				where: eq(transactionAccount.userId, ctx.user.id),
+				with: {
+					transactions: true,
+				},
 			},
 		);
 
@@ -39,6 +42,9 @@ export const accountsRouter = {
 	listBalanceAccounts: protectedProcedure.query(async ({ ctx }) => {
 		const balanceAccountsQuery = await db.query.balanceAccount.findMany({
 			where: eq(balanceAccount.userId, ctx.user.id),
+			with: {
+				history: true,
+			},
 		});
 
 		return [...balanceAccountsQuery];
