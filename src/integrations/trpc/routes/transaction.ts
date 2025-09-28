@@ -736,6 +736,29 @@ export const transactionRouter = {
 							);
 					}
 				}
+			} else if (!oldAccountId && newAccountId) {
+				const account = await db.query.transactionAccount.findFirst({
+					where: and(
+						eq(transactionAccount.id, newAccountId),
+						eq(transactionAccount.userId, ctx.user.id),
+					),
+				});
+
+				if (account) {
+					const currentBalance = Number.parseFloat(account.balance);
+					let newBalance = currentBalance;
+
+					if (newType === "expense") {
+						newBalance = currentBalance - newAmount;
+					} else {
+						newBalance = currentBalance + newAmount;
+					}
+
+					await db
+						.update(transactionAccount)
+						.set({ balance: newBalance.toString() })
+						.where(and(eq(transactionAccount.id, newAccountId), eq(transactionAccount.userId, ctx.user.id)));
+				}
 			}
 		}),
 	updateTransactionCategory: protectedProcedure
@@ -764,7 +787,7 @@ export const transactionRouter = {
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			console.log(input);
+			
 			 await db
 				.update(transaction)
 				.set({ transactionAccount: input.accountId })
@@ -779,29 +802,40 @@ export const transactionRouter = {
 				)
 				.returning();
 
-			const accountToUpdate = await db.query.transactionAccount.findFirst({
-				where: and(
-					eq(transactionAccount.id, input.accountId),
-					eq(transactionAccount.userId, ctx.user.id),
-				),
+		const listOfAccountsToUpdate =  new Set<string>();
+
+		for(const t of input.transactions) {
+			if (t.transactionAccount) {
+				listOfAccountsToUpdate.add(t.transactionAccount.id);
+			}
+		}
+		listOfAccountsToUpdate.add(input.accountId);
+
+
+		// This can be improved in the future but for now is more than enough
+		// Should be optimized when the amount of transactions is very high
+		for(const accountId of listOfAccountsToUpdate) {
+			const account = await db.query.transactionAccount.findFirst({
+				where: and(eq(transactionAccount.id, accountId), eq(transactionAccount.userId, ctx.user.id)),
 			});
 
-			const totalAmount = input.transactions.reduce((acc, t) => {
+			const allTransactionsForAccount = await db.query.transaction.findMany({
+				where: and(eq(transaction.transactionAccount, accountId), eq(transaction.userId, ctx.user.id)),
+			});
+
+			const totalAmountForAccount = allTransactionsForAccount.reduce((acc, t) => {
 				if (t.type === "expense") {
 					return acc - Number.parseFloat(t.amount);
 				}
 
 				return acc + Number.parseFloat(t.amount);
-			}, Number.parseFloat(accountToUpdate?.balance ?? "0"));
+			}, Number(account?.initialBalance ?? "0"));
 
 			await db
 				.update(transactionAccount)
-				.set({ balance: totalAmount.toString() })
-				.where(
-					and(
-						eq(transactionAccount.id, input.accountId),
-						eq(transactionAccount.userId, ctx.user.id),
-					),
-				);
+				.set({ balance: totalAmountForAccount.toString() })
+				.where(and(eq(transactionAccount.id, accountId), eq(transactionAccount.userId, ctx.user.id)));
+		}
+		
 		}),
 };
