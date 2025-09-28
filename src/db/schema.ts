@@ -128,6 +128,7 @@ export const transaction = pgTable("transaction", {
 		() => transactionAccount.id,
 		{ onDelete: "cascade" },
 	),
+	excluded: boolean("excluded").notNull().default(false),
 	category: text("category").references(() => category.id, {
 		onDelete: "set null",
 	}),

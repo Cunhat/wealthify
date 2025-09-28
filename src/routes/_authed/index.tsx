@@ -27,10 +27,6 @@ export const Route = createFileRoute("/_authed/")({
 		await context.queryClient.prefetchQuery(
 			context.trpc.metrics.getIncomeVsExpenses.queryOptions(),
 		);
-
-		// await context.queryClient.prefetchQuery(
-		// 	context.trpc.metrics.getNetWorth.queryOptions(),
-		// );
 	},
 	head: () => ({
 		meta: [

@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency, groupTransactionsByDate } from "@/lib/mixins";
 import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
+import { Ban } from "lucide-react";
 import { memo, useCallback, useMemo } from "react";
 import AccountBadge from "../components/account-badge";
 import TransactionRowMenu from "../components/transaction-row-menu";
@@ -98,7 +99,7 @@ const TransactionRow = memo(
 			<div
 				key={transaction.id}
 				className={cn(
-					"grid grid-cols-[25px_4fr_200px_1fr_100px_50px] items-center px-2 py-2 rounded-sm transition-colors",
+					"grid grid-cols-[25px_4fr_200px_200px_1fr_100px_50px] items-center px-2 py-2 rounded-sm transition-colors",
 					isSelected && "bg-primary/10",
 				)}
 			>
@@ -109,6 +110,7 @@ const TransactionRow = memo(
 					}
 				/>
 				<div className="text-sm text-foreground">{transaction.description}</div>
+
 				{transaction.transactionAccount ? (
 					<AccountBadge account={transaction?.transactionAccount} />
 				) : (
@@ -116,6 +118,16 @@ const TransactionRow = memo(
 						<span className="text-sm text-muted-foreground">No account...</span>
 					</div>
 				)}
+				<div className="text-sm text-foreground">
+					{transaction.excluded ? (
+						<div className="flex items-center gap-1 bg-destructive/10 border border-destructive/20 rounded-sm p-1 text-destructive w-fit">
+							<Ban className="size-3 text-destructive" />
+							<span className="text-xs text-destructive">Excluded</span>
+						</div>
+					) : (
+						""
+					)}
+				</div>
 				{transaction.category ? (
 					<CategoryBadge category={transaction.category} />
 				) : (

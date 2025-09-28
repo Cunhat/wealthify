@@ -6,10 +6,12 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -31,14 +33,14 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { useTRPC } from "@/integrations/trpc/react";
-import { AccountTypeGroups } from "@/lib/configs/accounts";
+import { type AccountType, AccountTypeGroups } from "@/lib/configs/accounts";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-
-dayjs.extend(utc);
 import { CalendarIcon } from "lucide-react";
 import { useMemo } from "react";
+
+dayjs.extend(utc);
 
 const formSchema = z.object({
 	amount: z.number().min(1, "Amount is required"),
@@ -48,6 +50,7 @@ const formSchema = z.object({
 	category: z.string().min(1, "Category is required"),
 	type: z.enum(["expense", "income"]),
 	createdAt: z.date().optional(),
+	excluded: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -79,6 +82,7 @@ export default function NewTransactionForm({
 			category: "",
 			type: "expense",
 			createdAt: dayjs().utc().toDate(),
+			excluded: false,
 		},
 	});
 
@@ -123,6 +127,7 @@ export default function NewTransactionForm({
 			category: values.category || undefined,
 			type: values.type,
 			createdAt: values.createdAt || undefined,
+			excluded: values.excluded,
 		});
 	}
 
@@ -217,7 +222,8 @@ export default function NewTransactionForm({
 										);
 
 										const accountsInGroup = accountsQuery.data?.filter(
-											(account) => accountTypes.includes(account.type),
+											(account) =>
+												accountTypes.includes(account.type as AccountType),
 										);
 
 										if (accountsInGroup?.length === 0) return null;
@@ -314,6 +320,32 @@ export default function NewTransactionForm({
 								</SelectContent>
 							</Select>
 							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="excluded"
+					render={({ field }) => (
+						<FormItem className="flex flex-col items-start space-x-3 space-y-0">
+							<div className="flex gap-1 items-center">
+								<FormControl>
+									<Checkbox
+										checked={field.value}
+										onCheckedChange={field.onChange}
+									/>
+								</FormControl>
+								<FormLabel className="text-sm font-normal">
+									Exclude from calculations
+								</FormLabel>
+							</div>
+
+							<FormMessage />
+							<FormDescription>
+								If checked, this transaction will not be included in reports and
+								calculations
+							</FormDescription>
 						</FormItem>
 					)}
 				/>

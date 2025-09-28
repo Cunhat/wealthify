@@ -6,10 +6,12 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -44,6 +46,7 @@ const formSchema = z.object({
 	category: z.string().min(1, "Category is required"),
 	type: z.enum(["expense", "income"]),
 	createdAt: z.date().optional(),
+	excluded: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -79,6 +82,7 @@ export default function EditTransactionForm({
 			createdAt: transaction.createdAt
 				? new Date(transaction.createdAt)
 				: new Date(),
+			excluded: transaction.excluded || false,
 		},
 	});
 
@@ -108,6 +112,7 @@ export default function EditTransactionForm({
 			category: values.category || undefined,
 			type: values.type,
 			createdAt: values.createdAt || undefined,
+			excluded: values.excluded,
 		});
 	}
 
@@ -286,6 +291,32 @@ export default function EditTransactionForm({
 								</SelectContent>
 							</Select>
 							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="excluded"
+					render={({ field }) => (
+						<FormItem className="flex flex-col items-start space-x-3 space-y-0">
+							<div className="flex gap-1 items-center">
+								<FormControl>
+									<Checkbox
+										checked={field.value}
+										onCheckedChange={field.onChange}
+									/>
+								</FormControl>
+								<FormLabel className="text-sm font-normal">
+									Exclude from calculations
+								</FormLabel>
+							</div>
+
+							<FormMessage />
+							<FormDescription>
+								If checked, this transaction will not be included in reports and
+								calculations
+							</FormDescription>
 						</FormItem>
 					)}
 				/>

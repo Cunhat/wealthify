@@ -101,6 +101,7 @@ export const metricsRouter = {
 			where: and(
 				eq(transaction.userId, ctx.user.id),
 				gte(transaction.createdAt, lastYear),
+				eq(transaction.excluded, false),
 			),
 		});
 

@@ -15,6 +15,7 @@ export const transactionRouter = {
 				category: z.string().optional(),
 				type: z.enum(["expense", "income"]),
 				createdAt: z.date().optional(),
+				excluded: z.boolean().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -29,6 +30,7 @@ export const transactionRouter = {
 					category: input.category,
 					type: input.type,
 					createdAt: dayjs(input.createdAt).toDate(),
+					excluded: input.excluded ?? false,
 				})
 				.returning();
 
@@ -582,6 +584,7 @@ export const transactionRouter = {
 				category: z.string().optional(),
 				type: z.enum(["expense", "income"]).optional(),
 				createdAt: z.date().optional(),
+				excluded: z.boolean().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -604,6 +607,7 @@ export const transactionRouter = {
 				category: string | null;
 				type: "expense" | "income";
 				createdAt: Date;
+				excluded: boolean;
 			}> = {};
 			if (updateData.amount !== undefined)
 				fieldsToUpdate.amount = updateData.amount.toString();
@@ -616,6 +620,8 @@ export const transactionRouter = {
 			if (updateData.type !== undefined) fieldsToUpdate.type = updateData.type;
 			if (updateData.createdAt !== undefined)
 				fieldsToUpdate.createdAt = updateData.createdAt;
+			if (updateData.excluded !== undefined)
+				fieldsToUpdate.excluded = updateData.excluded;
 
 			// Handle balance updates when amount, type, or account changes
 			const oldAmount = Number.parseFloat(currentTransaction.amount);
