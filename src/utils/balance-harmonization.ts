@@ -96,16 +96,14 @@ export const calculateAccountNetWorth = (
 		[key: string]: number;
 	} = {};
 
-	console.log("Date ----> ", dayjs().local().format("DD/MM/YYYY HH:mm:ss"));
-
-	let dateIterator = dayjs(account.initialBalanceDate).local();
+	let dateIterator = dayjs(account.initialBalanceDate).utc();
 	console.log(
 		"Date Iterator ----> ",
 		dateIterator.format("DD/MM/YYYY HH:mm:ss"),
 	);
 	let currNetWorth = Number(account.initialBalance);
 
-	while (dateIterator.isBefore(dayjs().local())) {
+	while (dateIterator.isBefore(dayjs().utc())) {
 		const key = dateIterator.format("MMM YYYY");
 
 		const monthlyTransactions = account.transactions.filter(
