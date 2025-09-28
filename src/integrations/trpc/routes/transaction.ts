@@ -1,6 +1,5 @@
 import { db } from "@/db";
-import { account, account, category, transaction, transactionAccount } from "@/db/schema";
-import { transactionSelectSchema } from "@/lib/schemas";
+import { category, transaction, transactionAccount } from "@/db/schema";
 import dayjs from "dayjs";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
@@ -757,7 +756,12 @@ export const transactionRouter = {
 					await db
 						.update(transactionAccount)
 						.set({ balance: newBalance.toString() })
-						.where(and(eq(transactionAccount.id, newAccountId), eq(transactionAccount.userId, ctx.user.id)));
+						.where(
+							and(
+								eq(transactionAccount.id, newAccountId),
+								eq(transactionAccount.userId, ctx.user.id),
+							),
+						);
 				}
 			}
 		}),
@@ -782,60 +786,68 @@ export const transactionRouter = {
 	updateTransactionAccount: protectedProcedure
 		.input(
 			z.object({
-				transactions: z.array(z.any()),
+				transactions: z.array(z.string()),
 				accountId: z.string(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			
-			 await db
+			await db
 				.update(transaction)
 				.set({ transactionAccount: input.accountId })
 				.where(
 					and(
-						inArray(
-							transaction.id,
-							input.transactions.map((t) => t.id),
-						),
+						inArray(transaction.id, input.transactions),
 						eq(transaction.userId, ctx.user.id),
 					),
 				)
 				.returning();
 
-		const listOfAccountsToUpdate =  new Set<string>();
+			const listOfAccountsToUpdate = new Set<string>();
 
-		for(const t of input.transactions) {
-			if (t.transactionAccount) {
-				listOfAccountsToUpdate.add(t.transactionAccount.id);
-			}
-		}
-		listOfAccountsToUpdate.add(input.accountId);
-
-
-		// This can be improved in the future but for now is more than enough
-		// Should be optimized when the amount of transactions is very high
-		for(const accountId of listOfAccountsToUpdate) {
-			const account = await db.query.transactionAccount.findFirst({
-				where: and(eq(transactionAccount.id, accountId), eq(transactionAccount.userId, ctx.user.id)),
-			});
-
-			const allTransactionsForAccount = await db.query.transaction.findMany({
-				where: and(eq(transaction.transactionAccount, accountId), eq(transaction.userId, ctx.user.id)),
-			});
-
-			const totalAmountForAccount = allTransactionsForAccount.reduce((acc, t) => {
-				if (t.type === "expense") {
-					return acc - Number.parseFloat(t.amount);
+			for (const transactionId of input.transactions) {
+				if (transactionId) {
+					listOfAccountsToUpdate.add(transactionId);
 				}
+			}
+			listOfAccountsToUpdate.add(input.accountId);
 
-				return acc + Number.parseFloat(t.amount);
-			}, Number(account?.initialBalance ?? "0"));
+			// This can be improved in the future but for now is more than enough
+			// Should be optimized when the amount of transactions is very high
+			for (const accountId of listOfAccountsToUpdate) {
+				const account = await db.query.transactionAccount.findFirst({
+					where: and(
+						eq(transactionAccount.id, accountId),
+						eq(transactionAccount.userId, ctx.user.id),
+					),
+				});
 
-			await db
-				.update(transactionAccount)
-				.set({ balance: totalAmountForAccount.toString() })
-				.where(and(eq(transactionAccount.id, accountId), eq(transactionAccount.userId, ctx.user.id)));
-		}
-		
+				const allTransactionsForAccount = await db.query.transaction.findMany({
+					where: and(
+						eq(transaction.transactionAccount, accountId),
+						eq(transaction.userId, ctx.user.id),
+					),
+				});
+
+				const totalAmountForAccount = allTransactionsForAccount.reduce(
+					(acc, t) => {
+						if (t.type === "expense") {
+							return acc - Number.parseFloat(t.amount);
+						}
+
+						return acc + Number.parseFloat(t.amount);
+					},
+					Number(account?.initialBalance ?? "0"),
+				);
+
+				await db
+					.update(transactionAccount)
+					.set({ balance: totalAmountForAccount.toString() })
+					.where(
+						and(
+							eq(transactionAccount.id, accountId),
+							eq(transactionAccount.userId, ctx.user.id),
+						),
+					);
+			}
 		}),
 };
