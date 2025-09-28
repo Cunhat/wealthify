@@ -61,7 +61,7 @@ export default function BulkAccounts({ transactions }: BulkAccountsProps) {
 							key={account.id}
 							onClick={() => {
 								updateTransactionAccount.mutate({
-									transactions: transactions.map((t) => t.id),
+									transactions: transactions,
 									accountId: account.id,
 								});
 							}}

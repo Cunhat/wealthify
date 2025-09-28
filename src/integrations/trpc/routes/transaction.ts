@@ -786,7 +786,7 @@ export const transactionRouter = {
 	updateTransactionAccount: protectedProcedure
 		.input(
 			z.object({
-				transactions: z.array(z.string()),
+				transactions: z.array(z.any()),
 				accountId: z.string(),
 			}),
 		)
@@ -796,7 +796,10 @@ export const transactionRouter = {
 				.set({ transactionAccount: input.accountId })
 				.where(
 					and(
-						inArray(transaction.id, input.transactions),
+						inArray(
+							transaction.id,
+							input.transactions.map((t) => t.id),
+						),
 						eq(transaction.userId, ctx.user.id),
 					),
 				)
@@ -804,9 +807,9 @@ export const transactionRouter = {
 
 			const listOfAccountsToUpdate = new Set<string>();
 
-			for (const transactionId of input.transactions) {
-				if (transactionId) {
-					listOfAccountsToUpdate.add(transactionId);
+			for (const t of input.transactions) {
+				if (t.transactionAccount) {
+					listOfAccountsToUpdate.add(t.transactionAccount.id);
 				}
 			}
 			listOfAccountsToUpdate.add(input.accountId);
