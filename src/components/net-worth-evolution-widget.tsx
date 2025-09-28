@@ -13,16 +13,14 @@ import {
 	type ChartConfig,
 	ChartContainer,
 	ChartTooltip,
-	ChartTooltipContent,
 } from "@/components/ui/chart";
+import { calculateMonthlyNetWorth } from "@/lib/balance-harmonization";
+import { Loader } from "lucide-react";
 import type {
 	NameType,
 	ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import type {
-	ContentType,
-	TooltipProps,
-} from "recharts/types/component/Tooltip";
+import type { TooltipProps } from "recharts/types/component/Tooltip";
 
 const chartConfig = {
 	evolution: {
@@ -48,13 +46,38 @@ interface EvolutionData {
 export default function NetWorthEvolutionWidget() {
 	const trpc = useTRPC();
 
-	const netWorthQuery = useQuery(trpc.metrics.getNetWorth.queryOptions());
+	const balanceAccountsQuery = useQuery(
+		trpc.accounts.listBalanceAccounts.queryOptions(),
+	);
+	const transactionAccountsQuery = useQuery(
+		trpc.accounts.listTransactionAccounts.queryOptions(),
+	);
 
-	if (netWorthQuery.isLoading) {
-		return <div>Loading...</div>;
+	if (balanceAccountsQuery.isLoading || transactionAccountsQuery.isLoading) {
+		return (
+			<Card>
+				<CardHeader>
+					<CardTitle>Net Worth Evolution</CardTitle>
+					<CardDescription>
+						Monthly percentage change in net worth over the last year
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="flex justify-center items-center h-[200px]">
+					<Loader className="w-4 h-4 animate-spin" />
+				</CardContent>
+			</Card>
+		);
 	}
 
-	const rawData = netWorthQuery.data ?? [];
+	const netWorthData = calculateMonthlyNetWorth(
+		balanceAccountsQuery.data ?? [],
+		transactionAccountsQuery.data ?? [],
+	);
+
+	const rawData = Object.entries(netWorthData).map(([key, value]) => ({
+		date: key,
+		value,
+	}));
 
 	// Calculate month-to-month percentage evolution
 	const chartData: EvolutionData[] = rawData.reduce(

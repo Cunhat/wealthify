@@ -117,9 +117,9 @@ function CreateAssetForm({ setOpen }: { setOpen: (open: boolean) => void }) {
 			queryClient.invalidateQueries({
 				queryKey: trpc.accounts.listAccounts.queryKey(),
 			});
-			queryClient.invalidateQueries({
-				queryKey: trpc.metrics.getNetWorth.queryKey(),
-			});
+			// queryClient.invalidateQueries({
+			// 	queryKey: trpc.metrics.getNetWorth.queryKey(),
+			// });
 			toast.success("Account created successfully");
 			setOpen(false);
 		},

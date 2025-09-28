@@ -16,6 +16,7 @@ import {
 	ChartTooltipContent,
 } from "@/components/ui/chart";
 import { calculateMonthlyNetWorth } from "@/lib/balance-harmonization";
+import { Loader } from "lucide-react";
 
 const chartConfig = {
 	netWorth: {
@@ -44,7 +45,7 @@ export default function NetWorthWidget() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="flex justify-center items-center h-[200px]">
-					<p>Loading...</p>
+					<Loader className="w-4 h-4 animate-spin" />
 				</CardContent>
 			</Card>
 		);
