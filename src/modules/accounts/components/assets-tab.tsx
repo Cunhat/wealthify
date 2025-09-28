@@ -1,7 +1,7 @@
 import NotFound from "@/components/not-found";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
+import { formatCurrency } from "@/lib/mixins";
 import type { Account } from "@/lib/schemas";
-import { formatCurrency } from "@/utils/mixins";
 import AccountsByGroup from "./accounts-by-group";
 import CreateAssetDialog from "./create-asset-dialog";
 

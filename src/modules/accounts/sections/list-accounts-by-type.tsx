@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AccountsGroupedByType } from "@/lib/configs/accounts";
 import { AccountTypeGroups } from "@/lib/configs/accounts";
+import { formatCurrency } from "@/lib/mixins";
 import type { Account } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
-import { formatCurrency } from "@/utils/mixins";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";

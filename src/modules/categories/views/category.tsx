@@ -1,9 +1,9 @@
 import NotFound from "@/components/not-found";
 import { useTRPC } from "@/integrations/trpc/react";
+import { formatCurrency, groupTransactionsByDate } from "@/lib/mixins";
 import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import AccountBadge from "@/modules/transactions/components/account-badge";
-import { formatCurrency, groupTransactionsByDate } from "@/utils/mixins";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import CategoryActions from "../components/category-actions";

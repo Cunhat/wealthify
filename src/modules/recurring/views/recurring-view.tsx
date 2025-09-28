@@ -16,7 +16,7 @@ import {
 
 import { Separator } from "@/components/ui/separator";
 import { useTRPC } from "@/integrations/trpc/react";
-import { formatCurrency } from "@/utils/mixins";
+import { formatCurrency } from "@/lib/mixins";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";

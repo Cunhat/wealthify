@@ -9,7 +9,7 @@ import {
 import {
 	calculateAccountNetWorth,
 	harmonizeBalanceAccountHistory,
-} from "@/utils/balance-harmonization";
+} from "@/lib/balance-harmonization";
 import type { TRPCRouterRecord } from "@trpc/server";
 import dayjs from "dayjs";
 import { and, eq, gte } from "drizzle-orm";

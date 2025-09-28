@@ -1,12 +1,12 @@
 import CategoryBadge from "@/components/category-badge";
 import { Separator } from "@/components/ui/separator";
+import { formatCurrency, groupTransactionsByDate } from "@/lib/mixins";
 import type {
 	Transaction,
 	TransactionAccountWithTransactions,
 } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import AccountBadge from "@/modules/transactions/components/account-badge";
-import { formatCurrency, groupTransactionsByDate } from "@/utils/mixins";
 import { useMemo } from "react";
 
 type TransactionAccountProps = {

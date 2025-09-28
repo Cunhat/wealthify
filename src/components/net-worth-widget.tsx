@@ -15,11 +15,7 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-import {
-	calculateAccountNetWorth,
-	harmonizeBalanceAccountHistory,
-} from "@/utils/balance-harmonization";
-import dayjs from "dayjs";
+import { calculateMonthlyNetWorth } from "@/lib/balance-harmonization";
 
 const chartConfig = {
 	netWorth: {
@@ -31,18 +27,12 @@ const chartConfig = {
 export default function NetWorthWidget() {
 	const trpc = useTRPC();
 
-	// const netWorthQuery = useQuery(trpc.metrics.getNetWorth.queryOptions());
-
 	const balanceAccountsQuery = useQuery(
 		trpc.accounts.listBalanceAccounts.queryOptions(),
 	);
 	const transactionAccountsQuery = useQuery(
 		trpc.accounts.listTransactionAccounts.queryOptions(),
 	);
-
-	const netWorthData: {
-		[key: string]: number;
-	} = {};
 
 	if (balanceAccountsQuery.isLoading || transactionAccountsQuery.isLoading) {
 		return (
@@ -60,45 +50,11 @@ export default function NetWorthWidget() {
 		);
 	}
 
-	let dateIterator = dayjs().subtract(1, "year").startOf("month").toDate();
-	// Harmonize balance account history to fill gaps
-	const harmonizedBalanceHistory = harmonizeBalanceAccountHistory(
+	const netWorthData = calculateMonthlyNetWorth(
 		balanceAccountsQuery.data ?? [],
+		transactionAccountsQuery.data ?? [],
 	);
 
-	while (dayjs(dateIterator).isBefore(dayjs())) {
-		const currDateYear = dayjs(dateIterator).year();
-		const currDateMonth = dayjs(dateIterator).format("MMMM").toLowerCase();
-
-		const netWorthForDate = harmonizedBalanceHistory.filter(
-			(elem) => elem.year === currDateYear,
-		);
-
-		const key = dayjs(dateIterator).format("MMM YYYY");
-
-		const totalNetWorthForDate = netWorthForDate?.reduce(
-			(acc, elem) => acc + Number(elem[currDateMonth as keyof typeof elem]),
-			0,
-		);
-
-		netWorthData[key] = (netWorthData[key] ?? 0) + totalNetWorthForDate;
-
-		dateIterator = dayjs(dateIterator).add(1, "month").toDate();
-	}
-
-	// Calculate net worth for transaction accounts
-
-	dateIterator = dayjs().subtract(1, "year").startOf("month").toDate();
-
-	for (const account of transactionAccountsQuery.data ?? []) {
-		const netWorthDataForTransAcc = calculateAccountNetWorth(account);
-
-		for (const key in netWorthDataForTransAcc) {
-			netWorthData[key] = netWorthData[key] + netWorthDataForTransAcc[key];
-		}
-	}
-
-	// const chartData = netWorthQuery.data ?? [];
 	const chartData = Object.entries(netWorthData).map(([key, value]) => ({
 		date: key,
 		value,
