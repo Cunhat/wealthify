@@ -94,6 +94,7 @@ export const calculateAccountNetWorth = (
 	} = {};
 
 	console.log(`${account.name} ---->`, account);
+	console.log("Date ----> ", dayjs().format("DD/MM/YYYY HH:mm:ss"));
 
 	let dateIterator = dayjs(account.initialBalanceDate);
 	let currNetWorth = Number(account.initialBalance);
