@@ -1,0 +1,223 @@
+import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus, Trash2 } from "lucide-react";
+import { useEffect } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { z } from "zod";
+
+const createBudgetSchema = z.object({
+	income: z.number().min(0.01, "Income is required"),
+	steps: z.array(
+		z.object({
+			name: z.string().min(1, "Name is required"),
+			percentage: z
+				.number()
+				.min(0.01, "Percentage is required")
+				.max(100, "Percentage must be less than 100"),
+		}),
+	),
+});
+
+type CreateBudgetFormType = z.infer<typeof createBudgetSchema>;
+
+export default function CreateBudget() {
+	const form = useForm<CreateBudgetFormType>({
+		resolver: zodResolver(createBudgetSchema),
+		defaultValues: {
+			income: 0,
+			steps: [],
+		},
+	});
+
+	const { fields, append, remove } = useFieldArray({
+		control: form.control,
+		name: "steps",
+	});
+
+	useEffect(() => {
+		console.log(form.formState.errors);
+	}, [form.formState.errors]);
+
+	function onSubmit(values: CreateBudgetFormType) {
+		// Calculate the sum of all percentages
+		const totalPercentage = values.steps.reduce(
+			(sum, step) => sum + step.percentage,
+			0,
+		);
+
+		// Check if the sum exceeds 100%
+		if (totalPercentage > 100) {
+			// Add error to all percentage fields
+			values.steps.forEach((_, index) => {
+				form.setError(`steps.${index}.percentage`, {
+					type: "manual",
+					message: "Total percentage exceeds 100%",
+				});
+			});
+			return;
+		}
+
+		console.log(values);
+	}
+
+	return (
+		<Dialog>
+			<DialogTrigger>
+				<Button variant="outline" size="icon">
+					<Plus className="w-4 h-4" />
+				</Button>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Create Budget</DialogTitle>
+					<DialogDescription>
+						Create a new budget to track your finances. You can create different
+						Budget categories like Investment, Savings, etc. and give different
+						percentages to each category.
+					</DialogDescription>
+				</DialogHeader>
+
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+						<FormField
+							control={form.control}
+							name="income"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Income</FormLabel>
+									<FormControl>
+										<Input
+											type="number"
+											step="0.01"
+											min="0"
+											placeholder="0.00 €"
+											pattern="^\d*\.?\d{0,2}$"
+											className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+											{...field}
+											onChange={(e) => {
+												const value = Number.parseFloat(
+													Number.parseFloat(e.target.value).toFixed(2),
+												);
+												field.onChange(Number.isNaN(value) ? 0 : value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						{form.watch("income") > 0 && (
+							<div className="flex flex-col gap-2">
+								{fields.map((field, index) => (
+									<div
+										key={field.id}
+										className="grid grid-cols-[1fr_40px] gap-2 items-center"
+									>
+										<div className="flex gap-2">
+											<FormField
+												control={form.control}
+												name={`steps.${index}.name`}
+												render={({ field }) => (
+													<FormItem>
+														<FormControl>
+															<Input
+																placeholder="e.g., Investments"
+																{...field}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+											<FormField
+												control={form.control}
+												name={`steps.${index}.percentage`}
+												render={({ field }) => (
+													<FormItem>
+														<FormControl>
+															<Input
+																type="number"
+																step="0.01"
+																min="0"
+																max={"100"}
+																placeholder="%"
+																pattern="^\d*\.?\d{0,2}$"
+																className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+																{...field}
+																onChange={(e) => {
+																	if (Number.parseFloat(e.target.value) > 100)
+																		return;
+																	const value = Number.parseFloat(
+																		Number.parseFloat(e.target.value).toFixed(
+																			2,
+																		),
+																	);
+																	field.onChange(
+																		Number.isNaN(value) ? 0 : value,
+																	);
+																}}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+											<div className="flex items-center justify-center">
+												<p className="text-sm text-gray-500 text-center">
+													{(
+														(form.watch("income") *
+															form.watch(`steps.${index}.percentage`)) /
+														100
+													).toFixed(2)}
+													€
+												</p>
+											</div>
+										</div>
+										<Button
+											type="button"
+											variant="outline"
+											size="icon"
+											onClick={() => remove(index)}
+										>
+											<Trash2 className="w-4 h-4" />
+										</Button>
+									</div>
+								))}
+								<Button
+									type="button"
+									onClick={() => append({ name: "", percentage: 0 })}
+								>
+									Add Step
+								</Button>
+							</div>
+						)}
+						<DialogFooter className="flex gap-2 pt-4">
+							{/* <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+								Cancel
+							</Button> */}
+							<Button type="submit">Create Budget</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}

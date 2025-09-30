@@ -3,6 +3,7 @@ import {
 	boolean,
 	decimal,
 	integer,
+	jsonb,
 	pgTable,
 	text,
 	timestamp,
@@ -263,3 +264,17 @@ export const recurringTransactionRelations = relations(
 		}),
 	}),
 );
+
+export const budget = pgTable("budget", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	steps: jsonb("steps").notNull(),
+	income: decimal("income").notNull().default("0"),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
