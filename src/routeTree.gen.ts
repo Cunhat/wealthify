@@ -16,6 +16,7 @@ import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedTransactionsRouteImport } from './routes/_authed/transactions'
 import { Route as AuthedRecurringRouteImport } from './routes/_authed/recurring'
+import { Route as AuthedBudgetRouteImport } from './routes/_authed/budget'
 import { Route as AuthedCategoriesRouteRouteImport } from './routes/_authed/categories.route'
 import { Route as AuthedCategoriesIndexRouteImport } from './routes/_authed/categories.index'
 import { Route as AuthedAccountsIndexRouteImport } from './routes/_authed/accounts.index'
@@ -48,6 +49,11 @@ const AuthedTransactionsRoute = AuthedTransactionsRouteImport.update({
 const AuthedRecurringRoute = AuthedRecurringRouteImport.update({
   id: '/recurring',
   path: '/recurring',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedBudgetRoute = AuthedBudgetRouteImport.update({
+  id: '/budget',
+  path: '/budget',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedCategoriesRouteRoute = AuthedCategoriesRouteRouteImport.update({
@@ -90,6 +96,7 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/categories': typeof AuthedCategoriesRouteRouteWithChildren
+  '/budget': typeof AuthedBudgetRoute
   '/recurring': typeof AuthedRecurringRoute
   '/transactions': typeof AuthedTransactionsRoute
   '/': typeof AuthedIndexRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/budget': typeof AuthedBudgetRoute
   '/recurring': typeof AuthedRecurringRoute
   '/transactions': typeof AuthedTransactionsRoute
   '/': typeof AuthedIndexRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authed/categories': typeof AuthedCategoriesRouteRouteWithChildren
+  '/_authed/budget': typeof AuthedBudgetRoute
   '/_authed/recurring': typeof AuthedRecurringRoute
   '/_authed/transactions': typeof AuthedTransactionsRoute
   '/_authed/': typeof AuthedIndexRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/categories'
+    | '/budget'
     | '/recurring'
     | '/transactions'
     | '/'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/budget'
     | '/recurring'
     | '/transactions'
     | '/'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/login'
     | '/_authed/categories'
+    | '/_authed/budget'
     | '/_authed/recurring'
     | '/_authed/transactions'
     | '/_authed/'
@@ -224,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedRecurringRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/budget': {
+      id: '/_authed/budget'
+      path: '/budget'
+      fullPath: '/budget'
+      preLoaderRoute: typeof AuthedBudgetRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/categories': {
       id: '/_authed/categories'
       path: '/categories'
@@ -297,6 +316,7 @@ const AuthedCategoriesRouteRouteWithChildren =
 
 interface AuthedRouteChildren {
   AuthedCategoriesRouteRoute: typeof AuthedCategoriesRouteRouteWithChildren
+  AuthedBudgetRoute: typeof AuthedBudgetRoute
   AuthedRecurringRoute: typeof AuthedRecurringRoute
   AuthedTransactionsRoute: typeof AuthedTransactionsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
@@ -306,6 +326,7 @@ interface AuthedRouteChildren {
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedCategoriesRouteRoute: AuthedCategoriesRouteRouteWithChildren,
+  AuthedBudgetRoute: AuthedBudgetRoute,
   AuthedRecurringRoute: AuthedRecurringRoute,
   AuthedTransactionsRoute: AuthedTransactionsRoute,
   AuthedIndexRoute: AuthedIndexRoute,

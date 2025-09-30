@@ -18,7 +18,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import type { User } from "better-auth";
-import { BadgeEuro, CalendarSync, Wallet } from "lucide-react";
+import { BadgeEuro, CalendarSync, NotebookPen, Wallet } from "lucide-react";
 
 const data = {
 	user: {
@@ -51,6 +51,11 @@ const data = {
 			title: "Recurring",
 			url: "/recurring",
 			icon: CalendarSync,
+		},
+		{
+			title: "Budget",
+			url: "/budget",
+			icon: NotebookPen,
 		},
 		// {
 		// 	title: "Team",
