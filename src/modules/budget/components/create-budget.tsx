@@ -19,26 +19,38 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
 const createBudgetSchema = z.object({
 	income: z.number().min(0.01, "Income is required"),
-	steps: z.array(
-		z.object({
-			name: z.string().min(1, "Name is required"),
-			percentage: z
-				.number()
-				.min(0.01, "Percentage is required")
-				.max(100, "Percentage must be less than 100"),
-		}),
-	),
+	steps: z
+		.array(
+			z.object({
+				name: z.string().min(1, "Name is required"),
+				percentage: z
+					.number()
+					.min(0.01, "Percentage is required")
+					.max(100, "Percentage must be less than 100"),
+			}),
+		)
+		.min(1, "At least one step is required")
+		.refine(
+			(data) => {
+				return data.reduce((sum, step) => sum + step.percentage, 0) === 100;
+			},
+			{
+				message: "Total percentage must be equal to 100%",
+			},
+		),
 });
 
 type CreateBudgetFormType = z.infer<typeof createBudgetSchema>;
 
 export default function CreateBudget() {
+	const [open, setOpen] = useState(false);
+
 	const form = useForm<CreateBudgetFormType>({
 		resolver: zodResolver(createBudgetSchema),
 		defaultValues: {
@@ -57,29 +69,11 @@ export default function CreateBudget() {
 	}, [form.formState.errors]);
 
 	function onSubmit(values: CreateBudgetFormType) {
-		// Calculate the sum of all percentages
-		const totalPercentage = values.steps.reduce(
-			(sum, step) => sum + step.percentage,
-			0,
-		);
-
-		// Check if the sum exceeds 100%
-		if (totalPercentage > 100) {
-			// Add error to all percentage fields
-			values.steps.forEach((_, index) => {
-				form.setError(`steps.${index}.percentage`, {
-					type: "manual",
-					message: "Total percentage exceeds 100%",
-				});
-			});
-			return;
-		}
-
 		console.log(values);
 	}
 
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger>
 				<Button variant="outline" size="icon">
 					<Plus className="w-4 h-4" />
@@ -160,7 +154,7 @@ export default function CreateBudget() {
 																max={"100"}
 																placeholder="%"
 																pattern="^\d*\.?\d{0,2}$"
-																className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+																className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none w-16"
 																{...field}
 																onChange={(e) => {
 																	if (Number.parseFloat(e.target.value) > 100)
@@ -201,6 +195,7 @@ export default function CreateBudget() {
 										</Button>
 									</div>
 								))}
+
 								<Button
 									type="button"
 									onClick={() => append({ name: "", percentage: 0 })}
@@ -209,10 +204,19 @@ export default function CreateBudget() {
 								</Button>
 							</div>
 						)}
+						{form.formState.errors.steps && (
+							<p className="text-sm text-red-500">
+								{form.formState.errors.steps.root?.message}
+							</p>
+						)}
 						<DialogFooter className="flex gap-2 pt-4">
-							{/* <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setOpen(false)}
+							>
 								Cancel
-							</Button> */}
+							</Button>
 							<Button type="submit">Create Budget</Button>
 						</DialogFooter>
 					</form>
