@@ -1,6 +1,6 @@
 import { createTRPCRouter } from "./init";
-
 import { accountsRouter } from "./routes/accounts";
+import { budgetRouter } from "./routes/budget";
 import { categoryRouter } from "./routes/category";
 import { metricsRouter } from "./routes/metrics";
 import { recurringRouter } from "./routes/recurring";
@@ -12,6 +12,7 @@ export const trpcRouter = createTRPCRouter({
 	transactions: transactionRouter,
 	metrics: metricsRouter,
 	recurring: recurringRouter,
+	budget: budgetRouter,
 });
 
 export type TRPCRouter = typeof trpcRouter;

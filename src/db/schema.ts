@@ -269,7 +269,6 @@ export const budget = pgTable("budget", {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
-	steps: jsonb("steps").notNull(),
 	income: decimal("income").notNull().default("0"),
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
@@ -278,3 +277,27 @@ export const budget = pgTable("budget", {
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 });
+
+export const budgetStep = pgTable("budget_step", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	name: text("name").notNull(),
+	percentage: decimal("percentage").notNull().default("0"),
+	budgetId: text("budget_id")
+		.notNull()
+		.references(() => budget.id, { onDelete: "cascade" }),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const budgetStepRelations = relations(budgetStep, ({ one }) => ({
+	budget: one(budget, {
+		fields: [budgetStep.budgetId],
+		references: [budget.id],
+	}),
+}));

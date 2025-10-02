@@ -17,10 +17,13 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useTRPC } from "@/integrations/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const createBudgetSchema = z.object({
@@ -51,6 +54,24 @@ type CreateBudgetFormType = z.infer<typeof createBudgetSchema>;
 export default function CreateBudget() {
 	const [open, setOpen] = useState(false);
 
+	const trpc = useTRPC();
+	const queryClient = useQueryClient();
+
+	const createBudgetMutation = useMutation({
+		...trpc.budget.createBudget.mutationOptions(),
+		onSuccess: () => {
+			toast.success("Budget created successfully");
+			form.reset();
+			queryClient.invalidateQueries({
+				queryKey: trpc.budget.getUserBudget.queryKey(),
+			});
+			setOpen(false);
+		},
+		onError: () => {
+			toast.error("Failed to create budget");
+		},
+	});
+
 	const form = useForm<CreateBudgetFormType>({
 		resolver: zodResolver(createBudgetSchema),
 		defaultValues: {
@@ -64,12 +85,8 @@ export default function CreateBudget() {
 		name: "steps",
 	});
 
-	useEffect(() => {
-		console.log(form.formState.errors);
-	}, [form.formState.errors]);
-
 	function onSubmit(values: CreateBudgetFormType) {
-		console.log(values);
+		createBudgetMutation.mutate(values);
 	}
 
 	return (
