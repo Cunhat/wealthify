@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/integrations/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2 } from "lucide-react";
+import { Loader, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -91,7 +91,7 @@ export default function CreateBudget() {
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger>
+			<DialogTrigger asChild>
 				<Button variant="outline" size="icon">
 					<Plus className="w-4 h-4" />
 				</Button>
@@ -227,14 +227,15 @@ export default function CreateBudget() {
 							</p>
 						)}
 						<DialogFooter className="flex gap-2 pt-4">
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setOpen(false)}
-							>
+							<Button variant="outline" onClick={() => setOpen(false)}>
 								Cancel
 							</Button>
-							<Button type="submit">Create Budget</Button>
+							<Button type="submit">
+								{createBudgetMutation.isPending && (
+									<Loader className="mr-2 h-4 w-4 animate-spin" />
+								)}
+								{createBudgetMutation.isPending ? "Creating..." : "Create"}
+							</Button>
 						</DialogFooter>
 					</form>
 				</Form>

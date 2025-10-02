@@ -3,6 +3,8 @@ import type { z } from "zod";
 import {
 	balanceAccount,
 	balanceAccountHistory,
+	budget,
+	budgetStep,
 	category,
 	recurringTransaction,
 	transaction,
@@ -69,4 +71,10 @@ export const recurringTransactionSelectSchema =
 
 export type RecurringTransaction = typeof recurringTransaction.$inferSelect & {
 	category: Category;
+};
+
+export type BudgetStep = typeof budgetStep.$inferSelect;
+
+export type Budget = typeof budget.$inferSelect & {
+	steps: Array<BudgetStep>;
 };

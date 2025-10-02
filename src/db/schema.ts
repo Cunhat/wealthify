@@ -295,6 +295,14 @@ export const budgetStep = pgTable("budget_step", {
 		.references(() => user.id, { onDelete: "cascade" }),
 });
 
+export const budgetRelations = relations(budget, ({ many, one }) => ({
+	steps: many(budgetStep),
+	user: one(user, {
+		fields: [budget.userId],
+		references: [user.id],
+	}),
+}));
+
 export const budgetStepRelations = relations(budgetStep, ({ one }) => ({
 	budget: one(budget, {
 		fields: [budgetStep.budgetId],

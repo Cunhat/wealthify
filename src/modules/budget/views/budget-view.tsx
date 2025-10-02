@@ -5,20 +5,21 @@ import BudgetActions from "../sections/budget-actions";
 
 export default function BudgetView() {
 	const trpc = useTRPC();
-	// const budgetQuery = useQuery({ ...trpc.budget.getUserBudget.queryOptions() });
+	const budgetQuery = useQuery({ ...trpc.budget.getUserBudget.queryOptions() });
 
-	// if (budgetQuery.isLoading) {
-	// 	return <div>Loading...</div>;
-	// }
+	if (budgetQuery.isLoading) {
+		return <div>Loading...</div>;
+	}
 
-	// if (budgetQuery.isError) {
-	// 	return <div>Error: {budgetQuery.error.message}</div>;
-	// }
-
-	// console.log(budgetQuery.data);
+	if (budgetQuery.isError) {
+		return <div>Error: {budgetQuery.error.message}</div>;
+	}
 
 	return (
-		<PageContainer title="Budget" actionsComponent={<BudgetActions />}>
+		<PageContainer
+			title="Budget"
+			actionsComponent={<BudgetActions budget={budgetQuery.data} />}
+		>
 			<div>BudgetView</div>
 		</PageContainer>
 	);

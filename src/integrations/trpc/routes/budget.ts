@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { budget, budgetStep } from "@/db/schema";
-import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
@@ -19,6 +19,17 @@ export const budgetRouter = {
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
+			const budgetQuery = await db.query.budget.findFirst({
+				where: eq(budget.userId, ctx.user.id),
+			});
+
+			if (budgetQuery) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Budget already exists",
+				});
+			}
+
 			const createdBudget = await db
 				.insert(budget)
 				.values({
@@ -40,15 +51,11 @@ export const budgetRouter = {
 			}
 		}),
 	getUserBudget: protectedProcedure.query(async ({ ctx }) => {
-		const budgetQuery = await db.query.budget.findFirst({
+		return await db.query.budget.findFirst({
 			where: eq(budget.userId, ctx.user.id),
-			// with: {
-			// 	steps: true,
-			// },
+			with: {
+				steps: true,
+			},
 		});
-
-		console.log("budget ========>", budgetQuery);
-
-		return budget;
 	}),
 } satisfies TRPCRouterRecord;

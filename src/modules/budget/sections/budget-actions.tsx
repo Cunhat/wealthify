@@ -1,10 +1,14 @@
-import React from "react";
+import type { Budget } from "@/lib/schemas";
 import CreateBudget from "../components/create-budget";
 
-export default function BudgetActions() {
+type BudgetActionsProps = {
+	budget: Budget;
+};
+
+export default function BudgetActions({ budget }: BudgetActionsProps) {
 	return (
 		<div className="flex gap-2 w-full justify-between">
-			<CreateBudget />
+			{!budget && <CreateBudget />}
 		</div>
 	);
 }
