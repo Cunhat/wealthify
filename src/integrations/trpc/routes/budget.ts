@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { budget, budgetStep } from "@/db/schema";
+import { budget, budgetCategory } from "@/db/schema";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -10,7 +10,7 @@ export const budgetRouter = {
 		.input(
 			z.object({
 				income: z.number(),
-				steps: z.array(
+				categories: z.array(
 					z.object({
 						name: z.string(),
 						percentage: z.number(),
@@ -40,22 +40,28 @@ export const budgetRouter = {
 				.returning();
 
 			if (createdBudget && createdBudget.length > 0 && createdBudget[0]) {
-				for (const step of input.steps) {
-					await db.insert(budgetStep).values({
+				for (const category of input.categories) {
+					await db.insert(budgetCategory).values({
 						budgetId: createdBudget[0].id,
-						name: step.name,
-						percentage: step.percentage.toString(),
+						name: category.name,
+						percentage: category.percentage.toString(),
 						userId: ctx.user.id,
 					});
 				}
 			}
 		}),
 	getUserBudget: protectedProcedure.query(async ({ ctx }) => {
-		return await db.query.budget.findFirst({
+		const budgetQuery = await db.query.budget.findFirst({
 			where: eq(budget.userId, ctx.user.id),
 			with: {
-				steps: true,
+				categories: true,
 			},
 		});
+
+		if (!budgetQuery) {
+			return null;
+		}
+
+		return budgetQuery;
 	}),
 } satisfies TRPCRouterRecord;

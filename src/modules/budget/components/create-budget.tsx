@@ -28,7 +28,7 @@ import { z } from "zod";
 
 const createBudgetSchema = z.object({
 	income: z.number().min(0.01, "Income is required"),
-	steps: z
+	categories: z
 		.array(
 			z.object({
 				name: z.string().min(1, "Name is required"),
@@ -76,13 +76,13 @@ export default function CreateBudget() {
 		resolver: zodResolver(createBudgetSchema),
 		defaultValues: {
 			income: 0,
-			steps: [],
+			categories: [],
 		},
 	});
 
 	const { fields, append, remove } = useFieldArray({
 		control: form.control,
-		name: "steps",
+		name: "categories",
 	});
 
 	function onSubmit(values: CreateBudgetFormType) {
@@ -145,7 +145,7 @@ export default function CreateBudget() {
 										<div className="flex gap-2">
 											<FormField
 												control={form.control}
-												name={`steps.${index}.name`}
+												name={`categories.${index}.name`}
 												render={({ field }) => (
 													<FormItem>
 														<FormControl>
@@ -160,7 +160,7 @@ export default function CreateBudget() {
 											/>
 											<FormField
 												control={form.control}
-												name={`steps.${index}.percentage`}
+												name={`categories.${index}.percentage`}
 												render={({ field }) => (
 													<FormItem>
 														<FormControl>
@@ -195,7 +195,7 @@ export default function CreateBudget() {
 												<p className="text-sm text-gray-500 text-center">
 													{(
 														(form.watch("income") *
-															form.watch(`steps.${index}.percentage`)) /
+															form.watch(`categories.${index}.percentage`)) /
 														100
 													).toFixed(2)}
 													€
@@ -217,13 +217,13 @@ export default function CreateBudget() {
 									type="button"
 									onClick={() => append({ name: "", percentage: 0 })}
 								>
-									Add Step
+									Add Category
 								</Button>
 							</div>
 						)}
-						{form.formState.errors.steps && (
+						{form.formState.errors.categories && (
 							<p className="text-sm text-red-500">
-								{form.formState.errors.steps.root?.message}
+								{form.formState.errors.categories.root?.message}
 							</p>
 						)}
 						<DialogFooter className="flex gap-2 pt-4">

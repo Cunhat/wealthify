@@ -278,7 +278,7 @@ export const budget = pgTable("budget", {
 		.references(() => user.id, { onDelete: "cascade" }),
 });
 
-export const budgetStep = pgTable("budget_step", {
+export const budgetCategory = pgTable("budget_category", {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
@@ -296,16 +296,16 @@ export const budgetStep = pgTable("budget_step", {
 });
 
 export const budgetRelations = relations(budget, ({ many, one }) => ({
-	steps: many(budgetStep),
+	categories: many(budgetCategory),
 	user: one(user, {
 		fields: [budget.userId],
 		references: [user.id],
 	}),
 }));
 
-export const budgetStepRelations = relations(budgetStep, ({ one }) => ({
+export const budgetCategoryRelations = relations(budgetCategory, ({ one }) => ({
 	budget: one(budget, {
-		fields: [budgetStep.budgetId],
+		fields: [budgetCategory.budgetId],
 		references: [budget.id],
 	}),
 }));

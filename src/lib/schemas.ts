@@ -4,7 +4,7 @@ import {
 	balanceAccount,
 	balanceAccountHistory,
 	budget,
-	budgetStep,
+	budgetCategory,
 	category,
 	recurringTransaction,
 	transaction,
@@ -73,8 +73,8 @@ export type RecurringTransaction = typeof recurringTransaction.$inferSelect & {
 	category: Category;
 };
 
-export type BudgetStep = typeof budgetStep.$inferSelect;
+export type BudgetCategory = typeof budgetCategory.$inferSelect;
 
 export type Budget = typeof budget.$inferSelect & {
-	steps: Array<BudgetStep>;
+	categories: Array<BudgetCategory>;
 };
