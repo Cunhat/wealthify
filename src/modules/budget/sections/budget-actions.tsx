@@ -2,7 +2,7 @@ import type { Budget } from "@/lib/schemas";
 import CreateBudget from "../components/create-budget";
 
 type BudgetActionsProps = {
-	budget: Budget;
+	budget: Budget | null;
 };
 
 export default function BudgetActions({ budget }: BudgetActionsProps) {
