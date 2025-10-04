@@ -1,8 +1,10 @@
 import PageContainer from "@/components/page-container";
+import { Separator } from "@/components/ui/separator";
 import { useTRPC } from "@/integrations/trpc/react";
 import type { Budget } from "@/lib/schemas";
 import { useQuery } from "@tanstack/react-query";
 import BudgetActions from "../sections/budget-actions";
+import BudgetMainInfo from "../sections/budget-main-info";
 
 export default function BudgetView() {
 	const trpc = useTRPC();
@@ -23,8 +25,9 @@ export default function BudgetView() {
 			title="Budget"
 			actionsComponent={<BudgetActions budget={budgetQuery.data as Budget} />}
 		>
-			<div className="gird h-full grid-cols-[1fr_10px_1fr] overflow-hidden gap-4">
-				<div className="h-full flex flex-col gap-4 overflow-y-auto"></div>
+			<div className="grid h-full grid-cols-[1fr_10px_1fr] overflow-hidden gap-4">
+				<BudgetMainInfo budget={budgetQuery.data as Budget} />
+				<Separator orientation="vertical" />
 			</div>
 		</PageContainer>
 	);
