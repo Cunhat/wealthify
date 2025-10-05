@@ -19,7 +19,15 @@ import {
 import { useTRPC } from "@/integrations/trpc/react";
 import type { Transaction } from "@/lib/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Check, Edit, EllipsisVertical, Tag, Trash2 } from "lucide-react";
+import {
+	Ban,
+	Check,
+	DollarSign,
+	Edit,
+	EllipsisVertical,
+	Tag,
+	Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import EditTransactionForm from "./edit-transaction-form";
@@ -39,6 +47,10 @@ export default function TransactionRowMenu({
 		...trpc.categories.listCategories.queryOptions(),
 	});
 
+	const listBudgetCategoriesQuery = useQuery({
+		...trpc.budget.getBudgetCategories.queryOptions(),
+	});
+
 	const updateTransactionCategory = useMutation({
 		...trpc.transactions.updateTransactionCategory.mutationOptions(),
 		onSuccess: () => {
@@ -49,6 +61,19 @@ export default function TransactionRowMenu({
 		},
 		onError: () => {
 			toast.error("Failed to update transaction category");
+		},
+	});
+
+	const updateTransactionBudgetCategory = useMutation({
+		...trpc.transactions.updateTransactionBudgetCategory.mutationOptions(),
+		onSuccess: () => {
+			toast.success("Transaction budget category updated");
+			queryClient.invalidateQueries({
+				queryKey: trpc.transactions.listTransactions.queryKey(),
+			});
+		},
+		onError: () => {
+			toast.error("Failed to update transaction budget category");
 		},
 	});
 
@@ -82,6 +107,13 @@ export default function TransactionRowMenu({
 		updateTransactionCategory.mutate({
 			transactionId: [transaction.id],
 			categoryId,
+		});
+	};
+
+	const handleBudgetCategoryChange = (budgetCategoryId: string) => {
+		updateTransactionBudgetCategory.mutate({
+			transactionId: [transaction.id],
+			budgetCategoryId,
 		});
 	};
 
@@ -123,6 +155,29 @@ export default function TransactionRowMenu({
 								>
 									{category.icon}
 									<span>{category.name}</span>
+								</DropdownMenuItem>
+							))}
+						</DropdownMenuSubContent>
+					</DropdownMenuSub>
+
+					<DropdownMenuSub>
+						<DropdownMenuSubTrigger>
+							<DollarSign className="mr-2 h-4 w-4" />
+							<span>Budget Category</span>
+						</DropdownMenuSubTrigger>
+						<DropdownMenuSubContent>
+							<DropdownMenuLabel>Budget Categories</DropdownMenuLabel>
+							<DropdownMenuSeparator />
+							{listBudgetCategoriesQuery.isLoading && (
+								<DropdownMenuItem>Loading...</DropdownMenuItem>
+							)}
+							{listBudgetCategoriesQuery.data?.map((budgetCategory) => (
+								<DropdownMenuItem
+									key={budgetCategory.id}
+									onClick={() => handleBudgetCategoryChange(budgetCategory.id)}
+									className="flex items-center gap-2"
+								>
+									<span>{budgetCategory.name}</span>
 								</DropdownMenuItem>
 							))}
 						</DropdownMenuSubContent>
