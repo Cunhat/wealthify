@@ -34,6 +34,10 @@ export const Route = createFileRoute("/_authed/transactions")({
 		await context.queryClient.prefetchQuery(
 			context.trpc.categories.listCategories.queryOptions(),
 		);
+
+		await context.queryClient.prefetchQuery(
+			context.trpc.budget.getBudgetCategories.queryOptions(),
+		);
 	},
 	head: () => ({
 		meta: [

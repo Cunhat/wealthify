@@ -64,4 +64,11 @@ export const budgetRouter = {
 
 		return budgetQuery;
 	}),
+	getBudgetCategories: protectedProcedure.query(async ({ ctx }) => {
+		const budgetCategories = await db.query.budgetCategory.findMany({
+			where: eq(budgetCategory.userId, ctx.user.id),
+		});
+
+		return budgetCategories;
+	}),
 } satisfies TRPCRouterRecord;

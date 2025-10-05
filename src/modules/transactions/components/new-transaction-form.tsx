@@ -48,6 +48,7 @@ const formSchema = z.object({
 	description: z.string().min(1, "Description is required"),
 	transactionAccount: z.string().min(1, "Transaction account is required"),
 	category: z.string().min(1, "Category is required"),
+	budgetCategory: z.string().optional(),
 	type: z.enum(["expense", "income"]),
 	createdAt: z.date().optional(),
 	excluded: z.boolean().optional(),
@@ -73,6 +74,10 @@ export default function NewTransactionForm({
 		...trpc.categories.listCategories.queryOptions(),
 	});
 
+	const budgetCategoriesQuery = useQuery({
+		...trpc.budget.getBudgetCategories.queryOptions(),
+	});
+
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -80,6 +85,7 @@ export default function NewTransactionForm({
 			description: "",
 			transactionAccount: "",
 			category: "",
+			budgetCategory: "",
 			type: "expense",
 			createdAt: dayjs().utc().toDate(),
 			excluded: false,
@@ -125,6 +131,7 @@ export default function NewTransactionForm({
 			description: values.description || undefined,
 			transactionAccount: values.transactionAccount || undefined,
 			category: values.category || undefined,
+			budgetCategory: values.budgetCategory || undefined,
 			type: values.type,
 			createdAt: values.createdAt || undefined,
 			excluded: values.excluded,
@@ -323,6 +330,37 @@ export default function NewTransactionForm({
 						</FormItem>
 					)}
 				/>
+
+				{budgetCategoriesQuery.data &&
+					budgetCategoriesQuery.data.length > 0 && (
+						<FormField
+							control={form.control}
+							name="budgetCategory"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Budget Category (Optional)</FormLabel>
+									<Select onValueChange={field.onChange} value={field.value}>
+										<FormControl>
+											<SelectTrigger className="w-full">
+												<SelectValue placeholder="Select a budget category" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											{budgetCategoriesQuery.data?.map((budgetCategory) => (
+												<SelectItem
+													key={budgetCategory.id}
+													value={budgetCategory.id}
+												>
+													{budgetCategory.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					)}
 
 				<FormField
 					control={form.control}

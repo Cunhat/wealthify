@@ -99,7 +99,7 @@ const TransactionRow = memo(
 			<div
 				key={transaction.id}
 				className={cn(
-					"grid grid-cols-[25px_4fr_200px_200px_1fr_100px_50px] items-center px-2 py-2 rounded-sm transition-colors",
+					"grid grid-cols-[25px_4fr_200px_200px_1fr_1fr_100px_50px] items-center px-2 py-2 rounded-sm transition-colors",
 					isSelected && "bg-primary/10",
 				)}
 			>
@@ -128,6 +128,20 @@ const TransactionRow = memo(
 						""
 					)}
 				</div>
+				{transaction.budgetCategory ? (
+					// <BudgetCategoryBadge budgetCategory={transaction.budgetCategory} />
+					<div>
+						<p className="text-sm text-foreground">
+							{transaction.budgetCategory.name}
+						</p>
+					</div>
+				) : (
+					<div className="text-sm text-foreground">
+						<span className="text-sm text-muted-foreground">
+							No budget category...
+						</span>
+					</div>
+				)}
 				{transaction.category ? (
 					<CategoryBadge category={transaction.category} />
 				) : (

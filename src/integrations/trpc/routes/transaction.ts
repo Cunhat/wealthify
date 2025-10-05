@@ -13,6 +13,7 @@ export const transactionRouter = {
 				description: z.string().optional(),
 				transactionAccount: z.string().optional(),
 				category: z.string().optional(),
+				budgetCategory: z.string().optional(),
 				type: z.enum(["expense", "income"]),
 				createdAt: z.date().optional(),
 				excluded: z.boolean().optional(),
@@ -28,6 +29,7 @@ export const transactionRouter = {
 					description: input.description,
 					transactionAccount: input.transactionAccount,
 					category: input.category,
+					budgetCategory: input.budgetCategory,
 					type: input.type,
 					createdAt: dayjs(input.createdAt).toDate(),
 					excluded: input.excluded ?? false,
@@ -494,6 +496,7 @@ export const transactionRouter = {
 				with: {
 					transactionAccount: true,
 					category: true,
+					budgetCategory: true,
 				},
 				limit: limit + 1,
 				orderBy: (transaction, { desc }) => [desc(transaction.createdAt)],
@@ -582,6 +585,7 @@ export const transactionRouter = {
 				description: z.string().optional(),
 				transactionAccount: z.string().optional(),
 				category: z.string().optional(),
+				budgetCategory: z.string().optional(),
 				type: z.enum(["expense", "income"]).optional(),
 				createdAt: z.date().optional(),
 				excluded: z.boolean().optional(),
@@ -605,6 +609,7 @@ export const transactionRouter = {
 				description: string | null;
 				transactionAccount: string | null;
 				category: string | null;
+				budgetCategory: string | null;
 				type: "expense" | "income";
 				createdAt: Date;
 				excluded: boolean;
@@ -617,6 +622,8 @@ export const transactionRouter = {
 				fieldsToUpdate.transactionAccount = updateData.transactionAccount;
 			if (updateData.category !== undefined)
 				fieldsToUpdate.category = updateData.category;
+			if (updateData.budgetCategory !== undefined)
+				fieldsToUpdate.budgetCategory = updateData.budgetCategory;
 			if (updateData.type !== undefined) fieldsToUpdate.type = updateData.type;
 			if (updateData.createdAt !== undefined)
 				fieldsToUpdate.createdAt = updateData.createdAt;

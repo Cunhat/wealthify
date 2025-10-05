@@ -35,6 +35,7 @@ export const categoryRouter = {
 					transactions: {
 						with: {
 							transactionAccount: true,
+							budgetCategory: true,
 						},
 					},
 				},

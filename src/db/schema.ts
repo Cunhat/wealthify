@@ -1,9 +1,10 @@
 import { relations } from "drizzle-orm";
 import {
+	PgColumn,
+	type PgTableWithColumns,
 	boolean,
 	decimal,
 	integer,
-	jsonb,
 	pgTable,
 	text,
 	timestamp,
@@ -133,6 +134,9 @@ export const transaction = pgTable("transaction", {
 	category: text("category").references(() => category.id, {
 		onDelete: "set null",
 	}),
+	budgetCategory: text("budget_category").references(() => budgetCategory.id, {
+		onDelete: "set null",
+	}),
 	userId: text("user_id")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
@@ -146,6 +150,10 @@ export const transactionRelations = relations(transaction, ({ one }) => ({
 	category: one(category, {
 		fields: [transaction.category],
 		references: [category.id],
+	}),
+	budgetCategory: one(budgetCategory, {
+		fields: [transaction.budgetCategory],
+		references: [budgetCategory.id],
 	}),
 	user: one(user, {
 		fields: [transaction.userId],
@@ -303,9 +311,17 @@ export const budgetRelations = relations(budget, ({ many, one }) => ({
 	}),
 }));
 
-export const budgetCategoryRelations = relations(budgetCategory, ({ one }) => ({
-	budget: one(budget, {
-		fields: [budgetCategory.budgetId],
-		references: [budget.id],
+export const budgetCategoryRelations = relations(
+	budgetCategory,
+	({ many, one }) => ({
+		budget: one(budget, {
+			fields: [budgetCategory.budgetId],
+			references: [budget.id],
+		}),
+		transactions: many(transaction),
+		user: one(user, {
+			fields: [budgetCategory.userId],
+			references: [user.id],
+		}),
 	}),
-}));
+);

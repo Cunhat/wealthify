@@ -130,6 +130,7 @@ export const accountsRouter = {
 					transactions: {
 						with: {
 							category: true,
+							budgetCategory: true,
 						},
 					},
 				},

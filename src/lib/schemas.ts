@@ -29,6 +29,9 @@ export type Account = TransactionAccount | BalanceAccount;
 export const categorySelectSchema = createSelectSchema(category);
 export type Category = z.infer<typeof categorySelectSchema>;
 
+export const budgetCategorySelectSchema = createSelectSchema(budgetCategory);
+export type BudgetCategory = z.infer<typeof budgetCategorySelectSchema>;
+
 // Base transaction schema (without relations)
 export const transactionSelectSchema = createSelectSchema(transaction);
 export type TransactionBase = z.infer<typeof transactionSelectSchema>;
@@ -36,6 +39,7 @@ export type TransactionBase = z.infer<typeof transactionSelectSchema>;
 // Transaction schema with relations (what we get from TRPC queries)
 export const transactionWithRelationsSchema = transactionSelectSchema.extend({
 	category: categorySelectSchema.nullable(),
+	budgetCategory: budgetCategorySelectSchema.nullable(),
 	transactionAccount: transactionAccountSelectSchema.nullable(),
 });
 
@@ -72,8 +76,6 @@ export const recurringTransactionSelectSchema =
 export type RecurringTransaction = typeof recurringTransaction.$inferSelect & {
 	category: Category;
 };
-
-export type BudgetCategory = typeof budgetCategory.$inferSelect;
 
 export type Budget = typeof budget.$inferSelect & {
 	categories: Array<BudgetCategory>;
