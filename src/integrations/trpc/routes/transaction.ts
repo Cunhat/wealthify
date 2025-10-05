@@ -866,4 +866,17 @@ export const transactionRouter = {
 					);
 			}
 		}),
+	updateTransactionExcluded: protectedProcedure
+		.input(z.object({ transactionId: z.string(), excluded: z.boolean() }))
+		.mutation(async ({ ctx, input }) => {
+			await db
+				.update(transaction)
+				.set({ excluded: input.excluded })
+				.where(
+					and(
+						eq(transaction.id, input.transactionId),
+						eq(transaction.userId, ctx.user.id),
+					),
+				);
+		}),
 };

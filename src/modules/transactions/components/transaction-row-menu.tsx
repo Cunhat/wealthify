@@ -19,7 +19,7 @@ import {
 import { useTRPC } from "@/integrations/trpc/react";
 import type { Transaction } from "@/lib/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Edit, EllipsisVertical, Tag, Trash2 } from "lucide-react";
+import { Ban, Check, Edit, EllipsisVertical, Tag, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import EditTransactionForm from "./edit-transaction-form";
@@ -65,6 +65,19 @@ export default function TransactionRowMenu({
 		},
 	});
 
+	const updateTransactionExcluded = useMutation({
+		...trpc.transactions.updateTransactionExcluded.mutationOptions(),
+		onSuccess: () => {
+			toast.success("Transaction excluded updated");
+			queryClient.invalidateQueries({
+				queryKey: trpc.transactions.listTransactions.queryKey(),
+			});
+		},
+		onError: () => {
+			toast.error("Failed to update transaction excluded");
+		},
+	});
+
 	const handleCategoryChange = (categoryId: string) => {
 		updateTransactionCategory.mutate({
 			transactionId: [transaction.id],
@@ -91,11 +104,10 @@ export default function TransactionRowMenu({
 					<DropdownMenuLabel>Actions</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 
-					{/* Edit Category Submenu */}
 					<DropdownMenuSub>
 						<DropdownMenuSubTrigger>
 							<Tag className="mr-2 h-4 w-4" />
-							<span>Edit Category</span>
+							<span>Category</span>
 						</DropdownMenuSubTrigger>
 						<DropdownMenuSubContent>
 							<DropdownMenuLabel>Categories</DropdownMenuLabel>
@@ -118,7 +130,22 @@ export default function TransactionRowMenu({
 
 					<DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
 						<Edit className="h-4 w-4" />
-						Edit Transaction
+						Edit
+					</DropdownMenuItem>
+					<DropdownMenuItem
+						onClick={() =>
+							updateTransactionExcluded.mutate({
+								transactionId: transaction.id,
+								excluded: !transaction.excluded,
+							})
+						}
+					>
+						{transaction.excluded ? (
+							<Check className="h-4 w-4" />
+						) : (
+							<Ban className="h-4 w-4" />
+						)}
+						{transaction.excluded ? "Include" : "Exclude"}
 					</DropdownMenuItem>
 
 					<DropdownMenuSeparator />
