@@ -209,6 +209,7 @@ export default function RecurringView() {
 									/>
 									<Line
 										dataKey="recurringMetric"
+										strokeWidth={2}
 										stroke="var(--color-recurringMetric)"
 									/>
 									<Bar
