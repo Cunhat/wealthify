@@ -298,6 +298,7 @@ export const budgetCategory = pgTable("budget_category", {
 	createdAt: timestamp("created_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
 	),
+	recurringMetric: boolean("recurring_metric").notNull().default(false),
 	userId: text("user_id")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),

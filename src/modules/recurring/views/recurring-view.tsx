@@ -9,6 +9,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import {
+	type ChartConfig,
 	ChartContainer,
 	ChartTooltip,
 	ChartTooltipContent,
@@ -19,7 +20,8 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { formatCurrency } from "@/lib/mixins";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, CartesianGrid, ComposedChart, Line, XAxis } from "recharts";
+import SelectRecurringMetric from "../components/select-recurring-metric";
 import { frequencyOptions } from "../components/utils";
 import RecurringActions from "../sections/recurring-actions";
 import RecurringTransactionMenuActions from "../sections/recurring-transaction-menu-actions";
@@ -29,6 +31,10 @@ export default function RecurringView() {
 
 	const recurringTransactionsQuery = useQuery({
 		...trpc.recurring.listRecurringTransactions.queryOptions(),
+	});
+
+	const budgetQuery = useQuery({
+		...trpc.budget.getUserBudget.queryOptions(),
 	});
 
 	if (recurringTransactionsQuery.isLoading) {
@@ -81,11 +87,19 @@ export default function RecurringView() {
 		}
 	}
 
+	const recurringMetric = budgetQuery.data?.categories.find(
+		(category) => category.recurringMetric,
+	);
+
 	// Format data for the chart
 	const chartData = Object.entries(fullYearRecurring).map(
 		([month, amount]) => ({
 			month: month,
 			amount: amount,
+			recurringMetric:
+				(Number(recurringMetric?.percentage) *
+					Number(budgetQuery.data?.income)) /
+				100,
 		}),
 	);
 
@@ -93,6 +107,10 @@ export default function RecurringView() {
 		amount: {
 			label: "Amount",
 			color: "var(--chart-1)",
+		},
+		recurringMetric: {
+			label: recurringMetric?.name,
+			color: "var(--chart-5)",
 		},
 	};
 
@@ -165,15 +183,18 @@ export default function RecurringView() {
 						</div>
 					</Card>
 					<Card className="p-6">
-						<CardHeader className="p-0 pb-4">
-							<CardTitle>Monthly Breakdown</CardTitle>
-							<CardDescription>
-								Recurring transactions by month for {dayjs().format("YYYY")}
-							</CardDescription>
+						<CardHeader className="p-0 pb-4 flex items-center justify-between">
+							<div className="flex flex-col gap-1">
+								<CardTitle>Monthly Breakdown</CardTitle>
+								<CardDescription>
+									Recurring transactions by month for {dayjs().format("YYYY")}
+								</CardDescription>
+							</div>
+							<SelectRecurringMetric />
 						</CardHeader>
 						<CardContent className="p-0">
 							<ChartContainer config={chartConfig} className="h-[300px] w-full">
-								<BarChart data={chartData}>
+								<ComposedChart data={chartData}>
 									<XAxis
 										dataKey="month"
 										tick={{ fontSize: 12 }}
@@ -186,12 +207,16 @@ export default function RecurringView() {
 										cursor={false}
 										content={<ChartTooltipContent indicator="line" />}
 									/>
+									<Line
+										dataKey="recurringMetric"
+										stroke="var(--color-recurringMetric)"
+									/>
 									<Bar
 										dataKey="amount"
 										fill="var(--color-amount)"
 										radius={[4, 4, 0, 0]}
 									/>
-								</BarChart>
+								</ComposedChart>
 							</ChartContainer>
 						</CardContent>
 					</Card>

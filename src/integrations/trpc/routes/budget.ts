@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { budget, budgetCategory } from "@/db/schema";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
@@ -71,4 +71,28 @@ export const budgetRouter = {
 
 		return budgetCategories;
 	}),
+	updateBudgetCategoryRecurringMetric: protectedProcedure
+		.input(
+			z.object({
+				categoryId: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			// First, set all categories to false
+			await db
+				.update(budgetCategory)
+				.set({ recurringMetric: false })
+				.where(eq(budgetCategory.userId, ctx.user.id));
+
+			// Then, set the selected category to true
+			await db
+				.update(budgetCategory)
+				.set({ recurringMetric: true })
+				.where(
+					and(
+						eq(budgetCategory.id, input.categoryId),
+						eq(budgetCategory.userId, ctx.user.id),
+					),
+				);
+		}),
 } satisfies TRPCRouterRecord;
