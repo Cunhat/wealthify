@@ -132,7 +132,7 @@ export const calculateMonthlyNetWorth = (
 		[key: string]: number;
 	} = {};
 
-	let dateIterator = dayjs().subtract(1, "year").startOf("month").toDate();
+	let dateIterator = dayjs().subtract(6, "months").startOf("month").toDate();
 	// Harmonize balance account history to fill gaps
 	const harmonizedBalanceHistory = harmonizeBalanceAccountHistory(
 		balanceAccounts ?? [],

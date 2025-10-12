@@ -1,13 +1,8 @@
 import DashboardView from "@/modules/dashboard/views/dashboard-view";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authed/")({
 	component: DashboardView,
-	beforeLoad: ({ context }) => {
-		if (!context.user) {
-			throw redirect({ to: "/login" });
-		}
-	},
 	loader: async ({ context }) => {
 		await context.queryClient.prefetchQuery(
 			context.trpc.accounts.listAccounts.queryOptions(),

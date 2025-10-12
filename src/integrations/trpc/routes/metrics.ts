@@ -83,7 +83,6 @@ export const metricsRouter = {
 					netWorthData[key] = netWorthData[key] + netWorthDataForTransAcc[key];
 				}
 			}
-			console.log("Net Worth Data ----> ", netWorthData);
 
 			return Object.entries(netWorthData).map(([key, value]) => ({
 				date: key,
@@ -95,7 +94,7 @@ export const metricsRouter = {
 		}
 	}),
 	getIncomeVsExpenses: protectedProcedure.query(async ({ ctx }) => {
-		const lastYear = dayjs().subtract(1, "year").startOf("month").toDate();
+		const lastYear = dayjs().subtract(6, "months").startOf("month").toDate();
 
 		const incomeVsExpenses = await db.query.transaction.findMany({
 			where: and(
@@ -105,7 +104,7 @@ export const metricsRouter = {
 			),
 		});
 
-		let currDateIterator = dayjs().subtract(1, "year").startOf("month");
+		let currDateIterator = dayjs().subtract(6, "months").startOf("month");
 		const lastYearMonthlyIncome = [];
 
 		while (dayjs(currDateIterator).isBefore(dayjs())) {

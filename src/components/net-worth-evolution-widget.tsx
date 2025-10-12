@@ -172,12 +172,12 @@ export default function NetWorthEvolutionWidget() {
 							tickMargin={8}
 							tickFormatter={(value) => value.slice(0, 3)}
 						/>
-						<YAxis
+						{/* <YAxis
 							tickLine={false}
 							axisLine={false}
 							tickMargin={8}
 							tickFormatter={(value) => `${value}%`}
-						/>
+						/> */}
 						<ChartTooltip cursor={false} content={CustomTooltipContent} />
 						<Bar dataKey="evolution" radius={4}>
 							{chartData.map((entry) => (

@@ -11,8 +11,10 @@ export default function DashboardView() {
 				<AccountsWidget />
 				<div className="flex flex-col gap-4 overflow-y-auto">
 					<NetWorthWidget />
-					<NetWorthEvolutionWidget />
-					<IncomeVsExpensesWidget />
+					<div className="grid grid-cols-2 gap-4">
+						<NetWorthEvolutionWidget />
+						<IncomeVsExpensesWidget />
+					</div>
 				</div>
 			</div>
 		</PageContainer>
