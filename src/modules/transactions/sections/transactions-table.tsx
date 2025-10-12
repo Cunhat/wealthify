@@ -1,4 +1,6 @@
 import CategoryBadge from "@/components/category-badge";
+import EmptyBadge from "@/components/empty-badge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency, groupTransactionsByDate } from "@/lib/mixins";
@@ -120,36 +122,27 @@ const TransactionRow = memo(
 				)}
 				<div className="text-sm text-foreground">
 					{transaction.excluded ? (
-						<div className="flex items-center gap-1 bg-destructive/10 border border-destructive/20 rounded-sm p-1 text-destructive w-fit">
-							<Ban className="size-3 text-destructive" />
-							<span className="text-xs text-destructive">Excluded</span>
-						</div>
+						<Badge variant="destructive">
+							<Ban className="size-4" />
+							Excluded
+						</Badge>
 					) : (
 						""
 					)}
 				</div>
-				{transaction.budgetCategory ? (
-					// <BudgetCategoryBadge budgetCategory={transaction.budgetCategory} />
-					<div>
+				<div>
+					{transaction.budgetCategory ? (
 						<p className="text-sm text-foreground">
 							{transaction.budgetCategory.name}
 						</p>
-					</div>
-				) : (
-					<div className="text-sm text-foreground">
-						<span className="text-sm text-muted-foreground">
-							No budget category...
-						</span>
-					</div>
-				)}
+					) : (
+						""
+					)}
+				</div>
 				{transaction.category ? (
 					<CategoryBadge category={transaction.category} />
 				) : (
-					<div className="text-sm text-foreground">
-						<span className="text-sm text-muted-foreground">
-							No category...
-						</span>
-					</div>
+					<EmptyBadge message="No category" />
 				)}
 				<div
 					className={cn(
