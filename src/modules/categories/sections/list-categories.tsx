@@ -7,7 +7,7 @@ type ListCategoriesProps = {
 
 export default function ListCategories({ categories }: ListCategoriesProps) {
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col overflow-y-auto">
 			{categories?.map((category) => (
 				<Link
 					to="/categories/$categoryId"
