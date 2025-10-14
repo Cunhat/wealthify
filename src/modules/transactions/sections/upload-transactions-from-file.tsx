@@ -20,8 +20,6 @@ export default function UploadTransactionsFromFile() {
 	const [step, setStep] = useState<number>(0);
 	const [csvData, setCsvData] = useState<Record<string, string>[]>([]);
 
-	console.log(csvData);
-
 	return (
 		<AlertDialog
 			open={open}

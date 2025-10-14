@@ -40,6 +40,7 @@ const formSchema = z.object({
 	description: z.string().min(1, "Description is required"),
 	amount: z.string().min(1, "Amount is required"),
 	date: z.string().min(1, "Date is required"),
+	decimalSeparator: z.enum([".", ","]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -57,6 +58,7 @@ export default function ColumnsMatch({
 			description: "",
 			amount: "",
 			date: "",
+			decimalSeparator: ",",
 		},
 	});
 
@@ -71,6 +73,7 @@ export default function ColumnsMatch({
 			onSuccess?.();
 		},
 		onError: (error) => {
+			console.error(error);
 			toast.error(`Failed to create transactions: ${error.message}`);
 		},
 	});
@@ -88,7 +91,8 @@ export default function ColumnsMatch({
 				const dateString = row[values.date];
 				const amountString = row[values.amount];
 
-				const parsedDate = dayjs(dateString).toDate();
+				const parsedDate = dayjs(dateString, "DD/MM/YYYY").toDate();
+				console.log(parsedDate);
 				if (!parsedDate) {
 					throw new Error(`Invalid date format: ${dateString}`);
 				}
@@ -96,7 +100,15 @@ export default function ColumnsMatch({
 				let amount = 0;
 				let type: "expense" | "income" = "expense";
 				if (typeof amountString === "string") {
-					const normalized = amountString.replace(/\./g, "").replace(",", ".");
+					// Normalize based on selected decimal separator
+					let normalized: string;
+					if (values.decimalSeparator === ",") {
+						// If comma is decimal separator, dot is thousands separator
+						normalized = amountString.replace(/\./g, "").replace(",", ".");
+					} else {
+						// If dot is decimal separator, comma is thousands separator
+						normalized = amountString.replace(/,/g, "");
+					}
 					amount = Number.parseFloat(normalized);
 
 					type = amount < 0 ? "expense" : "income";
@@ -211,6 +223,30 @@ export default function ColumnsMatch({
 											{column}
 										</SelectItem>
 									))}
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="decimalSeparator"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Decimal Separator</FormLabel>
+							<Select onValueChange={field.onChange} defaultValue={field.value}>
+								<FormControl>
+									<SelectTrigger className="w-full">
+										<SelectValue placeholder="Select decimal separator" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value=",">
+										Comma (,) - Example: 1.234,56
+									</SelectItem>
+									<SelectItem value=".">Dot (.) - Example: 1,234.56</SelectItem>
 								</SelectContent>
 							</Select>
 							<FormMessage />
