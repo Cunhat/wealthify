@@ -1,7 +1,6 @@
 import CategoryBadge from "@/components/category-badge";
 import EmptyBadge from "@/components/empty-badge";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency, groupTransactionsByDate } from "@/lib/mixins";
 import type { Transaction } from "@/lib/schemas";
@@ -15,18 +14,12 @@ type TransactionsTableProps = {
 	transactions: Transaction[];
 	selectedTransactions: Set<string>;
 	setSelectedTransactions: React.Dispatch<React.SetStateAction<Set<string>>>;
-	hasNextPage: boolean;
-	fetchNextPage: () => void;
-	isFetchingNextPage: boolean;
 };
 
 export default function TransactionsTable({
 	transactions,
 	selectedTransactions,
 	setSelectedTransactions,
-	hasNextPage,
-	fetchNextPage,
-	isFetchingNextPage,
 }: TransactionsTableProps) {
 	const handleSelectTransaction = useCallback(
 		(transaction: Transaction, isSelected: boolean) => {
@@ -68,18 +61,6 @@ export default function TransactionsTable({
 					</div>
 				</div>
 			))}
-			{hasNextPage && (
-				<div className="flex justify-center">
-					<Button
-						onClick={() => fetchNextPage()}
-						variant="outline"
-						size="sm"
-						disabled={isFetchingNextPage}
-					>
-						{isFetchingNextPage ? "Loading..." : "Load more"}
-					</Button>
-				</div>
-			)}
 		</div>
 	);
 }

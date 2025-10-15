@@ -2,10 +2,12 @@ import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 
 import NotFound from "@/components/not-found";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import type { Transaction } from "@/lib/schemas";
+import { useQuery } from "@tanstack/react-query";
 import { useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import GenerateTransactionsButton from "../components/generate-transactions-button";
 import SelectedTransactions from "../components/selected-transactions";
 import {
 	AppliedFilters,
@@ -24,43 +26,56 @@ export default function TransactionsView() {
 
 	const search = useSearch({ from: "/_authed/transactions" });
 
-	const listTransactionsQuery = useInfiniteQuery({
-		...trpc.transactions.listTransactions.infiniteQueryOptions({
-			limit: 100,
-			categoryNames:
-				search.category && search.category.length > 0
-					? search.category
-					: undefined,
-			accountNames:
-				search.account && search.account.length > 0
-					? search.account
-					: undefined,
-		}),
-		getNextPageParam: (lastPage) => lastPage.nextCursor,
-		initialPageParam: null as Date | null,
-	});
+	const getTransactionsQuery = useQuery(
+		trpc.transactions.getTransactions.queryOptions(),
+	);
 
 	useEffect(() => {
-		if (listTransactionsQuery.isError) {
+		if (getTransactionsQuery.isError) {
 			toast.error("Error fetching transactions");
 		}
-	}, [listTransactionsQuery.isError]);
+	}, [getTransactionsQuery.isError]);
+
+	// Filter transactions based on search params
+	const filteredTransactions = useMemo(() => {
+		if (!getTransactionsQuery.data) return [];
+
+		let transactions = getTransactionsQuery.data;
+
+		// Filter by category
+		if (search.category && search.category.length > 0) {
+			transactions = transactions.filter(
+				(t: Transaction) =>
+					t.category && search.category?.includes(t.category.name),
+			);
+		}
+
+		// Filter by account
+		if (search.account && search.account.length > 0) {
+			transactions = transactions.filter(
+				(t: Transaction) =>
+					t.transactionAccount &&
+					search.account?.includes(t.transactionAccount.name),
+			);
+		}
+
+		return transactions;
+	}, [getTransactionsQuery.data, search.category, search.account]);
 
 	const selectedTransactions = useMemo(() => {
-		if (!listTransactionsQuery.data) return [];
+		if (!filteredTransactions) return [];
 
-		return listTransactionsQuery.data.pages.flatMap((page) =>
-			page.transactions.filter((t) => selectedTransactionIds.has(t.id)),
+		return filteredTransactions.filter((t: Transaction) =>
+			selectedTransactionIds.has(t.id),
 		);
-	}, [listTransactionsQuery.data, selectedTransactionIds]);
+	}, [filteredTransactions, selectedTransactionIds]);
 
-	if (listTransactionsQuery.isLoading) {
+	if (getTransactionsQuery.isLoading) {
 		return <div>Loading...</div>;
 	}
 
 	if (
-		listTransactionsQuery.data?.pages.flatMap((page) => page.transactions)
-			.length === 0 &&
+		getTransactionsQuery.data?.length === 0 &&
 		Object.keys(search).length === 0
 	) {
 		return (
@@ -97,21 +112,13 @@ export default function TransactionsView() {
 		>
 			<AppliedFilters />
 			<TransactionsTable
-				transactions={
-					listTransactionsQuery.data?.pages.flatMap(
-						(page) => page.transactions,
-					) ?? []
-				}
+				transactions={filteredTransactions}
 				selectedTransactions={selectedTransactionIds}
 				setSelectedTransactions={setSelectedTransactionIds}
-				hasNextPage={listTransactionsQuery.hasNextPage}
-				fetchNextPage={listTransactionsQuery.fetchNextPage}
-				isFetchingNextPage={listTransactionsQuery.isFetchingNextPage}
 			/>
 			{Object.keys(search).length > 0 &&
-				!listTransactionsQuery.isLoading &&
-				listTransactionsQuery.data?.pages.flatMap((page) => page.transactions)
-					.length === 0 && (
+				!getTransactionsQuery.isLoading &&
+				filteredTransactions.length === 0 && (
 					<NotFound message="No transactions found with the current filters" />
 				)}
 		</PageContainer>

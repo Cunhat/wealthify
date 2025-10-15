@@ -56,7 +56,7 @@ export default function TransactionRowMenu({
 		onSuccess: () => {
 			toast.success("Transaction category updated");
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
 			});
 		},
 		onError: () => {
@@ -69,7 +69,7 @@ export default function TransactionRowMenu({
 		onSuccess: () => {
 			toast.success("Transaction budget category updated");
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
 			});
 		},
 		onError: () => {
@@ -81,7 +81,10 @@ export default function TransactionRowMenu({
 		...trpc.transactions.deleteTransaction.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.accounts.listTransactionAccounts.queryKey(),
 			});
 			toast.success("Transaction deleted successfully");
 		},
@@ -95,7 +98,7 @@ export default function TransactionRowMenu({
 		onSuccess: () => {
 			toast.success("Transaction excluded updated");
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
 			});
 		},
 		onError: () => {

@@ -34,7 +34,10 @@ export default function BulkAccounts({ transactions }: BulkAccountsProps) {
 		onSuccess: () => {
 			toast.success("Transaction account updated");
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.accounts.listTransactionAccounts.queryKey(),
 			});
 		},
 		onError: (error) => {

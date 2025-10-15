@@ -68,7 +68,7 @@ export default function ColumnsMatch({
 			toast.success(data.message);
 			// Invalidate transactions queries to refresh the list
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
 			});
 			onSuccess?.();
 		},

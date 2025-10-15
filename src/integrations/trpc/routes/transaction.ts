@@ -515,6 +515,17 @@ export const transactionRouter = {
 				nextCursor,
 			};
 		}),
+	getTransactions: protectedProcedure.query(async ({ ctx }) => {
+		return await db.query.transaction.findMany({
+			where: eq(transaction.userId, ctx.user.id),
+			orderBy: (transaction, { desc }) => [desc(transaction.createdAt)],
+			with: {
+				transactionAccount: true,
+				category: true,
+				budgetCategory: true,
+			},
+		});
+	}),
 	deleteTransaction: protectedProcedure
 		.input(z.object({ transactions: z.array(z.string()) }))
 		.mutation(async ({ ctx, input }) => {

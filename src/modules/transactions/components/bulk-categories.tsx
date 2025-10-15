@@ -33,7 +33,7 @@ export default function BulkCategories({ transactions }: BulkCategoriesProps) {
 		onSuccess: () => {
 			toast.success("Transaction category updated");
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
 			});
 		},
 		onError: () => {

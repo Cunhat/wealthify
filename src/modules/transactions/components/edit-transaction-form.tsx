@@ -96,7 +96,7 @@ export default function EditTransactionForm({
 		...trpc.transactions.updateTransaction.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
 			});
 			queryClient.invalidateQueries({
 				queryKey: trpc.accounts.listTransactionAccounts.queryKey(),

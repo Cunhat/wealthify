@@ -111,7 +111,7 @@ export default function NewTransactionForm({
 		onSuccess: () => {
 			form.reset();
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
 			});
 			queryClient.invalidateQueries({
 				queryKey: trpc.accounts.listTransactionAccounts.queryKey(),

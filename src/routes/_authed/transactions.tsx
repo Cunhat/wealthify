@@ -15,11 +15,7 @@ export const Route = createFileRoute("/_authed/transactions")({
 	},
 	loader: async ({ context }) => {
 		await context.queryClient.prefetchQuery(
-			context.trpc.transactions.listTransactions.queryOptions({
-				limit: 100,
-				categoryNames: context.search.category,
-				accountNames: context.search.account,
-			}),
+			context.trpc.transactions.getTransactions.queryOptions(),
 		);
 
 		await context.queryClient.prefetchQuery(

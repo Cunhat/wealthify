@@ -32,7 +32,10 @@ export default function DeleteTransactionsDialog({
 		...trpc.transactions.deleteTransaction.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: trpc.transactions.listTransactions.queryKey(),
+				queryKey: trpc.transactions.getTransactions.queryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.accounts.listTransactionAccounts.queryKey(),
 			});
 			toast.success("Transactions deleted successfully");
 			setOpen(false);

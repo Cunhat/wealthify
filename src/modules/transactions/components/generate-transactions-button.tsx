@@ -14,7 +14,10 @@ export default function GenerateTransactionsButton() {
 			toast.success(data.message);
 			// Invalidate transactions query to refresh the list
 			queryClient.invalidateQueries({
-				queryKey: ["transactions", "listTransactions"],
+				queryKey: trpc.transactions.getTransactions.queryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.accounts.listTransactionAccounts.queryKey(),
 			});
 		},
 		onError: (error) => {
