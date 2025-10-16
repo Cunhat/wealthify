@@ -2,6 +2,7 @@ import CategoryBadge from "@/components/category-badge";
 import EmptyBadge from "@/components/empty-badge";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { formatCurrency, groupTransactionsByDate } from "@/lib/mixins";
 import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
@@ -43,24 +44,36 @@ export default function TransactionsTable({
 	);
 
 	return (
-		<div className="flex flex-col gap-4 overflow-y-auto">
-			{Object.entries(groupedTransactions).map(([dateGroup, transactions]) => (
-				<div key={dateGroup} className="flex flex-col gap-2">
-					<div className="text-lg text-foreground font-medium pl-8">
-						{dateGroup}
-					</div>
-					<div className="flex flex-col gap-1">
-						{transactions.map((transaction) => (
-							<TransactionRow
-								key={transaction.id}
-								transaction={transaction}
-								isSelected={selectedTransactions.has(transaction.id)}
-								handleSelectTransaction={handleSelectTransaction}
-							/>
-						))}
-					</div>
-				</div>
-			))}
+		<div className="overflow-y-auto">
+			<Table>
+				<TableBody>
+					{Object.entries(groupedTransactions).map(
+						([dateGroup, transactions]) => (
+							<>
+								<TableRow
+									key={`group-${dateGroup}`}
+									className="border-0 hover:bg-transparent"
+								>
+									<TableCell
+										colSpan={8}
+										className="text-lg text-foreground font-medium py-4 hover:bg-transparent"
+									>
+										{dateGroup}
+									</TableCell>
+								</TableRow>
+								{transactions.map((transaction) => (
+									<TransactionRow
+										key={transaction.id}
+										transaction={transaction}
+										isSelected={selectedTransactions.has(transaction.id)}
+										handleSelectTransaction={handleSelectTransaction}
+									/>
+								))}
+							</>
+						),
+					)}
+				</TableBody>
+			</Table>
 		</div>
 	);
 }
@@ -79,64 +92,62 @@ const TransactionRow = memo(
 		) => void;
 	}) => {
 		return (
-			<div
+			<TableRow
 				key={transaction.id}
-				className={cn(
-					"grid grid-cols-[25px_4fr_200px_200px_1fr_1fr_100px_50px] items-center px-2 py-2 rounded-sm transition-colors",
-					isSelected && "bg-primary/10",
-				)}
+				className={cn("border-0", isSelected && "bg-primary/10")}
 			>
-				<Checkbox
-					checked={isSelected}
-					onCheckedChange={(isSelected) =>
-						handleSelectTransaction(transaction, isSelected as boolean)
-					}
-				/>
-				<div className="text-sm text-foreground">{transaction.description}</div>
-
-				{transaction.transactionAccount ? (
-					<AccountBadge account={transaction?.transactionAccount} />
-				) : (
-					<div className="text-sm text-foreground">
+				<TableCell>
+					<Checkbox
+						checked={isSelected}
+						onCheckedChange={(isSelected) =>
+							handleSelectTransaction(transaction, isSelected as boolean)
+						}
+					/>
+				</TableCell>
+				<TableCell className="text-sm text-foreground">
+					{transaction.description}
+				</TableCell>
+				<TableCell>
+					{transaction.transactionAccount ? (
+						<AccountBadge account={transaction?.transactionAccount} />
+					) : (
 						<span className="text-sm text-muted-foreground">No account...</span>
-					</div>
-				)}
-				<div className="text-sm text-foreground">
+					)}
+				</TableCell>
+				<TableCell>
 					{transaction.excluded ? (
 						<Badge variant="destructive">
 							<Ban className="size-4" />
 							Excluded
 						</Badge>
-					) : (
-						""
-					)}
-				</div>
-				<div>
+					) : null}
+				</TableCell>
+				<TableCell>
 					{transaction.budgetCategory ? (
 						<p className="text-sm text-foreground">
 							{transaction.budgetCategory.name}
 						</p>
+					) : null}
+				</TableCell>
+				<TableCell>
+					{transaction.category ? (
+						<CategoryBadge category={transaction.category} />
 					) : (
-						""
+						<EmptyBadge message="No category" />
 					)}
-				</div>
-				{transaction.category ? (
-					<CategoryBadge category={transaction.category} />
-				) : (
-					<EmptyBadge message="No category" />
-				)}
-				<div
+				</TableCell>
+				<TableCell
 					className={cn(
 						"text-sm text-right",
 						transaction.type === "expense" ? "" : "text-green-500",
 					)}
 				>
 					{formatCurrency(Number(transaction.amount))}
-				</div>
-				<div className="flex justify-center">
+				</TableCell>
+				<TableCell className="flex justify-center items-center">
 					<TransactionRowMenu transaction={transaction} />
-				</div>
-			</div>
+				</TableCell>
+			</TableRow>
 		);
 	},
 );
