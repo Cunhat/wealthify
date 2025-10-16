@@ -96,13 +96,16 @@ export default function TransactionsView() {
 	return (
 		<PageContainer
 			title="Transactions"
+			middleSlot={
+				<SelectedTransactions
+					transactions={selectedTransactions}
+					setSelectedTransactions={setSelectedTransactionIds}
+				/>
+			}
 			actionsComponent={
 				<div className="flex gap-2 w-full justify-between">
 					{/* <GenerateTransactionsButton /> */}
-					<SelectedTransactions
-						transactions={selectedTransactions}
-						setSelectedTransactions={setSelectedTransactionIds}
-					/>
+
 					<TransactionsFilters />
 					<UploadTransactionsFromFile />
 					<CreateTransaction />
