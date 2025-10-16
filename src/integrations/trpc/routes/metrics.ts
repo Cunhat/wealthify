@@ -104,40 +104,6 @@ export const metricsRouter = {
 			),
 		});
 
-		let currDateIterator = dayjs().subtract(6, "months").startOf("month");
-		const lastYearMonthlyIncome = [];
-
-		while (dayjs(currDateIterator).isBefore(dayjs())) {
-			const currMonth = dayjs(currDateIterator).format("MMM");
-
-			const monthlyIncome = incomeVsExpenses.filter(
-				(transaction) =>
-					dayjs(transaction.createdAt).isSame(currDateIterator, "month") &&
-					dayjs(transaction.createdAt).isSame(currDateIterator, "year") &&
-					transaction.type === "income",
-			);
-			const monthlyExpenses = incomeVsExpenses.filter(
-				(transaction) =>
-					dayjs(transaction.createdAt).isSame(currDateIterator, "month") &&
-					dayjs(transaction.createdAt).isSame(currDateIterator, "year") &&
-					transaction.type === "expense",
-			);
-
-			lastYearMonthlyIncome.push({
-				date: currMonth,
-				income: monthlyIncome.reduce(
-					(acc, transaction) => acc + Number(transaction.amount),
-					0,
-				),
-				expenses: monthlyExpenses.reduce(
-					(acc, transaction) => acc + Number(transaction.amount),
-					0,
-				),
-			});
-
-			currDateIterator = dayjs(currDateIterator).add(1, "month");
-		}
-
-		return lastYearMonthlyIncome;
+		return incomeVsExpenses;
 	}),
 } satisfies TRPCRouterRecord;
