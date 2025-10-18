@@ -1,9 +1,4 @@
-import {
-	IconDashboard,
-	IconInnerShadowTop,
-	IconRepeat,
-	IconTags,
-} from "@tabler/icons-react";
+import { IconTags } from "@tabler/icons-react";
 import type * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
@@ -18,7 +13,14 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import type { User } from "better-auth";
-import { BadgeEuro, CalendarSync, NotebookPen, Wallet } from "lucide-react";
+import {
+	BadgeEuro,
+	CalendarSync,
+	ChartNoAxesCombined,
+	LayoutDashboard,
+	NotebookPen,
+	Wallet,
+} from "lucide-react";
 
 const data = {
 	user: {
@@ -30,7 +32,12 @@ const data = {
 		{
 			title: "Dashboard",
 			url: "/",
-			icon: IconDashboard,
+			icon: LayoutDashboard,
+		},
+		{
+			title: "Analyses",
+			url: "/analyses",
+			icon: ChartNoAxesCombined,
 		},
 		{
 			title: "Transactions",
