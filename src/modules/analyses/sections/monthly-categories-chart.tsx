@@ -82,8 +82,10 @@ export function MonthlyCategoriesChart({ data }: MonthlyCategoriesChartProps) {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Bar Chart - Mixed</CardTitle>
-				<CardDescription>January - June 2024</CardDescription>
+				<CardTitle>Categories</CardTitle>
+				<CardDescription>
+					Showing your expenses by category for the selected period
+				</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<ChartContainer config={chartConfig}>
