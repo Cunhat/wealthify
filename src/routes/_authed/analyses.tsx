@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authed/analyses")({
 		await context.queryClient.prefetchQuery(
 			context.trpc.analyses.getTransactionsForPeriod.queryOptions({
 				year: dayjs().year(),
-				month: dayjs().format("MMMM"),
+				month: dayjs().locale("en").format("MMMM"),
 			}),
 		);
 	},

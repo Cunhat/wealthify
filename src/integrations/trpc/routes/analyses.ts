@@ -23,10 +23,15 @@ export const analysesRouter = {
 			}),
 		)
 		.query(async ({ ctx, input }) => {
-			const startDate = dayjs(`${input.year}-${input.month}-01`).toDate();
-			const endDate = dayjs(`${input.year}-${input.month}-01`)
-				.endOf("month")
-				.toDate();
+			const dateStr = `${input.year}-${input.month}-01`;
+			const date = dayjs(dateStr);
+
+			if (!date.isValid()) {
+				throw new Error(`Invalid date: ${dateStr}`);
+			}
+
+			const startDate = date.toDate();
+			const endDate = date.endOf("month").toDate();
 
 			return await db.query.transaction.findMany({
 				where: and(

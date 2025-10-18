@@ -22,15 +22,10 @@ const months = [
 	"December",
 ];
 
-const years = [
-	dayjs().year().toString(),
-	dayjs().subtract(1, "year").year().toString(),
-];
-
 type AnalysesHeaderProps = {
-	selectedYear: number;
+	selectedYear: number | undefined;
 	setSelectedYear: (year: number) => void;
-	selectedMonth: string;
+	selectedMonth: string | undefined;
 	setSelectedMonth: (month: string) => void;
 	availableDates: Date;
 };
@@ -42,6 +37,11 @@ export default function AnalysesHeader({
 	setSelectedMonth,
 	availableDates,
 }: AnalysesHeaderProps) {
+	const years = [
+		dayjs().year().toString(),
+		dayjs().subtract(1, "year").year().toString(),
+	];
+
 	return (
 		<div className="flex justify-end gap-4">
 			<Select
