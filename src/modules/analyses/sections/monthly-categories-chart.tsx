@@ -25,28 +25,32 @@ type MonthlyCategoriesChartProps = {
 
 export function MonthlyCategoriesChart({ data }: MonthlyCategoriesChartProps) {
 	// Calculate amount spent in each category
-	const categorySpending = data.reduce(
-		(acc, transaction) => {
-			// Only process transactions that have a category
-			if (transaction.category) {
-				const categoryId = transaction.category.id;
+	const categorySpending = data
+		.filter(
+			(transaction) => transaction.type === "expense" && !transaction.excluded,
+		)
+		.reduce(
+			(acc, transaction) => {
+				// Only process transactions that have a category
+				if (transaction.category) {
+					const categoryId = transaction.category.id;
 
-				const amount = Number(transaction.amount);
+					const amount = Number(transaction.amount);
 
-				if (!acc[categoryId]) {
-					acc[categoryId] = {
-						...transaction.category,
-						total: 0,
-					};
+					if (!acc[categoryId]) {
+						acc[categoryId] = {
+							...transaction.category,
+							total: 0,
+						};
+					}
+
+					acc[categoryId].total += amount;
 				}
 
-				acc[categoryId].total += amount;
-			}
-
-			return acc;
-		},
-		{} as Record<string, Category & { total: number }>,
-	);
+				return acc;
+			},
+			{} as Record<string, Category & { total: number }>,
+		);
 
 	// Convert to array and sort by total spending (descending)
 	const categoryData = Object.values(categorySpending).sort(
