@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import AnalysesHeader from "../sections/analyses-header";
 import { DailyExpensesChart } from "../sections/daily-expenses-chart";
+import { MonthlyCategoriesChart } from "../sections/monthly-categories-chart";
 
 export default function AnalysesView() {
 	const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
@@ -46,6 +47,11 @@ export default function AnalysesView() {
 					selectedMonth={selectedMonth}
 					selectedYear={selectedYear}
 				/>
+				<div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+					<MonthlyCategoriesChart
+						data={getTransactionsForPeriodQuery.data ?? []}
+					/>
+				</div>
 			</div>
 		</PageContainer>
 	);
