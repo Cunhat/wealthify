@@ -56,7 +56,7 @@ export default function AnalysesView() {
 
 	return (
 		<PageContainer title="Analyses">
-			<div className="flex h-full flex-col gap-4 overflow-y-auto">
+			<div className="flex h-full flex-col gap-4 overflow-hidden">
 				<AnalysesHeader
 					availableDates={getAvailableDatesQuery.data ?? new Date()}
 					selectedYear={selectedYear}
@@ -64,20 +64,22 @@ export default function AnalysesView() {
 					selectedMonth={selectedMonth}
 					setSelectedMonth={setSelectedMonth}
 				/>
-				<InfoCards
-					data={getTransactionsForPeriodQuery.data ?? []}
-					selectedMonth={selectedMonth}
-					selectedYear={selectedYear}
-				/>
-				<DailyExpensesChart
-					data={getTransactionsForPeriodQuery.data ?? []}
-					selectedMonth={selectedMonth}
-					selectedYear={selectedYear}
-				/>
-				<div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-					<MonthlyCategoriesChart
+				<div className="flex h-full flex-col gap-4 overflow-y-auto">
+					<InfoCards
 						data={getTransactionsForPeriodQuery.data ?? []}
+						selectedMonth={selectedMonth}
+						selectedYear={selectedYear}
 					/>
+					<DailyExpensesChart
+						data={getTransactionsForPeriodQuery.data ?? []}
+						selectedMonth={selectedMonth}
+						selectedYear={selectedYear}
+					/>
+					<div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+						<MonthlyCategoriesChart
+							data={getTransactionsForPeriodQuery.data ?? []}
+						/>
+					</div>
 				</div>
 			</div>
 		</PageContainer>
