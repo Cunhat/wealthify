@@ -39,6 +39,11 @@ export const analysesRouter = {
 					gte(transaction.createdAt, startDate),
 					lte(transaction.createdAt, endDate),
 				),
+				with: {
+					transactionAccount: true,
+					category: true,
+					budgetCategory: true,
+				},
 			});
 		}),
 } satisfies TRPCRouterRecord;
