@@ -42,6 +42,8 @@ export default function AnalysesHeader({
 		dayjs().subtract(1, "year").year().toString(),
 	];
 
+	console.log(availableDates);
+
 	return (
 		<div className="flex justify-end gap-4">
 			<Select
@@ -54,11 +56,20 @@ export default function AnalysesHeader({
 				</SelectTrigger>
 				<SelectContent>
 					{selectedYear &&
-						months.map((month) => (
-							<SelectItem key={month} value={month}>
-								{month}
-							</SelectItem>
-						))}
+						months
+							.filter((month) => {
+								const dateBuilder = `${selectedYear}-${months.indexOf(month) + 1}-01`;
+								return (
+									(!dayjs(dateBuilder).isAfter(dayjs()) &&
+										!dayjs(dateBuilder).isBefore(dayjs(availableDates))) ||
+									dayjs(dateBuilder).isSame(dayjs(availableDates), "month")
+								);
+							})
+							.map((month) => (
+								<SelectItem key={month} value={month}>
+									{month}
+								</SelectItem>
+							))}
 				</SelectContent>
 			</Select>
 			<Select

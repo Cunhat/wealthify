@@ -1,3 +1,4 @@
+import NotFound from "@/components/not-found";
 import PageContainer from "@/components/page-container";
 import { useTRPC } from "@/integrations/trpc/react";
 import { useQuery } from "@tanstack/react-query";
@@ -30,6 +31,26 @@ export default function AnalysesView() {
 		getTransactionsForPeriodQuery.isLoading
 	) {
 		return <div>Loading...</div>;
+	}
+
+	if (
+		!getTransactionsForPeriodQuery.isError &&
+		getTransactionsForPeriodQuery.data?.length === 0
+	) {
+		return (
+			<PageContainer title="Analyses">
+				<div className="flex h-full flex-col gap-4">
+					<AnalysesHeader
+						availableDates={getAvailableDatesQuery.data ?? new Date()}
+						selectedYear={selectedYear}
+						setSelectedYear={setSelectedYear}
+						selectedMonth={selectedMonth}
+						setSelectedMonth={setSelectedMonth}
+					/>
+					<NotFound message="No transactions found for the selected period" />
+				</div>
+			</PageContainer>
+		);
 	}
 
 	return (
