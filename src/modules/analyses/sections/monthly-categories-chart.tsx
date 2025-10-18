@@ -53,8 +53,6 @@ export function MonthlyCategoriesChart({ data }: MonthlyCategoriesChartProps) {
 		(a, b) => b.total - a.total,
 	);
 
-	console.log(categoryData);
-
 	const chartData = categoryData.map((category) => ({
 		category: category.name,
 		total: category.total,
