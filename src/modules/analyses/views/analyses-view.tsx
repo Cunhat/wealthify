@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import AnalysesHeader from "../sections/analyses-header";
 import { DailyExpensesChart } from "../sections/daily-expenses-chart";
+import InfoCards from "../sections/info-cards";
 import { MonthlyCategoriesChart } from "../sections/monthly-categories-chart";
 
 export default function AnalysesView() {
@@ -55,13 +56,18 @@ export default function AnalysesView() {
 
 	return (
 		<PageContainer title="Analyses">
-			<div className="flex flex-col gap-4">
+			<div className="flex h-full flex-col gap-4 overflow-y-auto">
 				<AnalysesHeader
 					availableDates={getAvailableDatesQuery.data ?? new Date()}
 					selectedYear={selectedYear}
 					setSelectedYear={setSelectedYear}
 					selectedMonth={selectedMonth}
 					setSelectedMonth={setSelectedMonth}
+				/>
+				<InfoCards
+					data={getTransactionsForPeriodQuery.data ?? []}
+					selectedMonth={selectedMonth}
+					selectedYear={selectedYear}
 				/>
 				<DailyExpensesChart
 					data={getTransactionsForPeriodQuery.data ?? []}
