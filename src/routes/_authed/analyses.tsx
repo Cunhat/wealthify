@@ -15,5 +15,9 @@ export const Route = createFileRoute("/_authed/analyses")({
 				month: dayjs().locale("en").format("MMMM"),
 			}),
 		);
+
+		await context.queryClient.prefetchQuery(
+			context.trpc.budget.getUserBudget.queryOptions(),
+		);
 	},
 });

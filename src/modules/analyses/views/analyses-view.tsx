@@ -7,6 +7,7 @@ import { useState } from "react";
 import AnalysesHeader from "../sections/analyses-header";
 import { DailyExpensesChart } from "../sections/daily-expenses-chart";
 import InfoCards from "../sections/info-cards";
+import MonthlyBudgetCategories from "../sections/monthly-budget-categories";
 import { MonthlyCategoriesChart } from "../sections/monthly-categories-chart";
 
 export default function AnalysesView() {
@@ -77,6 +78,9 @@ export default function AnalysesView() {
 					/>
 					<div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
 						<MonthlyCategoriesChart
+							data={getTransactionsForPeriodQuery.data ?? []}
+						/>
+						<MonthlyBudgetCategories
 							data={getTransactionsForPeriodQuery.data ?? []}
 						/>
 					</div>
