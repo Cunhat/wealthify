@@ -51,9 +51,7 @@ export default function MonthlyBudgetCategories({
 
 	// Calculate spending per budget category
 	const budgetCategorySpending = data
-		.filter(
-			(transaction) => transaction.type === "expense" && !transaction.excluded,
-		)
+		.filter((transaction) => transaction.type === "expense")
 		.reduce(
 			(acc, transaction) => {
 				if (transaction.budgetCategory) {
