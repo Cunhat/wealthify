@@ -11,7 +11,6 @@ import { Progress } from "@/components/ui/progress";
 import { useTRPC } from "@/integrations/trpc/react";
 import type { Transaction } from "@/lib/schemas";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp } from "lucide-react";
 
 type MonthlyBudgetCategoriesProps = {
 	data: Transaction[];
@@ -23,8 +22,6 @@ export default function MonthlyBudgetCategories({
 	const trpc = useTRPC();
 
 	const getUserBudgetQuery = useQuery(trpc.budget.getUserBudget.queryOptions());
-
-	console.log(getUserBudgetQuery.data);
 
 	if (getUserBudgetQuery.isLoading) {
 		return (
