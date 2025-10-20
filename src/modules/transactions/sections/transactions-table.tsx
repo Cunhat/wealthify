@@ -1,4 +1,3 @@
-import CategoryBadge from "@/components/category-badge";
 import EmptyBadge from "@/components/empty-badge";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,7 +7,9 @@ import type { Transaction } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { Ban } from "lucide-react";
 import { memo, useCallback, useMemo } from "react";
-import AccountBadge from "../components/account-badge";
+import AccountMenu from "../components/account-menu";
+import BudgetCategoryMenu from "../components/budget-category-menu";
+import CategoryMenu from "../components/category-menu";
 import TransactionRowMenu from "../components/transaction-row-menu";
 
 type TransactionsTableProps = {
@@ -108,11 +109,7 @@ const TransactionRow = memo(
 					{transaction.description}
 				</TableCell>
 				<TableCell>
-					{transaction.transactionAccount ? (
-						<AccountBadge account={transaction?.transactionAccount} />
-					) : (
-						<span className="text-sm text-muted-foreground">No account...</span>
-					)}
+					<AccountMenu transaction={transaction} />
 				</TableCell>
 				<TableCell>
 					{transaction.excluded ? (
@@ -123,15 +120,11 @@ const TransactionRow = memo(
 					) : null}
 				</TableCell>
 				<TableCell>
-					{transaction.budgetCategory ? (
-						<p className="text-sm text-foreground">
-							{transaction.budgetCategory.name}
-						</p>
-					) : null}
+					<BudgetCategoryMenu transaction={transaction} />
 				</TableCell>
 				<TableCell>
 					{transaction.category ? (
-						<CategoryBadge category={transaction.category} />
+						<CategoryMenu transaction={transaction} />
 					) : (
 						<EmptyBadge message="No category" />
 					)}
