@@ -41,6 +41,14 @@ const formSchema = z.object({
 	amount: z.string().min(1, "Amount is required"),
 	date: z.string().min(1, "Date is required"),
 	decimalSeparator: z.enum([".", ","]),
+	dateFormat: z.enum([
+		"DD/MM/YYYY",
+		"YYYY/MM/DD",
+		"MM/DD/YYYY",
+		"DD-MM-YYYY",
+		"YYYY-MM-DD",
+		"MM-DD-YYYY",
+	]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -59,6 +67,7 @@ export default function ColumnsMatch({
 			amount: "",
 			date: "",
 			decimalSeparator: ",",
+			dateFormat: "DD/MM/YYYY",
 		},
 	});
 
@@ -91,9 +100,12 @@ export default function ColumnsMatch({
 				const dateString = row[values.date];
 				const amountString = row[values.amount];
 
-				const parsedDate = dayjs(dateString, "DD/MM/YYYY").toDate();
+				const parsedDate = dayjs(dateString, values.dateFormat).toDate();
 				console.log(parsedDate);
-				if (!parsedDate) {
+				if (
+					!parsedDate ||
+					!dayjs(dateString, values.dateFormat, true).isValid()
+				) {
 					throw new Error(`Invalid date format: ${dateString}`);
 				}
 
@@ -223,6 +235,44 @@ export default function ColumnsMatch({
 											{column}
 										</SelectItem>
 									))}
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="dateFormat"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Date Format</FormLabel>
+							<Select onValueChange={field.onChange} defaultValue={field.value}>
+								<FormControl>
+									<SelectTrigger className="w-full">
+										<SelectValue placeholder="Select date format" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value="DD/MM/YYYY">
+										DD/MM/YYYY - Example: 31/12/2025
+									</SelectItem>
+									<SelectItem value="YYYY/MM/DD">
+										YYYY/MM/DD - Example: 2025/12/31
+									</SelectItem>
+									<SelectItem value="MM/DD/YYYY">
+										MM/DD/YYYY - Example: 12/31/2025
+									</SelectItem>
+									<SelectItem value="DD-MM-YYYY">
+										DD-MM-YYYY - Example: 31-12-2025
+									</SelectItem>
+									<SelectItem value="YYYY-MM-DD">
+										YYYY-MM-DD - Example: 2025-12-31
+									</SelectItem>
+									<SelectItem value="MM-DD-YYYY">
+										MM-DD-YYYY - Example: 12-31-2025
+									</SelectItem>
 								</SelectContent>
 							</Select>
 							<FormMessage />

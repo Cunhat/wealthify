@@ -34,6 +34,7 @@ export default function CsvUpload({ setCsvData, setStep }: CsvUploadProps) {
 				skipEmptyLines: true, // Skip empty lines
 				complete: (result: Papa.ParseResult<Record<string, string>>) => {
 					setCsvData(result.data);
+					console.log(result.data);
 					setStep(1);
 				},
 				error: () => {
