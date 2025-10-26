@@ -123,11 +123,7 @@ const TransactionRow = memo(
 					<BudgetCategoryMenu transaction={transaction} />
 				</TableCell>
 				<TableCell>
-					{transaction.category ? (
-						<CategoryMenu transaction={transaction} />
-					) : (
-						<EmptyBadge message="No category" />
-					)}
+					<CategoryMenu transaction={transaction} />
 				</TableCell>
 				<TableCell
 					className={cn(

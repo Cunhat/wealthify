@@ -1,4 +1,5 @@
 import CategoryBadge from "@/components/category-badge";
+import EmptyBadge from "@/components/empty-badge";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -48,7 +49,11 @@ export default function CategoryMenu({ transaction }: CategoryMenuProps) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger>
-				<CategoryBadge category={transaction?.category} />
+				{transaction.category ? (
+					<CategoryBadge category={transaction.category} />
+				) : (
+					<EmptyBadge message="No category" />
+				)}
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
 				<DropdownMenuLabel>Categories</DropdownMenuLabel>
