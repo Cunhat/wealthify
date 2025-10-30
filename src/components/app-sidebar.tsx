@@ -20,6 +20,7 @@ import {
 	LayoutDashboard,
 	NotebookPen,
 	Wallet,
+	Heart,
 } from "lucide-react";
 
 const data = {
@@ -63,6 +64,11 @@ const data = {
 			title: "Budget",
 			url: "/budget",
 			icon: NotebookPen,
+		},
+		{
+			title: "Wishlist",
+			url: "/wishlist",
+			icon: Heart,
 		},
 		// {
 		// 	title: "Team",

@@ -9,6 +9,8 @@ import {
 	recurringTransaction,
 	transaction,
 	transactionAccount,
+	wishlistCategory,
+	wishlistItem,
 } from "../db/schema";
 
 export const transactionAccountSelectSchema =
@@ -79,4 +81,12 @@ export type RecurringTransaction = typeof recurringTransaction.$inferSelect & {
 
 export type Budget = typeof budget.$inferSelect & {
 	categories: Array<BudgetCategory>;
+};
+
+export const wishlistCategorySelectSchema = createSelectSchema(wishlistCategory);
+export type WishlistCategory = z.infer<typeof wishlistCategorySelectSchema>;
+
+export const wishlistItemSelectSchema = createSelectSchema(wishlistItem);
+export type WishlistItem = z.infer<typeof wishlistItemSelectSchema> & {
+	category: WishlistCategory | null;
 };

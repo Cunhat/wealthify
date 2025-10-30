@@ -14,6 +14,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
+import { Route as AuthedWishlistRouteImport } from './routes/_authed/wishlist'
 import { Route as AuthedTransactionsRouteImport } from './routes/_authed/transactions'
 import { Route as AuthedRecurringRouteImport } from './routes/_authed/recurring'
 import { Route as AuthedBudgetRouteImport } from './routes/_authed/budget'
@@ -40,6 +41,11 @@ const AuthedRoute = AuthedRouteImport.update({
 const AuthedIndexRoute = AuthedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedWishlistRoute = AuthedWishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedTransactionsRoute = AuthedTransactionsRouteImport.update({
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/budget': typeof AuthedBudgetRoute
   '/recurring': typeof AuthedRecurringRoute
   '/transactions': typeof AuthedTransactionsRoute
+  '/wishlist': typeof AuthedWishlistRoute
   '/': typeof AuthedIndexRoute
   '/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
   '/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/budget': typeof AuthedBudgetRoute
   '/recurring': typeof AuthedRecurringRoute
   '/transactions': typeof AuthedTransactionsRoute
+  '/wishlist': typeof AuthedWishlistRoute
   '/': typeof AuthedIndexRoute
   '/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
   '/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/_authed/budget': typeof AuthedBudgetRoute
   '/_authed/recurring': typeof AuthedRecurringRoute
   '/_authed/transactions': typeof AuthedTransactionsRoute
+  '/_authed/wishlist': typeof AuthedWishlistRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
   '/_authed/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/budget'
     | '/recurring'
     | '/transactions'
+    | '/wishlist'
     | '/'
     | '/accounts/$accountId'
     | '/categories/$categoryId'
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/budget'
     | '/recurring'
     | '/transactions'
+    | '/wishlist'
     | '/'
     | '/accounts/$accountId'
     | '/categories/$categoryId'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/_authed/budget'
     | '/_authed/recurring'
     | '/_authed/transactions'
+    | '/_authed/wishlist'
     | '/_authed/'
     | '/_authed/accounts/$accountId'
     | '/_authed/categories/$categoryId'
@@ -232,6 +244,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthedIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/wishlist': {
+      id: '/_authed/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof AuthedWishlistRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/transactions': {
@@ -339,6 +358,7 @@ interface AuthedRouteChildren {
   AuthedBudgetRoute: typeof AuthedBudgetRoute
   AuthedRecurringRoute: typeof AuthedRecurringRoute
   AuthedTransactionsRoute: typeof AuthedTransactionsRoute
+  AuthedWishlistRoute: typeof AuthedWishlistRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedAccountsAccountIdRoute: typeof AuthedAccountsAccountIdRoute
   AuthedAccountsIndexRoute: typeof AuthedAccountsIndexRoute
@@ -350,6 +370,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedBudgetRoute: AuthedBudgetRoute,
   AuthedRecurringRoute: AuthedRecurringRoute,
   AuthedTransactionsRoute: AuthedTransactionsRoute,
+  AuthedWishlistRoute: AuthedWishlistRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedAccountsAccountIdRoute: AuthedAccountsAccountIdRoute,
   AuthedAccountsIndexRoute: AuthedAccountsIndexRoute,

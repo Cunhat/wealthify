@@ -326,3 +326,58 @@ export const budgetCategoryRelations = relations(
 		}),
 	}),
 );
+
+export const wishlistCategory = pgTable("wishlist_category", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	name: text("name").notNull(),
+	icon: text("icon").notNull().default("💰"),
+	color: text("color").notNull().default("#000000"),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const wishlistCategoryRelations = relations(
+	wishlistCategory,
+	({ many, one }) => ({
+		items: many(wishlistItem),
+		user: one(user, {
+			fields: [wishlistCategory.userId],
+			references: [user.id],
+		}),
+	}),
+);
+
+export const wishlistItem = pgTable("wishlist_item", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	name: text("name").notNull(),
+	price: decimal("price").notNull().default("0"),
+	status: text("status").notNull().default("Do I really want this?"),
+	category: text("category").references(() => wishlistCategory.id, {
+		onDelete: "set null",
+	}),
+	createdAt: timestamp("created_at").$defaultFn(
+		() => /* @__PURE__ */ new Date(),
+	),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const wishlistItemRelations = relations(wishlistItem, ({ one }) => ({
+	category: one(wishlistCategory, {
+		fields: [wishlistItem.category],
+		references: [wishlistCategory.id],
+	}),
+	user: one(user, {
+		fields: [wishlistItem.userId],
+		references: [user.id],
+	}),
+}));
