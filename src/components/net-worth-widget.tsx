@@ -41,7 +41,7 @@ export default function NetWorthWidget() {
 				<CardHeader>
 					<CardTitle>Net Worth</CardTitle>
 					<CardDescription>
-						Showing your net worth for the last 12 months
+						Showing your net worth for the last 6 months
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="flex justify-center items-center h-[200px]">

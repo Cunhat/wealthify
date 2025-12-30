@@ -132,15 +132,15 @@ export const calculateMonthlyNetWorth = (
 		[key: string]: number;
 	} = {};
 
-	let dateIterator = dayjs().subtract(6, "months").startOf("month").toDate();
+	let dateIterator = dayjs().subtract(6, "months").startOf("month");
 	// Harmonize balance account history to fill gaps
 	const harmonizedBalanceHistory = harmonizeBalanceAccountHistory(
 		balanceAccounts ?? [],
 	);
 
-	while (dayjs(dateIterator).isBefore(dayjs())) {
-		const currDateYear = dayjs(dateIterator).year();
-		const currDateMonth = dayjs(dateIterator).format("MMMM").toLowerCase();
+	while (dateIterator.isBefore(dayjs())) {
+		const currDateYear = dateIterator.year();
+		const currDateMonth = dateIterator.format("MMMM").toLowerCase();
 
 		const netWorthForDate = harmonizedBalanceHistory.filter(
 			(elem) => elem.year === currDateYear,
@@ -155,18 +155,18 @@ export const calculateMonthlyNetWorth = (
 
 		netWorthData[key] = (netWorthData[key] ?? 0) + totalNetWorthForDate;
 
-		dateIterator = dayjs(dateIterator).add(1, "month").toDate();
+		dateIterator = dayjs(dateIterator).add(1, "month");
 	}
 
 	// Calculate net worth for transaction accounts
-
-	dateIterator = dayjs().subtract(1, "year").startOf("month").toDate();
 
 	for (const account of transactionAccounts) {
 		const netWorthDataForTransAcc = calculateAccountNetWorth(account);
 
 		for (const key in netWorthDataForTransAcc) {
-			netWorthData[key] = netWorthData[key] + netWorthDataForTransAcc[key];
+			if (Object.keys(netWorthData).includes(key)) {
+				netWorthData[key] = netWorthData[key] + netWorthDataForTransAcc[key];
+			}
 		}
 	}
 
