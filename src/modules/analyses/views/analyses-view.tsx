@@ -9,6 +9,7 @@ import { DailyExpensesChart } from "../sections/daily-expenses-chart";
 import InfoCards from "../sections/info-cards";
 import MonthlyBudgetCategories from "../sections/monthly-budget-categories";
 import { MonthlyCategoriesChart } from "../sections/monthly-categories-chart";
+import { MonthlyGroupsChart } from "../sections/monthly-groups-chart";
 
 export default function AnalysesView() {
 	const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
@@ -76,8 +77,11 @@ export default function AnalysesView() {
 						selectedMonth={selectedMonth}
 						selectedYear={selectedYear}
 					/>
-					<div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
 						<MonthlyCategoriesChart
+							data={getTransactionsForPeriodQuery.data ?? []}
+						/>
+						<MonthlyGroupsChart
 							data={getTransactionsForPeriodQuery.data ?? []}
 						/>
 						<MonthlyBudgetCategories
