@@ -14,11 +14,18 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { useTRPC } from "@/integrations/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Edit, EllipsisVertical, Loader, Trash2 } from "lucide-react";
+import { Edit, EllipsisVertical, FolderOpen, Loader, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -34,12 +41,17 @@ type CategoryActionsProps = {
 export default function CategoryActions({ categoryId }: CategoryActionsProps) {
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [assignGroupDialogOpen, setAssignGroupDialogOpen] = useState(false);
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 
 	const categoryQuery = useQuery({
 		...trpc.categories.getCategory.queryOptions({ id: categoryId }),
+	});
+
+	const groupsQuery = useQuery({
+		...trpc.categoryGroups.listCategoryGroups.queryOptions(),
 	});
 
 	const form = useForm<CategoryFormType>({
@@ -60,8 +72,12 @@ export default function CategoryActions({ categoryId }: CategoryActionsProps) {
 			queryClient.invalidateQueries({
 				queryKey: trpc.categories.getCategory.queryKey({ id: categoryId }),
 			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.categoryGroups.listCategoryGroups.queryKey(),
+			});
 			toast.success("Category updated successfully");
 			setEditDialogOpen(false);
+			setAssignGroupDialogOpen(false);
 		},
 		onError: () => {
 			toast.error("Failed to update category");
@@ -73,6 +89,9 @@ export default function CategoryActions({ categoryId }: CategoryActionsProps) {
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: trpc.categories.listCategories.queryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.categoryGroups.listCategoryGroups.queryKey(),
 			});
 			toast.success("Category deleted successfully");
 			setDeleteDialogOpen(false);
@@ -95,6 +114,13 @@ export default function CategoryActions({ categoryId }: CategoryActionsProps) {
 		deleteCategoryMutation.mutate({ id: categoryId });
 	}
 
+	function onAssignGroup(groupId: string) {
+		updateCategoryMutation.mutate({
+			id: categoryId,
+			groupId: groupId === "none" ? null : groupId,
+		});
+	}
+
 	if (categoryQuery.isLoading) {
 		return (
 			<Button variant="outline" size="icon" className="ml-auto">
@@ -103,6 +129,9 @@ export default function CategoryActions({ categoryId }: CategoryActionsProps) {
 			</Button>
 		);
 	}
+
+	const groups = groupsQuery.data ?? [];
+	const currentGroupId = categoryQuery.data?.groupId ?? null;
 
 	return (
 		<>
@@ -119,6 +148,10 @@ export default function CategoryActions({ categoryId }: CategoryActionsProps) {
 					<DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
 						<Edit className="h-4 w-4" />
 						Edit Category
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => setAssignGroupDialogOpen(true)}>
+						<FolderOpen className="h-4 w-4" />
+						Assign to Group
 					</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() => setDeleteDialogOpen(true)}
@@ -163,6 +196,59 @@ export default function CategoryActions({ categoryId }: CategoryActionsProps) {
 								<Loader className="mr-2 h-4 w-4 animate-spin" />
 							)}
 							Save Changes
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
+
+			{/* Assign to Group Dialog */}
+			<Dialog open={assignGroupDialogOpen} onOpenChange={setAssignGroupDialogOpen}>
+				<DialogContent className="sm:max-w-[425px]">
+					<DialogHeader>
+						<DialogTitle>Assign to Group</DialogTitle>
+						<DialogDescription>
+							Choose a group for this category, or remove it from its current
+							group.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="py-2">
+						{groups.length === 0 ? (
+							<p className="text-sm text-muted-foreground">
+								No groups available. Create a group first.
+							</p>
+						) : (
+							<Select
+								defaultValue={currentGroupId ?? "none"}
+								onValueChange={onAssignGroup}
+								disabled={updateCategoryMutation.isPending}
+							>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="Select a group" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="none">
+										<span className="text-muted-foreground">No group</span>
+									</SelectItem>
+									{groups.map((group) => (
+										<SelectItem key={group.id} value={group.id}>
+											<span className="flex items-center gap-2">
+												<span>{group.icon}</span>
+												<span>{group.name}</span>
+											</span>
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+					</div>
+					<div className="flex justify-end gap-2 pt-2">
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => setAssignGroupDialogOpen(false)}
+							disabled={updateCategoryMutation.isPending}
+						>
+							Close
 						</Button>
 					</div>
 				</DialogContent>

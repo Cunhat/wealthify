@@ -3,13 +3,14 @@ import type { z } from "zod";
 import {
 	balanceAccount,
 	balanceAccountHistory,
-	budget,
+	type budget,
 	budgetCategory,
 	category,
+	categoryGroup,
 	recurringTransaction,
 	transaction,
 	transactionAccount,
-} from "../db/schema";
+} from "../db/schema/index";
 
 export const transactionAccountSelectSchema =
 	createSelectSchema(transactionAccount);
@@ -28,6 +29,12 @@ export type Account = TransactionAccount | BalanceAccount;
 
 export const categorySelectSchema = createSelectSchema(category);
 export type Category = z.infer<typeof categorySelectSchema>;
+
+export const categoryGroupSelectSchema = createSelectSchema(categoryGroup);
+export type CategoryGroup = z.infer<typeof categoryGroupSelectSchema>;
+export type CategoryGroupWithCategories = CategoryGroup & {
+	categories: Category[];
+};
 
 export const budgetCategorySelectSchema = createSelectSchema(budgetCategory);
 export type BudgetCategory = z.infer<typeof budgetCategorySelectSchema>;

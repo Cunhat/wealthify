@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { budget, budgetCategory } from "@/db/schema";
+import { budget, budgetCategory } from "@/db/schema/index";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";

@@ -10,7 +10,9 @@ import CategoryActions from "../components/category-actions";
 
 export default function Category() {
 	const trpc = useTRPC();
-	const { categoryId } = useParams({ from: "/_authed/categories/$categoryId" });
+	const { categoryId } = useParams({
+		from: "/_authed/categories/category/$categoryId",
+	});
 
 	const categoryQuery = useQuery({
 		...trpc.categories.getCategory.queryOptions({

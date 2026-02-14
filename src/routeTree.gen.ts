@@ -21,8 +21,9 @@ import { Route as AuthedAnalysesRouteImport } from './routes/_authed/analyses'
 import { Route as AuthedCategoriesRouteRouteImport } from './routes/_authed/categories.route'
 import { Route as AuthedCategoriesIndexRouteImport } from './routes/_authed/categories.index'
 import { Route as AuthedAccountsIndexRouteImport } from './routes/_authed/accounts.index'
-import { Route as AuthedCategoriesCategoryIdRouteImport } from './routes/_authed/categories.$categoryId'
 import { Route as AuthedAccountsAccountIdRouteImport } from './routes/_authed/accounts.$accountId'
+import { Route as AuthedCategoriesGroupGroupIdRouteImport } from './routes/_authed/categories.group.$groupId'
+import { Route as AuthedCategoriesCategoryCategoryIdRouteImport } from './routes/_authed/categories.category.$categoryId'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 
@@ -77,17 +78,23 @@ const AuthedAccountsIndexRoute = AuthedAccountsIndexRouteImport.update({
   path: '/accounts/',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedCategoriesCategoryIdRoute =
-  AuthedCategoriesCategoryIdRouteImport.update({
-    id: '/$categoryId',
-    path: '/$categoryId',
-    getParentRoute: () => AuthedCategoriesRouteRoute,
-  } as any)
 const AuthedAccountsAccountIdRoute = AuthedAccountsAccountIdRouteImport.update({
   id: '/accounts/$accountId',
   path: '/accounts/$accountId',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedCategoriesGroupGroupIdRoute =
+  AuthedCategoriesGroupGroupIdRouteImport.update({
+    id: '/group/$groupId',
+    path: '/group/$groupId',
+    getParentRoute: () => AuthedCategoriesRouteRoute,
+  } as any)
+const AuthedCategoriesCategoryCategoryIdRoute =
+  AuthedCategoriesCategoryCategoryIdRouteImport.update({
+    id: '/category/$categoryId',
+    path: '/category/$categoryId',
+    getParentRoute: () => AuthedCategoriesRouteRoute,
+  } as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -108,9 +115,10 @@ export interface FileRoutesByFullPath {
   '/transactions': typeof AuthedTransactionsRoute
   '/': typeof AuthedIndexRoute
   '/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
-  '/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
   '/accounts': typeof AuthedAccountsIndexRoute
   '/categories/': typeof AuthedCategoriesIndexRoute
+  '/categories/category/$categoryId': typeof AuthedCategoriesCategoryCategoryIdRoute
+  '/categories/group/$groupId': typeof AuthedCategoriesGroupGroupIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -120,9 +128,10 @@ export interface FileRoutesByTo {
   '/transactions': typeof AuthedTransactionsRoute
   '/': typeof AuthedIndexRoute
   '/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
-  '/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
   '/accounts': typeof AuthedAccountsIndexRoute
   '/categories': typeof AuthedCategoriesIndexRoute
+  '/categories/category/$categoryId': typeof AuthedCategoriesCategoryCategoryIdRoute
+  '/categories/group/$groupId': typeof AuthedCategoriesGroupGroupIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -135,9 +144,10 @@ export interface FileRoutesById {
   '/_authed/transactions': typeof AuthedTransactionsRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
-  '/_authed/categories/$categoryId': typeof AuthedCategoriesCategoryIdRoute
   '/_authed/accounts/': typeof AuthedAccountsIndexRoute
   '/_authed/categories/': typeof AuthedCategoriesIndexRoute
+  '/_authed/categories/category/$categoryId': typeof AuthedCategoriesCategoryCategoryIdRoute
+  '/_authed/categories/group/$groupId': typeof AuthedCategoriesGroupGroupIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -150,9 +160,10 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/'
     | '/accounts/$accountId'
-    | '/categories/$categoryId'
     | '/accounts'
     | '/categories/'
+    | '/categories/category/$categoryId'
+    | '/categories/group/$groupId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -162,9 +173,10 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/'
     | '/accounts/$accountId'
-    | '/categories/$categoryId'
     | '/accounts'
     | '/categories'
+    | '/categories/category/$categoryId'
+    | '/categories/group/$groupId'
   id:
     | '__root__'
     | '/_authed'
@@ -176,9 +188,10 @@ export interface FileRouteTypes {
     | '/_authed/transactions'
     | '/_authed/'
     | '/_authed/accounts/$accountId'
-    | '/_authed/categories/$categoryId'
     | '/_authed/accounts/'
     | '/_authed/categories/'
+    | '/_authed/categories/category/$categoryId'
+    | '/_authed/categories/group/$groupId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -283,19 +296,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAccountsIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/categories/$categoryId': {
-      id: '/_authed/categories/$categoryId'
-      path: '/$categoryId'
-      fullPath: '/categories/$categoryId'
-      preLoaderRoute: typeof AuthedCategoriesCategoryIdRouteImport
-      parentRoute: typeof AuthedCategoriesRouteRoute
-    }
     '/_authed/accounts/$accountId': {
       id: '/_authed/accounts/$accountId'
       path: '/accounts/$accountId'
       fullPath: '/accounts/$accountId'
       preLoaderRoute: typeof AuthedAccountsAccountIdRouteImport
       parentRoute: typeof AuthedRoute
+    }
+    '/_authed/categories/group/$groupId': {
+      id: '/_authed/categories/group/$groupId'
+      path: '/group/$groupId'
+      fullPath: '/categories/group/$groupId'
+      preLoaderRoute: typeof AuthedCategoriesGroupGroupIdRouteImport
+      parentRoute: typeof AuthedCategoriesRouteRoute
+    }
+    '/_authed/categories/category/$categoryId': {
+      id: '/_authed/categories/category/$categoryId'
+      path: '/category/$categoryId'
+      fullPath: '/categories/category/$categoryId'
+      preLoaderRoute: typeof AuthedCategoriesCategoryCategoryIdRouteImport
+      parentRoute: typeof AuthedCategoriesRouteRoute
     }
   }
 }
@@ -319,13 +339,16 @@ declare module '@tanstack/react-start/server' {
 }
 
 interface AuthedCategoriesRouteRouteChildren {
-  AuthedCategoriesCategoryIdRoute: typeof AuthedCategoriesCategoryIdRoute
   AuthedCategoriesIndexRoute: typeof AuthedCategoriesIndexRoute
+  AuthedCategoriesCategoryCategoryIdRoute: typeof AuthedCategoriesCategoryCategoryIdRoute
+  AuthedCategoriesGroupGroupIdRoute: typeof AuthedCategoriesGroupGroupIdRoute
 }
 
 const AuthedCategoriesRouteRouteChildren: AuthedCategoriesRouteRouteChildren = {
-  AuthedCategoriesCategoryIdRoute: AuthedCategoriesCategoryIdRoute,
   AuthedCategoriesIndexRoute: AuthedCategoriesIndexRoute,
+  AuthedCategoriesCategoryCategoryIdRoute:
+    AuthedCategoriesCategoryCategoryIdRoute,
+  AuthedCategoriesGroupGroupIdRoute: AuthedCategoriesGroupGroupIdRoute,
 }
 
 const AuthedCategoriesRouteRouteWithChildren =

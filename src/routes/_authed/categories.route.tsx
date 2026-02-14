@@ -19,5 +19,8 @@ export const Route = createFileRoute("/_authed/categories")({
 		await context.queryClient.prefetchQuery(
 			context.trpc.categories.listCategories.queryOptions(),
 		);
+		await context.queryClient.prefetchQuery(
+			context.trpc.categoryGroups.listCategoryGroups.queryOptions(),
+		);
 	},
 });

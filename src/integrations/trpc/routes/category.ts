@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { category } from "@/db/schema";
+import { category } from "@/db/schema/index";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -57,22 +57,25 @@ export const categoryRouter = {
 				name: z.string().optional(),
 				icon: z.string().optional(),
 				color: z.string().optional(),
+				groupId: z.string().nullable().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
 			const { id, ...updateData } = input;
 
-			// Only include fields that were provided
 			const fieldsToUpdate: Partial<{
 				name: string;
 				icon: string;
 				color: string;
+				groupId: string | null;
 			}> = {};
 
 			if (updateData.name !== undefined) fieldsToUpdate.name = updateData.name;
 			if (updateData.icon !== undefined) fieldsToUpdate.icon = updateData.icon;
 			if (updateData.color !== undefined)
 				fieldsToUpdate.color = updateData.color;
+			if (updateData.groupId !== undefined)
+				fieldsToUpdate.groupId = updateData.groupId;
 
 			await db
 				.update(category)

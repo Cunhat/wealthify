@@ -18,6 +18,7 @@ import { IconLoader2 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EllipsisVertical } from "lucide-react";
 import { toast } from "sonner";
+import CreateCategoryGroup from "../components/create-category-group";
 import CreateCustomCategory from "../components/create-custom-category";
 
 export default function CategoriesActions() {
@@ -65,6 +66,8 @@ export default function CategoriesActions() {
 				<DropdownMenuLabel>Categories</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
+					<CreateCategoryGroup />
+					<DropdownMenuSeparator />
 					<DropdownMenuSub>
 						<DropdownMenuSubTrigger>Add Category</DropdownMenuSubTrigger>
 						<DropdownMenuPortal>

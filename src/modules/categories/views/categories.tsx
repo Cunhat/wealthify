@@ -16,13 +16,19 @@ export default function Categories() {
 		...trpc.categories.listCategories.queryOptions(),
 	});
 
+	const groupsQuery = useQuery({
+		...trpc.categoryGroups.listCategoryGroups.queryOptions(),
+	});
+
 	useEffect(() => {
-		if (categoriesQuery.isError) {
+		if (categoriesQuery.isError || groupsQuery.isError) {
 			toast.error("Error fetching categories");
 		}
-	}, [categoriesQuery.isError]);
+	}, [categoriesQuery.isError, groupsQuery.isError]);
 
-	if (categoriesQuery.isLoading) {
+	const isLoading = categoriesQuery.isLoading || groupsQuery.isLoading;
+
+	if (isLoading) {
 		return (
 			<PageContainer
 				title="Categories"
@@ -33,7 +39,11 @@ export default function Categories() {
 		);
 	}
 
-	if (!categoriesQuery.data?.length) {
+	const groups = groupsQuery.data ?? [];
+	const allCategories = categoriesQuery.data ?? [];
+	const ungroupedCategories = allCategories.filter((c) => c.groupId === null);
+
+	if (!allCategories.length && !groups.length) {
 		return (
 			<PageContainer
 				title="Categories"
@@ -47,7 +57,10 @@ export default function Categories() {
 	return (
 		<PageContainer title="Categories" actionsComponent={<CategoriesActions />}>
 			<div className="h-full grid grid-cols-[1fr_10px_2fr] gap-2 overflow-hidden">
-				<ListCategories categories={categoriesQuery.data ?? []} />
+				<ListCategories
+					groups={groups}
+					ungroupedCategories={ungroupedCategories}
+				/>
 				<Separator orientation="vertical" className="h-full" />
 				<div className="flex flex-col gap-2 overflow-hidden">
 					<Outlet />

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { recurringTransaction } from "@/db/schema";
+import { recurringTransaction } from "@/db/schema/index";
 import { frequencyMonthsSchema } from "@/modules/recurring/components/utils";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";

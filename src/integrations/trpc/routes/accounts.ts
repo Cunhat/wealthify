@@ -3,7 +3,7 @@ import {
 	balanceAccount,
 	balanceAccountHistory,
 	transactionAccount,
-} from "@/db/schema";
+} from "@/db/schema/index";
 import type { TRPCRouterRecord } from "@trpc/server";
 import dayjs from "dayjs";
 import { and, eq } from "drizzle-orm";

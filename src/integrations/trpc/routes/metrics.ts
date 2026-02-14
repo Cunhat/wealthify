@@ -4,7 +4,7 @@ import {
 	balanceAccountHistory,
 	transaction,
 	transactionAccount,
-} from "@/db/schema";
+} from "@/db/schema/index";
 
 import {
 	calculateAccountNetWorth,

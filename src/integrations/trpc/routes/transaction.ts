@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { category, transaction, transactionAccount } from "@/db/schema";
+import { category, transaction, transactionAccount } from "@/db/schema/index";
 import dayjs from "dayjs";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
