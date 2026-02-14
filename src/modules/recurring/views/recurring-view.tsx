@@ -70,8 +70,18 @@ export default function RecurringView() {
 
 	const fullYearRecurring: { [key: string]: number } = Object.fromEntries(
 		[
-			"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-			"Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+			"Jan",
+			"Feb",
+			"Mar",
+			"Apr",
+			"May",
+			"Jun",
+			"Jul",
+			"Aug",
+			"Sep",
+			"Oct",
+			"Nov",
+			"Dec",
 		].map((m) => [m, 0]),
 	);
 
@@ -152,12 +162,14 @@ export default function RecurringView() {
 								return (
 									<div
 										key={transaction.id}
-										className="grid grid-cols-[1fr_auto_auto_auto] gap-3 items-center py-2"
+										className="grid grid-cols-[auto_auto_20px] gap-3 items-center py-2"
 									>
-										<p className="text-sm truncate">
-											{transaction.description}
-										</p>
-										<CategoryBadge category={transaction.category} />
+										<div className="flex gap-4">
+											<p className="text-sm truncate">
+												{transaction.description}
+											</p>
+											<CategoryBadge category={transaction.category} />
+										</div>
 										<div className="flex flex-col items-end min-w-[90px]">
 											<span className="text-sm font-medium">
 												{formatCurrency(Number(transaction.amount))}
