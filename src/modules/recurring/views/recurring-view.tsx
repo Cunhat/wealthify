@@ -151,40 +151,41 @@ export default function RecurringView() {
 									{group.label}
 								</span>
 							</div>
+							<div className="flex flex-col gap-1 px-4">
+								{/* Transactions in this group */}
+								{group.transactions.map((transaction) => {
+									const annualAmount =
+										Number(transaction.amount) * group.multiplier;
+									const monthlyEquiv =
+										Number(transaction.amount) / group.interval;
 
-							{/* Transactions in this group */}
-							{group.transactions.map((transaction) => {
-								const annualAmount =
-									Number(transaction.amount) * group.multiplier;
-								const monthlyEquiv =
-									Number(transaction.amount) / group.interval;
-
-								return (
-									<div
-										key={transaction.id}
-										className="grid grid-cols-[auto_auto_20px] gap-3 items-center py-2"
-									>
-										<div className="flex gap-4">
-											<p className="text-sm truncate">
-												{transaction.description}
-											</p>
-											<CategoryBadge category={transaction.category} />
+									return (
+										<div
+											key={transaction.id}
+											className="grid grid-cols-[auto_auto_20px] gap-3 items-center py-2"
+										>
+											<div className="flex gap-4">
+												<p className="text-sm truncate">
+													{transaction.description}
+												</p>
+												<CategoryBadge category={transaction.category} />
+											</div>
+											<div className="flex flex-col items-end min-w-[90px]">
+												<span className="text-sm font-medium">
+													{formatCurrency(Number(transaction.amount))}
+												</span>
+												<span className="text-xs text-muted-foreground">
+													{formatCurrency(monthlyEquiv)} / mo ·{" "}
+													{formatCurrency(annualAmount)} / yr
+												</span>
+											</div>
+											<RecurringTransactionMenuActions
+												transaction={transaction}
+											/>
 										</div>
-										<div className="flex flex-col items-end min-w-[90px]">
-											<span className="text-sm font-medium">
-												{formatCurrency(Number(transaction.amount))}
-											</span>
-											<span className="text-xs text-muted-foreground">
-												{formatCurrency(monthlyEquiv)} / mo ·{" "}
-												{formatCurrency(annualAmount)} / yr
-											</span>
-										</div>
-										<RecurringTransactionMenuActions
-											transaction={transaction}
-										/>
-									</div>
-								);
-							})}
+									);
+								})}
+							</div>
 						</div>
 					))}
 				</div>
