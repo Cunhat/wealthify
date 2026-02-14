@@ -13,7 +13,6 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-
 import { Separator } from "@/components/ui/separator";
 import { useTRPC } from "@/integrations/trpc/react";
 import { formatCurrency } from "@/lib/mixins";
@@ -51,20 +50,29 @@ export default function RecurringView() {
 		);
 	}
 
+	const grouped = frequencyOptions
+		.map((opt) => ({
+			...opt,
+			transactions: (recurringTransactionsQuery.data ?? []).filter(
+				(t) => t.frequency === opt.value,
+			),
+		}))
+		.filter((g) => g.transactions.length > 0);
+
 	const totalAnnualAmount = recurringTransactionsQuery.data?.reduce(
-		(acc, transaction) =>
+		(acc, t) =>
 			acc +
-			Number(transaction.amount) *
-				(frequencyOptions?.find(
-					(option) => option.value === transaction.frequency,
-				)?.multiplier ?? 0),
+			Number(t.amount) *
+				(frequencyOptions.find((o) => o.value === t.frequency)?.multiplier ??
+					0),
 		0,
 	);
 
 	const fullYearRecurring: { [key: string]: number } = Object.fromEntries(
-		["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map(
-			(m) => [m, 0],
-		),
+		[
+			"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+			"Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+		].map((m) => [m, 0]),
 	);
 
 	const startOfYear = dayjs().startOf("year");
@@ -79,12 +87,10 @@ export default function RecurringView() {
 
 		let occ = dayjs(transaction.firstOccurrence);
 
-		// Advance to the first occurrence that falls within the current year
 		while (occ.isBefore(startOfYear, "month")) {
 			occ = occ.add(interval, "month");
 		}
 
-		// Count every occurrence within the current year
 		while (!occ.isAfter(endOfYear, "month")) {
 			const monthKey = occ.format("MMM");
 			fullYearRecurring[monthKey] =
@@ -97,11 +103,10 @@ export default function RecurringView() {
 		(category) => category.recurringMetric,
 	);
 
-	// Format data for the chart
 	const chartData = Object.entries(fullYearRecurring).map(
 		([month, amount]) => ({
-			month: month,
-			amount: amount,
+			month,
+			amount,
 			recurringMetric:
 				(Number(recurringMetric?.percentage) *
 					Number(budgetQuery.data?.income)) /
@@ -126,68 +131,85 @@ export default function RecurringView() {
 			actionsComponent={<RecurringActions />}
 		>
 			<div className="grid grid-cols-[1fr_10px_1fr] h-full gap-4 overflow-hidden">
-				<div className="flex flex-col gap-4 overflow-y-auto h-full">
-					{recurringTransactionsQuery.data?.map((transaction) => (
-						<div
-							key={transaction.id}
-							className="grid grid-cols-[2fr_1fr_auto_auto] gap-2 relative"
-						>
-							<div className="flex items-center gap-2">
-								<p>{transaction.description}</p>
-								<p className="text-xs text-muted-foreground">
-									{
-										frequencyOptions.find(
-											(option) => option.value === transaction.frequency,
-										)?.label
-									}
-								</p>
+				{/* Left: grouped transaction list */}
+				<div className="flex flex-col gap-5 overflow-y-auto h-full">
+					{grouped.map((group) => (
+						<div key={group.value} className="flex flex-col gap-1">
+							{/* Group header */}
+							<div className="py-1 border-b border-border/50">
+								<span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+									{group.label}
+								</span>
 							</div>
-							<div className="flex justify-end items-center gap-2">
-								<CategoryBadge category={transaction.category} />
-							</div>
-							<div className="text-right flex items-center gap-2">
-								{formatCurrency(Number(transaction.amount))}
 
-								<span className="text-xs text-muted-foreground/50">|</span>
-								{formatCurrency(
-									Number(transaction.amount) *
-										(frequencyOptions.find(
-											(option) => option.value === transaction.frequency,
-										)?.multiplier ?? 0),
-								)}
-							</div>
-							<RecurringTransactionMenuActions transaction={transaction} />
+							{/* Transactions in this group */}
+							{group.transactions.map((transaction) => {
+								const annualAmount =
+									Number(transaction.amount) * group.multiplier;
+								const monthlyEquiv =
+									Number(transaction.amount) / group.interval;
+
+								return (
+									<div
+										key={transaction.id}
+										className="grid grid-cols-[1fr_auto_auto_auto] gap-3 items-center py-2"
+									>
+										<p className="text-sm truncate">
+											{transaction.description}
+										</p>
+										<CategoryBadge category={transaction.category} />
+										<div className="flex flex-col items-end min-w-[90px]">
+											<span className="text-sm font-medium">
+												{formatCurrency(Number(transaction.amount))}
+											</span>
+											<span className="text-xs text-muted-foreground">
+												{formatCurrency(monthlyEquiv)} / mo ·{" "}
+												{formatCurrency(annualAmount)} / yr
+											</span>
+										</div>
+										<RecurringTransactionMenuActions
+											transaction={transaction}
+										/>
+									</div>
+								);
+							})}
 						</div>
 					))}
 				</div>
+
 				<Separator orientation="vertical" />
+
+				{/* Right: summary + chart */}
 				<div className="flex flex-col gap-4 h-full overflow-y-auto @container/main">
-					<Card className="flex @md/main:flex-row justify-between p-6">
-						<div>
-							<p className="text-base font-semibold">{`${dayjs().format("MMMM")} Total Amount`}</p>
-							<p className="text-sm text-muted-foreground">
-								{`Total of all your recurring expenses for ${dayjs().format("MMMM")}`}
-							</p>
-						</div>
-						<div className="flex items-center justify-end">
-							<p className="text-xl @md/main:text-lg font-semibold">
-								{formatCurrency(fullYearRecurring[dayjs().format("MMM")] ?? 0)}
-							</p>
+					<Card className="p-6">
+						<div className="grid grid-cols-2 divide-x divide-border">
+							<div className="flex flex-col gap-1 pr-6">
+								<p className="text-xs text-muted-foreground uppercase tracking-wide">
+									{dayjs().format("MMMM")}
+								</p>
+								<p className="text-2xl font-semibold">
+									{formatCurrency(
+										fullYearRecurring[dayjs().format("MMM")] ?? 0,
+									)}
+								</p>
+								<p className="text-xs text-muted-foreground">
+									Total recurring this month
+								</p>
+							</div>
+							<div className="flex flex-col gap-1 pl-6">
+								<p className="text-xs text-muted-foreground uppercase tracking-wide">
+									{dayjs().format("YYYY")}
+								</p>
+								<p className="text-2xl font-semibold">
+									{formatCurrency(totalAnnualAmount ?? 0)}
+								</p>
+								<p className="text-xs text-muted-foreground">
+									Total recurring this year
+								</p>
+							</div>
 						</div>
 					</Card>
-					<Card className="flex @md/main:flex-row justify-between p-6">
-						<div>
-							<p className="text-base font-semibold">Total Annual Amount</p>
-							<p className="text-sm text-muted-foreground">
-								Total of all your recurring expenses for the year
-							</p>
-						</div>
-						<div className="flex items-center justify-end">
-							<p className="text-xl @md/main:text-lg font-semibold">
-								{formatCurrency(totalAnnualAmount ?? 0)}
-							</p>
-						</div>
-					</Card>
+
 					<Card className="p-6">
 						<CardHeader className="p-0 pb-4 flex items-center justify-between">
 							<div className="flex flex-col gap-1">
@@ -208,7 +230,6 @@ export default function RecurringView() {
 										axisLine={false}
 									/>
 									<CartesianGrid vertical={false} />
-
 									<ChartTooltip
 										cursor={false}
 										content={<ChartTooltipContent indicator="line" />}
