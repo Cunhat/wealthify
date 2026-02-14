@@ -151,7 +151,7 @@ export default function RecurringView() {
 									{group.label}
 								</span>
 							</div>
-							<div className="flex flex-col gap-1 px-4">
+							<div className="flex flex-col gap-1 pl-4">
 								{/* Transactions in this group */}
 								{group.transactions.map((transaction) => {
 									const annualAmount =
