@@ -9,7 +9,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import {
-	type ChartConfig,
 	ChartContainer,
 	ChartTooltip,
 	ChartTooltipContent,
@@ -62,28 +61,35 @@ export default function RecurringView() {
 		0,
 	);
 
-	const fullYearRecurring: { [key: string]: number } = {};
+	const fullYearRecurring: { [key: string]: number } = Object.fromEntries(
+		["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map(
+			(m) => [m, 0],
+		),
+	);
+
+	const startOfYear = dayjs().startOf("year");
+	const endOfYear = dayjs().endOf("year");
 
 	for (const transaction of recurringTransactionsQuery.data ?? []) {
 		const interval =
 			frequencyOptions.find((opt) => opt.value === transaction.frequency)
 				?.interval ?? 0;
 
-		let currentDateIterator = dayjs().startOf("year").startOf("month");
-		let firstOcc = dayjs(transaction.firstOccurrence);
+		if (interval === 0) continue;
 
-		while (currentDateIterator.isBefore(dayjs().endOf("year"))) {
-			if (currentDateIterator.isSame(firstOcc, "month")) {
-				fullYearRecurring[dayjs(currentDateIterator).format("MMM")] =
-					(fullYearRecurring[dayjs(currentDateIterator).format("MMM")] ?? 0) +
-					Number(transaction.amount);
-				firstOcc = dayjs(firstOcc).add(interval, "month");
-			} else {
-				fullYearRecurring[dayjs(currentDateIterator).format("MMM")] =
-					(fullYearRecurring[dayjs(currentDateIterator).format("MMM")] ?? 0) +
-					0;
-			}
-			currentDateIterator = currentDateIterator.add(1, "month");
+		let occ = dayjs(transaction.firstOccurrence);
+
+		// Advance to the first occurrence that falls within the current year
+		while (occ.isBefore(startOfYear, "month")) {
+			occ = occ.add(interval, "month");
+		}
+
+		// Count every occurrence within the current year
+		while (!occ.isAfter(endOfYear, "month")) {
+			const monthKey = occ.format("MMM");
+			fullYearRecurring[monthKey] =
+				(fullYearRecurring[monthKey] ?? 0) + Number(transaction.amount);
+			occ = occ.add(interval, "month");
 		}
 	}
 
