@@ -116,31 +116,6 @@ export const transactionRouter = {
 				}
 			}
 
-			// // Apply balance updates
-			// for (const [accountId, balanceChange] of accountBalanceUpdates) {
-			// 	const currentAccount = await db.query.transactionAccount.findFirst({
-			// 		where: and(
-			// 			eq(transactionAccount.id, accountId),
-			// 			eq(transactionAccount.userId, ctx.user.id),
-			// 		),
-			// 	});
-
-			// 	if (currentAccount) {
-			// 		const currentBalance = Number.parseFloat(currentAccount.balance);
-			// 		const newBalance = currentBalance + balanceChange;
-
-			// 		await db
-			// 			.update(transactionAccount)
-			// 			.set({ balance: newBalance.toString() })
-			// 			.where(
-			// 				and(
-			// 					eq(transactionAccount.id, accountId),
-			// 					eq(transactionAccount.userId, ctx.user.id),
-			// 				),
-			// 			);
-			// 	}
-			// }
-
 			return {
 				success: true,
 				created: createdTransactions.length,

@@ -14,14 +14,17 @@ import {
 import {
 	Select,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
+	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
 import { useTRPC } from "@/integrations/trpc/react";
+import { type AccountType, AccountTypeGroups } from "@/lib/configs/accounts";
 import { normalizeSpaces } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useMemo } from "react";
@@ -49,6 +52,7 @@ const formSchema = z.object({
 		"YYYY-MM-DD",
 		"MM-DD-YYYY",
 	]),
+	accountId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -60,6 +64,10 @@ export default function ColumnsMatch({
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
 
+	const accountsQuery = useQuery(
+		trpc.accounts.listTransactionAccounts.queryOptions(),
+	);
+
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -68,6 +76,7 @@ export default function ColumnsMatch({
 			date: "",
 			decimalSeparator: ",",
 			dateFormat: "DD/MM/YYYY",
+			accountId: undefined,
 		},
 	});
 
@@ -138,6 +147,7 @@ export default function ColumnsMatch({
 					amount,
 					type,
 					createdAt: parsedDate,
+					transactionAccount: values.accountId || undefined,
 				};
 			});
 
@@ -297,6 +307,52 @@ export default function ColumnsMatch({
 										Comma (,) - Example: 1.234,56
 									</SelectItem>
 									<SelectItem value=".">Dot (.) - Example: 1,234.56</SelectItem>
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="accountId"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Account (optional)</FormLabel>
+							<Select
+								onValueChange={(value) =>
+									field.onChange(value === "_none" ? undefined : value)
+								}
+								value={field.value ?? "_none"}
+							>
+								<FormControl>
+									<SelectTrigger className="w-full">
+										<SelectValue placeholder="No account" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value="_none">No account</SelectItem>
+									{AccountTypeGroups.map((group) => {
+										const accountTypes = group.children.map(
+											(elem) => elem.type,
+										);
+										const accountsInGroup = accountsQuery.data?.filter(
+											(account) =>
+												accountTypes.includes(account.type as AccountType),
+										);
+										if (!accountsInGroup?.length) return null;
+										return (
+											<SelectGroup key={group.name}>
+												<SelectLabel>{group.name}</SelectLabel>
+												{accountsInGroup.map((account) => (
+													<SelectItem key={account.id} value={account.id}>
+														{account.name}
+													</SelectItem>
+												))}
+											</SelectGroup>
+										);
+									})}
 								</SelectContent>
 							</Select>
 							<FormMessage />
