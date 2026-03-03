@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { category, transaction, transactionAccount } from "@/db/schema/index";
+import { category, rule, transaction, transactionAccount } from "@/db/schema/index";
 import dayjs from "dayjs";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
@@ -77,6 +77,7 @@ export const transactionRouter = {
 						description: z.string(),
 						transactionAccount: z.string().optional(),
 						category: z.string().optional(),
+						budgetCategory: z.string().optional(),
 						type: z.enum(["expense", "income"]),
 						createdAt: z.date(),
 					}),
@@ -84,16 +85,34 @@ export const transactionRouter = {
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			// Prepare transactions for bulk insert
-			const transactionsToInsert = input.transactions.map((tx) => ({
-				userId: ctx.user.id,
-				amount: tx.amount.toString(),
-				description: tx.description,
-				transactionAccount: tx.transactionAccount,
-				category: tx.category,
-				type: tx.type,
-				createdAt: tx.createdAt,
-			}));
+			// Fetch all user rules (first match wins, ordered by creation time)
+			const userRules = await db.query.rule.findMany({
+				where: eq(rule.userId, ctx.user.id),
+				orderBy: (r, { asc }) => [asc(r.createdAt)],
+			});
+
+			// Prepare transactions for bulk insert, applying rules where fields are unset
+			const transactionsToInsert = input.transactions.map((tx) => {
+				const desc = (tx.description ?? "").toLowerCase();
+				const matchedRule = userRules.find(
+					(r) =>
+						r.descriptionContains &&
+						desc.includes(r.descriptionContains.toLowerCase()),
+				);
+
+				return {
+					userId: ctx.user.id,
+					amount: tx.amount.toString(),
+					description: tx.description,
+					transactionAccount:
+						tx.transactionAccount ?? matchedRule?.transactionAccountId ?? undefined,
+					category: tx.category ?? matchedRule?.categoryId ?? undefined,
+					budgetCategory:
+						tx.budgetCategory ?? matchedRule?.budgetCategoryId ?? undefined,
+					type: (tx.type ?? matchedRule?.type ?? "expense") as "expense" | "income",
+					createdAt: tx.createdAt,
+				};
+			});
 
 			// Insert all transactions
 			const createdTransactions = await db

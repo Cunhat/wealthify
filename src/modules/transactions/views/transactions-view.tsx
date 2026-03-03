@@ -1,10 +1,12 @@
 import PageContainer from "@/components/page-container";
+import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/integrations/trpc/react";
 
 import NotFound from "@/components/not-found";
 import type { Transaction } from "@/lib/schemas";
 import { useQuery } from "@tanstack/react-query";
-import { useSearch } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
+import { BookMarked } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import SelectedTransactions from "../components/selected-transactions";
@@ -83,7 +85,14 @@ export default function TransactionsView() {
 				actionsComponent={
 					<div className="flex gap-2 w-full justify-between">
 						<CreateTransaction />
-						<UploadTransactionsFromFile />
+						<div className="flex gap-2">
+							<Link to="/rules">
+								<Button variant="outline" size="icon" title="Rules">
+									<BookMarked className="h-4 w-4" />
+								</Button>
+							</Link>
+							<UploadTransactionsFromFile />
+						</div>
 						{/* <GenerateTransactionsButton /> */}
 					</div>
 				}
@@ -107,8 +116,15 @@ export default function TransactionsView() {
 					{/* <GenerateTransactionsButton /> */}
 
 					<TransactionsFilters />
-					<UploadTransactionsFromFile />
-					<CreateTransaction />
+					<div className="flex gap-2">
+						<Link to="/rules">
+							<Button variant="outline" size="icon" title="Rules">
+								<BookMarked className="h-4 w-4" />
+							</Button>
+						</Link>
+						<UploadTransactionsFromFile />
+						<CreateTransaction />
+					</div>
 				</div>
 			}
 		>

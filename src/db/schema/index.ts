@@ -9,3 +9,4 @@ export * from "./transaction";
 export * from "./recurring-transaction";
 export * from "./balance-account";
 export * from "./balance-account-history";
+export * from "./rule";

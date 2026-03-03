@@ -6,6 +6,7 @@ import { categoryGroupRouter } from "./routes/category-group";
 import { categoryRouter } from "./routes/category";
 import { metricsRouter } from "./routes/metrics";
 import { recurringRouter } from "./routes/recurring";
+import { rulesRouter } from "./routes/rules";
 import { transactionRouter } from "./routes/transaction";
 
 export const trpcRouter = createTRPCRouter({
@@ -17,6 +18,7 @@ export const trpcRouter = createTRPCRouter({
 	recurring: recurringRouter,
 	budget: budgetRouter,
 	analyses: analysesRouter,
+	rules: rulesRouter,
 });
 
 export type TRPCRouter = typeof trpcRouter;

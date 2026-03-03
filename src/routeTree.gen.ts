@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedTransactionsRouteImport } from './routes/_authed/transactions'
+import { Route as AuthedRulesRouteImport } from './routes/_authed/rules'
 import { Route as AuthedRecurringRouteImport } from './routes/_authed/recurring'
 import { Route as AuthedBudgetRouteImport } from './routes/_authed/budget'
 import { Route as AuthedAnalysesRouteImport } from './routes/_authed/analyses'
@@ -46,6 +47,11 @@ const AuthedIndexRoute = AuthedIndexRouteImport.update({
 const AuthedTransactionsRoute = AuthedTransactionsRouteImport.update({
   id: '/transactions',
   path: '/transactions',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedRulesRoute = AuthedRulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedRecurringRoute = AuthedRecurringRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/analyses': typeof AuthedAnalysesRoute
   '/budget': typeof AuthedBudgetRoute
   '/recurring': typeof AuthedRecurringRoute
+  '/rules': typeof AuthedRulesRoute
   '/transactions': typeof AuthedTransactionsRoute
   '/': typeof AuthedIndexRoute
   '/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/analyses': typeof AuthedAnalysesRoute
   '/budget': typeof AuthedBudgetRoute
   '/recurring': typeof AuthedRecurringRoute
+  '/rules': typeof AuthedRulesRoute
   '/transactions': typeof AuthedTransactionsRoute
   '/': typeof AuthedIndexRoute
   '/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/_authed/analyses': typeof AuthedAnalysesRoute
   '/_authed/budget': typeof AuthedBudgetRoute
   '/_authed/recurring': typeof AuthedRecurringRoute
+  '/_authed/rules': typeof AuthedRulesRoute
   '/_authed/transactions': typeof AuthedTransactionsRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/accounts/$accountId': typeof AuthedAccountsAccountIdRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/analyses'
     | '/budget'
     | '/recurring'
+    | '/rules'
     | '/transactions'
     | '/'
     | '/accounts/$accountId'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/analyses'
     | '/budget'
     | '/recurring'
+    | '/rules'
     | '/transactions'
     | '/'
     | '/accounts/$accountId'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/_authed/analyses'
     | '/_authed/budget'
     | '/_authed/recurring'
+    | '/_authed/rules'
     | '/_authed/transactions'
     | '/_authed/'
     | '/_authed/accounts/$accountId'
@@ -252,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/transactions'
       fullPath: '/transactions'
       preLoaderRoute: typeof AuthedTransactionsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/rules': {
+      id: '/_authed/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof AuthedRulesRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/recurring': {
@@ -361,6 +380,7 @@ interface AuthedRouteChildren {
   AuthedAnalysesRoute: typeof AuthedAnalysesRoute
   AuthedBudgetRoute: typeof AuthedBudgetRoute
   AuthedRecurringRoute: typeof AuthedRecurringRoute
+  AuthedRulesRoute: typeof AuthedRulesRoute
   AuthedTransactionsRoute: typeof AuthedTransactionsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedAccountsAccountIdRoute: typeof AuthedAccountsAccountIdRoute
@@ -372,6 +392,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedAnalysesRoute: AuthedAnalysesRoute,
   AuthedBudgetRoute: AuthedBudgetRoute,
   AuthedRecurringRoute: AuthedRecurringRoute,
+  AuthedRulesRoute: AuthedRulesRoute,
   AuthedTransactionsRoute: AuthedTransactionsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedAccountsAccountIdRoute: AuthedAccountsAccountIdRoute,
